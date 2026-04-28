@@ -133,11 +133,6 @@
             </div>
         </section>
     </main>
-    <script src="../admin.js?v=2"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof initProductPage === 'function') initProductPage();
-        });
-    </script>
+    <script src="../admin.js?v=10"></script>
 </body>
 </html>

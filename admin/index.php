@@ -214,11 +214,6 @@
 
     <!-- PDF Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="../admin.js?v=2"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof initDashboard === 'function') initDashboard();
-        });
-    </script>
+    <script src="../admin.js?v=10"></script>
 </body>
 </html>
