@@ -13,19 +13,19 @@
     <aside class="admin-sidebar">
         <div class="admin-logo">Shanfix Admin</div>
         <nav class="admin-nav">
-            <a href="index.html" class="admin-nav-item">
+            <a href="index.php" class="admin-nav-item">
                 <i class="fas fa-home"></i> Dashboard
             </a>
-            <a href="products.html" class="admin-nav-item">
+            <a href="products.php" class="admin-nav-item">
                 <i class="fas fa-box"></i> Products
             </a>
-            <a href="invoices.html" class="admin-nav-item">
+            <a href="invoices.php" class="admin-nav-item">
                 <i class="fas fa-file-invoice"></i> Invoices
             </a>
-            <a href="receipts.html" class="admin-nav-item">
+            <a href="receipts.php" class="admin-nav-item">
                 <i class="fas fa-receipt"></i> Receipts
             </a>
-            <a href="adverts.html" class="admin-nav-item">
+            <a href="adverts.php" class="admin-nav-item">
                 <i class="fas fa-ad"></i> Adverts
             </a>
         </nav>
@@ -95,6 +95,6 @@
             </div>
         </section>
     </main>
-    <script src="../admin.js"></script>
+    <script src="../admin.js?v=2"></script>
 </body>
 </html>

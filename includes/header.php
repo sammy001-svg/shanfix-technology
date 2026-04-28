@@ -3,7 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Shanfix Technology | SEO Boost</title>
+    <meta
+      name="description"
+      content="Shanfix Technology - Leading provider of web development, system development, bulk SMS, SEO, networking, printing & branding, and event management services in Nairobi, Kenya."
+    />
+    <meta
+      name="keywords"
+      content="web development, system development, bulk SMS, SEO, networking, printing, branding, event management, Nairobi, Kenya"
+    />
+    <meta name="author" content="Shanfix Technology" />
+    <title>
+      Shanfix Technology | Web Development & IT Solutions in Nairobi
+    </title>
     <link rel="stylesheet" href="./index.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -11,6 +22,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
+      <link rel="stylesheet" href="./chatbot.css" />
   </head>
   <body>
     <!-- Top Header Bar -->
@@ -46,7 +58,7 @@
             </svg>
             <span>Computer Repair / Shop</span>
           </a>
-          <a href="admin/login.html" class="top-header-link">
+          <a href="admin/login.php" class="top-header-link">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
@@ -61,14 +73,12 @@
     <nav class="navbar" id="navbar">
       <div class="container nav-container">
         <div class="logo">
-          <a href="index.html">
-            <img src="assets/shanfix-logo.png" alt="Shanfix Technology Logo" class="logo-image">
-          </a>
+          <img src="assets/shanfix-logo.png" alt="Shanfix Technology Logo" class="logo-image">
         </div>
         <ul class="nav-menu" id="navMenu">
-          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="#home" class="nav-link">Home</a></li>
           <li class="nav-item-dropdown">
-            <a href="index.html#about" class="nav-link">
+            <a href="#about" class="nav-link">
               About Us
               <svg class="dropdown-arrow" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
@@ -76,7 +86,7 @@
             </a>
             <div class="mega-menu">
               <div class="mega-menu-content">
-                <a href="who-we-are.html" class="mega-menu-item">
+                <a href="who-we-are.php" class="mega-menu-item">
                   <div class="mega-menu-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -90,7 +100,7 @@
                     <p>Our Mission, Vision & Team</p>
                   </div>
                 </a>
-                <a href="portfolio.html" class="mega-menu-item">
+                <a href="portfolio.php" class="mega-menu-item">
                   <div class="mega-menu-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
@@ -106,15 +116,15 @@
             </div>
           </li>
           <li class="nav-item-dropdown">
-            <a href="index.html#services" class="nav-link">
+            <a href="#services" class="nav-link">
               Our Services
               <svg class="dropdown-arrow" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
               </svg>
             </a>
-             <div class="mega-menu">
+            <div class="mega-menu">
               <div class="mega-menu-content">
-                <a href="web-development.html" class="mega-menu-item">
+                <a href="web-development.php" class="mega-menu-item">
                   <div class="mega-menu-icon">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <rect x="2" y="4" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
@@ -128,7 +138,7 @@
                     <p>Custom websites & web applications</p>
                   </div>
                 </a>
-                <a href="web-hosting.html" class="mega-menu-item">
+                <a href="web-hosting.php" class="mega-menu-item">
                   <div class="mega-menu-icon">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <rect x="3" y="4" width="18" height="5" rx="1" stroke="currentColor" stroke-width="2"/>
@@ -145,7 +155,7 @@
                     <p>Reliable & secure hosting solutions</p>
                   </div>
                 </a>
-                <a href="software-solution.html" class="mega-menu-item">
+                <a href="software-solution.php" class="mega-menu-item">
                   <div class="mega-menu-icon">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <rect x="4" y="6" width="16" height="12" rx="2" stroke="currentColor" stroke-width="2"/>
@@ -161,7 +171,7 @@
                     <p>Custom software & system development</p>
                   </div>
                 </a>
-                <a href="digital-marketing.html" class="mega-menu-item">
+                <a href="digital-marketing.php" class="mega-menu-item">
                   <div class="mega-menu-icon">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M3 8 L10 12 L3 16 V8Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
@@ -174,7 +184,7 @@
                     <p>SEO, social media & online advertising</p>
                   </div>
                 </a>
-                <a href="networking-solution.html" class="mega-menu-item">
+                <a href="networking-solution.php" class="mega-menu-item">
                   <div class="mega-menu-icon">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="12" cy="5" r="2" stroke="currentColor" stroke-width="2"/>
@@ -194,7 +204,7 @@
             </div>
           </li>
           <li class="nav-item-dropdown">
-            <a href="printing-branding.html" class="nav-link">
+            <a href="#printing" class="nav-link">
               Printing & Branding
               <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="6 9 12 15 18 9"></polyline>
@@ -202,7 +212,7 @@
             </a>
             <div class="mega-menu">
               <div class="mega-menu-content">
-                <a href="printing-branding.html" class="mega-menu-item">
+                <a href="printing-branding.php" class="mega-menu-item">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="6 9 6 2 18 2 18 9"></polyline>
                     <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
@@ -213,7 +223,7 @@
                     <p>Professional printing services and brand materials</p>
                   </div>
                 </a>
-                <a href="printing-branding.html" class="mega-menu-item">
+                <a href="printing-branding.php" class="mega-menu-item">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                     <circle cx="8.5" cy="8.5" r="1.5"></circle>
@@ -224,7 +234,7 @@
                     <p>Creative design solutions for your brand identity</p>
                   </div>
                 </a>
-                <a href="printing-branding.html" class="mega-menu-item">
+                <a href="printing-branding.php" class="mega-menu-item">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M3 3h18v18H3z"></path>
                     <path d="M9 9h6v6H9z"></path>
@@ -237,8 +247,8 @@
               </div>
             </div>
           </li>
-          <li><a href="event-management.html" class="nav-link">Event Solution</a></li>
-          <li><a href="contact.html" class="nav-link">Contacts</a></li>
+          <li><a href="event-management.php" class="nav-link">Event Solution</a></li>
+          <li><a href="contact.php" class="nav-link">Contacts</a></li>
         </ul>
         <button
           class="mobile-menu-toggle"
@@ -250,73 +260,4 @@
           <span></span>
         </button>
       </div>
-    </nav>    <section class="service-hero hero-seo">
-        <div class="service-hero-overlay"></div>
-        <div class="container service-hero-content">
-            <h1 data-aos="fade-up">SEO Boost</h1>
-            <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="100">Optimize your site to rank higher on search engines and drive traffic.</p>
-        </div>
-    </section>
-
-    <section class="service-detail-section">
-        <div class="container">
-            <div class="service-main">
-                <h2 class="section-title">SEO Boost</h2>
-                <p class="lead section-lead">
-                    At Shanfix Technology, we specialize in <strong>SEO Boost</strong>. 
-                    Optimize your site to rank higher on search engines and drive traffic. Our commitment to excellence ensures that we provide solutions that drive success.
-                </p>
-                
-                <h3>Why Choose Shanfix?</h3>
-                <ul class="feature-list">
-                    <li class="feature-item">
-                        <span class="feature-inner-icon">Check:</span>
-                        <span><strong>Expert Team:</strong> Experienced professionals dedicated to your success.</span>
-                    </li>
-                    <li class="feature-item">
-                        <span class="feature-inner-icon">Check:</span>
-                        <span><strong>Custom Solutions:</strong> Strategies tailored uniquely to your business needs.</span>
-                    </li>
-                </ul>
-
-                <p>
-                    Discover more about how we can help you achieve your goals with our professional <strong>SEO Boost</strong>.
-                </p>
-            </div>
-        </div>
-    </section>    <!-- Footer -->
-    <footer class="footer">
-      <div class="container">
-        <div class="footer-grid">
-          <div class="footer-col">
-            <h4 class="footer-title">Shanfix Technology</h4>
-            <p class="footer-text">
-              Your trusted partner for innovative technology and business solutions in Nairobi, Kenya.
-            </p>
-          </div>
-          <div class="footer-col">
-            <h4 class="footer-title">Quick Links</h4>
-            <ul class="footer-links">
-              <li><a href="index.html">Home</a></li>
-              <li><a href="index.html#about">About Us</a></li>
-              <li><a href="index.html#services">Services</a></li>
-              <li><a href="contact.html">Contact</a></li>
-            </ul>
-          </div>
-          <div class="footer-col">
-            <h4 class="footer-title">Contact</h4>
-            <ul class="footer-contact">
-              <li>Tana House, Karen, Nairobi</li>
-              <li>+254 751 869 165</li>
-              <li>info@shanfixtechnology.com</li>
-            </ul>
-          </div>
-        </div>
-        <div class="footer-bottom">
-          <p>&copy; 2024 Shanfix Technology. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
-    <script src="main.js"></script>
-  </body>
-</html>
+    </nav>

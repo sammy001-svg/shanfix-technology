@@ -15,7 +15,7 @@ function initAdmin() {
     }
 
     // Check for auth (simple mock)
-    if (window.location.pathname.includes('/admin/') && !window.location.pathname.includes('login.html')) {
+    if (window.location.pathname.includes('/admin/') && !window.location.pathname.includes('login.php')) {
         checkAuth();
     }
 
@@ -38,7 +38,7 @@ function handleLogin(form) {
         // Mock login
         if (email === 'admin@shanfix.com' && pass === 'admin123') {
             sessionStorage.setItem('isAdmin', 'true');
-            window.location.href = 'index.html';
+            window.location.href = 'index.php';
         } else {
             alert('Invalid credentials!');
         }
@@ -47,7 +47,7 @@ function handleLogin(form) {
 
 function checkAuth() {
     if (sessionStorage.getItem('isAdmin') !== 'true') {
-        window.location.href = 'login.html';
+        window.location.href = 'login.php';
     }
 }
 
