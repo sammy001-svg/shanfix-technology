@@ -223,7 +223,7 @@
                     <p>Professional printing services and brand materials</p>
                   </div>
                 </a>
-                <a href="printing-branding.php" class="mega-menu-item">
+                <a href="graphics-design.php" class="mega-menu-item">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                     <circle cx="8.5" cy="8.5" r="1.5"></circle>
@@ -234,7 +234,7 @@
                     <p>Creative design solutions for your brand identity</p>
                   </div>
                 </a>
-                <a href="printing-branding.php" class="mega-menu-item">
+                <a href="signage-solution.php" class="mega-menu-item">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M3 3h18v18H3z"></path>
                     <path d="M9 9h6v6H9z"></path>

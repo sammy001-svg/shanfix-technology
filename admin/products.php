@@ -17,7 +17,7 @@
                 <i class="fas fa-home"></i> Dashboard
             </a>
             <a href="products.php" class="admin-nav-item active">
-                <i class="fas fa-box"></i> Products
+                <i class="fas fa-box"></i> Products & Categories
             </a>
             <a href="invoices.php" class="admin-nav-item">
                 <i class="fas fa-file-invoice"></i> Invoices
@@ -28,7 +28,16 @@
             <a href="adverts.php" class="admin-nav-item">
                 <i class="fas fa-ad"></i> Adverts
             </a>
+            <div class="admin-nav-divider"></div>
+            <a href="../index.php" class="admin-nav-item">
+                <i class="fas fa-external-link-alt"></i> View Portal
+            </a>
         </nav>
+        <div class="admin-sidebar-footer">
+            <a href="login.php" class="admin-nav-item admin-footer-link" onclick="sessionStorage.clear()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
     </aside>
 
     <!-- Main Content -->
@@ -57,10 +66,7 @@
                         <div class="form-group">
                             <label for="p_category">Category</label>
                             <select id="p_category" class="form-control" required>
-                                <option value="Branding">Branding</option>
-                                <option value="Apparel">Apparel</option>
-                                <option value="Signage">Signage</option>
-                                <option value="Stationery">Stationery</option>
+                                <!-- Categories will be loaded here via JS -->
                             </select>
                         </div>
                         <div class="form-group">
@@ -72,31 +78,66 @@
                         <label for="p_desc">Description</label>
                         <textarea id="p_desc" class="form-control" rows="3" required placeholder="Describe the product..."></textarea>
                     </div>
-                    <button type="submit" class="admin-btn admin-btn-primary">Add Product</button>
+                <button type="submit" class="admin-btn admin-btn-primary">Add Product</button>
                 </form>
             </div>
 
-            <div class="admin-card">
-                <h2 class="mb-15">Product List</h2>
-                <div class="admin-table-container">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Category</th>
-                                <th>Price</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="productTableBody">
-                            <!-- Products will be loaded here via JS -->
-                        </tbody>
-                    </table>
+            <div class="banners-grid">
+                <!-- Manage Categories Section -->
+                <div class="admin-card">
+                    <h2 class="mb-15">Manage Categories</h2>
+                    <form id="categoryForm">
+                        <div class="form-group">
+                            <label for="cat_name">Category Name</label>
+                            <div class="flex-end-gap">
+                                <input type="text" id="cat_name" class="form-control" required placeholder="e.g. Tshirt Branding">
+                                <button type="submit" class="admin-btn admin-btn-primary">Add</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="admin-table-container mt-20">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Category Name</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categoryTableBody">
+                                <!-- Categories will be loaded here via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Product List Section -->
+                <div class="admin-card">
+                    <h2 class="mb-15">Product List</h2>
+                    <div class="admin-table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Price</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productTableBody">
+                                <!-- Products will be loaded here via JS -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </section>
     </main>
     <script src="../admin.js?v=2"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof initProductPage === 'function') initProductPage();
+        });
+    </script>
 </body>
 </html>

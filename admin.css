@@ -72,6 +72,13 @@ body.admin-body {
 
 .admin-nav-item i {
   width: 20px;
+  text-align: center;
+}
+
+.admin-nav-divider {
+  height: 1px;
+  background-color: rgba(255,255,255,0.1);
+  margin: 1.5rem 2rem;
 }
 
 /* Main Content Area */

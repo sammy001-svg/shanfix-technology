@@ -17,7 +17,7 @@
                 <i class="fas fa-home"></i> Dashboard
             </a>
             <a href="products.php" class="admin-nav-item">
-                <i class="fas fa-box"></i> Products
+                <i class="fas fa-box"></i> Products & Categories
             </a>
             <a href="invoices.php" class="admin-nav-item">
                 <i class="fas fa-file-invoice"></i> Invoices
@@ -27,6 +27,10 @@
             </a>
             <a href="adverts.php" class="admin-nav-item">
                 <i class="fas fa-ad"></i> Adverts
+            </a>
+            <div class="admin-nav-divider"></div>
+            <a href="../index.php" class="admin-nav-item">
+                <i class="fas fa-external-link-alt"></i> View Portal
             </a>
         </nav>
         <div class="admin-sidebar-footer">

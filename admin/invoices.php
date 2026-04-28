@@ -17,9 +17,9 @@
                 <i class="fas fa-home"></i> Dashboard
             </a>
             <a href="products.php" class="admin-nav-item">
-                <i class="fas fa-box"></i> Products
+                <i class="fas fa-box"></i> Products & Categories
             </a>
-            <a href="invoices.php" class="admin-nav-item">
+            <a href="invoices.php" class="admin-nav-item active">
                 <i class="fas fa-file-invoice"></i> Invoices
             </a>
             <a href="receipts.php" class="admin-nav-item">
@@ -28,7 +28,16 @@
             <a href="adverts.php" class="admin-nav-item">
                 <i class="fas fa-ad"></i> Adverts
             </a>
+            <div class="admin-nav-divider"></div>
+            <a href="../index.php" class="admin-nav-item">
+                <i class="fas fa-external-link-alt"></i> View Portal
+            </a>
         </nav>
+        <div class="admin-sidebar-footer">
+            <a href="login.php" class="admin-nav-item admin-footer-link" onclick="sessionStorage.clear()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
     </aside>
 
     <!-- Main Content -->
@@ -260,5 +269,10 @@
     <!-- PDF Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="../admin.js?v=2"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof initInvoicePage === 'function') initInvoicePage();
+        });
+    </script>
 </body>
 </html>

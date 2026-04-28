@@ -26,7 +26,7 @@ function initAdmin() {
     // Specific page init
     if (document.getElementById('productForm')) initProductPage();
     if (document.getElementById('invoiceForm')) initInvoicePage();
-    if (document.getElementById('stat_monthly_sales')) initDashboardPage();
+    if (document.getElementById('stat_monthly_sales')) initDashboard();
     if (document.getElementById('receiptsTableBody')) initReceiptPage();
     if (document.getElementById('adminTicketsBody')) initTicketsPage();
 }
@@ -124,41 +124,121 @@ function updateNavActive() {
 
 // PRODUCT MANAGEMENT
 function initProductPage() {
-    const form = document.getElementById('productForm');
-    const tableBody = document.getElementById('productTableBody');
-
-    // Load existing products from localStorage if any
-    let products = JSON.parse(localStorage.getItem('admin_products')) || [];
-    renderProducts(products);
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const imageFile = document.getElementById('p_image').files[0];
-        let imageData = 'assets/service-placeholder.jpg';
-
-        if (imageFile) {
-            imageData = await new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = (e) => resolve(e.target.result);
-                reader.readAsDataURL(imageFile);
-            });
+    const productForm = document.getElementById('productForm');
+    const categoryForm = document.getElementById('categoryForm');
+    
+    // Load data from localStorage or provide premium defaults
+    let categories = JSON.parse(localStorage.getItem('admin_categories')) || ['T-shirt Branding', 'Corporate Stationery', 'Signage & Banners', 'Promotional Items'];
+    let products = JSON.parse(localStorage.getItem('admin_products')) || [
+        {
+            id: 1,
+            name: 'Premium Cotton Branded T-Shirt',
+            price: '1500',
+            category: 'T-shirt Branding',
+            image: 'assets/printing/tshirt-branding.jpg',
+            description: 'High-quality 100% cotton t-shirts with vibrant, durable screen printing or embroidery.'
+        },
+        {
+            id: 2,
+            name: 'Executive Business Cards',
+            price: '2500',
+            category: 'Corporate Stationery',
+            image: 'assets/printing/business-cards.jpg',
+            description: 'Premium 400gsm matte laminated business cards with spot UV finish. Pack of 100.'
+        },
+        {
+            id: 3,
+            name: 'Retractable Roll-up Banner',
+            price: '8500',
+            category: 'Signage & Banners',
+            image: 'assets/printing/rollup-banner.jpg',
+            description: 'Standard 85cm x 200cm roll-up banner with high-resolution PVC print and carrying bag.'
+        },
+        {
+            id: 4,
+            name: 'Branded Executive Notebook',
+            price: '1800',
+            category: 'Promotional Items',
+            image: 'assets/printing/notebook.jpg',
+            description: 'A5 leather-bound notebook with foil-stamped company logo and ribbon marker.'
         }
+    ];
 
-        const newProduct = {
-            id: Date.now(),
-            name: document.getElementById('p_name').value,
-            price: document.getElementById('p_price').value,
-            category: document.getElementById('p_category').value,
-            image: imageData,
-            description: document.getElementById('p_desc').value
-        };
+    // Ensure defaults are saved if they didn't exist
+    if (!localStorage.getItem('admin_categories')) localStorage.setItem('admin_categories', JSON.stringify(categories));
+    if (!localStorage.getItem('admin_products')) localStorage.setItem('admin_products', JSON.stringify(products));
+    
+    // Initial renders
+    renderProducts(products);
+    renderCategories(categories);
+    populateCategoryDropdown(categories);
 
-        products.push(newProduct);
-        localStorage.setItem('admin_products', JSON.stringify(products));
-        renderProducts(products);
-        form.reset();
-    });
+    // Handle Category Submission
+    if (categoryForm) {
+        categoryForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const catName = document.getElementById('cat_name').value.trim();
+            if (catName && !categories.includes(catName)) {
+                categories.push(catName);
+                localStorage.setItem('admin_categories', JSON.stringify(categories));
+                renderCategories(categories);
+                populateCategoryDropdown(categories);
+                categoryForm.reset();
+            }
+        });
+    }
+
+    // Handle Product Submission
+    if (productForm) {
+        productForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const imageFile = document.getElementById('p_image').files[0];
+            let imageData = 'assets/service-placeholder.jpg';
+
+            if (imageFile) {
+                imageData = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.readAsDataURL(imageFile);
+                });
+            }
+
+            const newProduct = {
+                id: Date.now(),
+                name: document.getElementById('p_name').value,
+                price: document.getElementById('p_price').value,
+                category: document.getElementById('p_category').value,
+                image: imageData,
+                description: document.getElementById('p_desc').value
+            };
+
+            products.push(newProduct);
+            localStorage.setItem('admin_products', JSON.stringify(products));
+            renderProducts(products);
+            productForm.reset();
+        });
+    }
+}
+
+function renderCategories(categories) {
+    const tableBody = document.getElementById('categoryTableBody');
+    if (!tableBody) return;
+    
+    tableBody.innerHTML = categories.map(cat => `
+        <tr>
+            <td><strong>${cat}</strong></td>
+            <td>
+                <button class="admin-btn admin-btn-secondary" onclick="deleteCategory('${cat}')">Delete</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function populateCategoryDropdown(categories) {
+    const dropdown = document.getElementById('p_category');
+    if (!dropdown) return;
+    dropdown.innerHTML = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
 }
 
 function renderProducts(products) {
@@ -177,6 +257,18 @@ function renderProducts(products) {
         </tr>
     `).join('');
 }
+
+window.deleteCategory = (catName) => {
+    if (confirm(`Are you sure you want to delete category "${catName}"?`)) {
+        let categories = JSON.parse(localStorage.getItem('admin_categories')) || [];
+        categories = categories.filter(c => c !== catName);
+        localStorage.setItem('admin_categories', JSON.stringify(categories));
+        
+        // Refresh UI
+        renderCategories(categories);
+        populateCategoryDropdown(categories);
+    }
+};
 
 window.deleteProduct = (id) => {
     let products = JSON.parse(localStorage.getItem('admin_products')) || [];
@@ -341,7 +433,7 @@ function helperParseInvDate(dateStr) {
     return new Date(cleaned);
 }
 
-function initDashboardPage() {
+function initDashboard() {
     initDashboardStats();
     updateActivityTable();
 }
@@ -664,4 +756,10 @@ function generateReceiptPDF(inv) {
         console.error('Receipt PDF Error:', err);
         container.style.display = 'none';
     });
+}
+
+// ADVERTS MANAGEMENT
+function initAdvertsPage() {
+    console.log('Adverts Page Initialized');
+    // Placeholder for future dynamic advert management logic
 }

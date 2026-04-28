@@ -445,7 +445,7 @@ if (orderModal) {
     });
   }
 
-  // Place Order Simulation
+  // Handle Place Order Simulation
   if (placeOrderBtn) {
     placeOrderBtn.addEventListener('click', () => {
       successOverlay.classList.add('active');
@@ -456,3 +456,125 @@ if (orderModal) {
     continueShoppingBtn.addEventListener('click', closeOrderModal);
   }
 }
+
+// ===================================
+// DYNAMIC CATEGORIZED CATALOG
+// ===================================
+
+function renderCategorizedCatalog() {
+    const catalogContainer = document.getElementById('dynamicCatalog');
+    if (!catalogContainer) return;
+
+    // Load data
+    const products = JSON.parse(localStorage.getItem('admin_products')) || [];
+    const categories = JSON.parse(localStorage.getItem('admin_categories')) || ['T-shirt Branding', 'Corporate Stationery', 'Signage & Banners', 'Promotional Items'];
+
+    if (products.length === 0) {
+        catalogContainer.innerHTML = `
+            <div class="empty-catalog" data-aos="fade-up">
+                <i class="fas fa-box-open"></i>
+                <p>Our premium catalog is currently being updated. Please check back soon!</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Group products by category
+    const grouped = {};
+    categories.forEach(cat => grouped[cat] = []);
+    products.forEach(p => {
+        if (!grouped[p.category]) grouped[p.category] = [];
+        grouped[p.category].push(p);
+    });
+
+    // Generate HTML
+    let catalogHtml = '';
+    categories.forEach(cat => {
+        const catProducts = grouped[cat];
+        if (catProducts && catProducts.length > 0) {
+            catalogHtml += `
+                <div class="catalog-category-section" data-aos="fade-up">
+                    <h2 class="category-heading">${cat}</h2>
+                    <div class="product-grid">
+                        ${catProducts.map(p => `
+                            <div class="product-card" data-aos="fade-up"
+                                 data-product-name="${p.name}" 
+                                 data-product-price="${p.price}" 
+                                 data-product-image="${p.image}"
+                                 data-product-description="${p.description}">
+                                <div class="product-image-wrapper">
+                                    <img src="${p.image}" alt="${p.name}" class="product-image">
+                                    <div class="product-overlay">
+                                        <div class="overlay-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="product-content">
+                                    <span class="product-category">${cat}</span>
+                                    <h3 class="product-title">${p.name}</h3>
+                                    <p class="product-description">${p.description.substring(0, 100)}${p.description.length > 100 ? '...' : ''}</p>
+                                    <div class="product-footer">
+                                        <div class="product-price"><span>KES</span> ${p.price}</div>
+                                        <button class="btn btn-primary btn-buy open-order-modal">Order Now</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+    });
+
+    catalogContainer.innerHTML = catalogHtml;
+
+    // Re-initialize Order Modal triggers for dynamic content
+    initOrderModalTriggers();
+    
+    // Re-initialize AOS for new elements
+    if (window.AOS) {
+        AOS.refresh();
+    }
+}
+
+function initOrderModalTriggers() {
+    const buyBtns = document.querySelectorAll('.open-order-modal');
+    buyBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const card = this.closest('.product-card');
+            const name = card.dataset.productName;
+            const price = card.dataset.productPrice;
+            const image = card.dataset.productImage;
+            const description = card.dataset.productDescription;
+
+            const modalTitle = document.getElementById('modalTitle');
+            const modalPrice = document.getElementById('modalPrice');
+            const modalImage = document.getElementById('modalImage');
+            const modalDescription = document.getElementById('modalDescription');
+            const orderModal = document.getElementById('orderModal');
+            const qtyInput = document.getElementById('qtyInput');
+
+            if (modalTitle) modalTitle.textContent = name;
+            if (modalPrice) modalPrice.innerHTML = `<span>KES</span> ${price}`;
+            if (modalImage) {
+                modalImage.src = image;
+                modalImage.alt = name;
+            }
+            if (modalDescription) modalDescription.textContent = description;
+            
+            if (qtyInput) qtyInput.value = 1;
+            if (orderModal) {
+                orderModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        });
+    });
+}
+
+// Initialize dynamic catalog if container exists
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('dynamicCatalog')) {
+        renderCategorizedCatalog();
+    }
+});
