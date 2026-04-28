@@ -172,12 +172,12 @@
         <div class="advert-carousel">
           <!-- Banner 1 -->
           <div class="advert-slide active">
-            <img src="assets/Banners-1.jpg" alt="Bulk SMS Sender Advertisement" class="advert-image">
+            <img src="assets/Banners-1.jpg" alt="Ring Back Tone Advertisement" class="advert-image">
           </div>
 
           <!-- Banner 2 -->
           <div class="advert-slide">
-            <img src="assets/Banners-2.jpg" alt="Ring Back Tone Advertisement" class="advert-image">
+            <img src="assets/Banners-2.jpg" alt="Bulk SMS Sender Advertisement" class="advert-image">
           </div>
 
           <!-- Navigation Arrows -->
