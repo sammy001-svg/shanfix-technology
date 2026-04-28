@@ -1,6 +1,6 @@
 /**
  * SHANFIX CLIENT PORTAL - MODERN LOGIC
- * Re-engineered for the premium dashboard experience.
+ * Re-engineered for the premium dashboard experience with MySQL backend.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -15,9 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const name = sessionStorage.getItem('client_name');
     
     // 2. UI Initialization
-    document.getElementById('headerClientName').textContent = name;
-    document.getElementById('headerClientEmail').textContent = email;
-    document.getElementById('welcomeText').textContent = `Welcome, ${name.split(' ')[0]}`;
+    if(document.getElementById('headerClientName')) document.getElementById('headerClientName').textContent = name;
+    if(document.getElementById('headerClientEmail')) document.getElementById('headerClientEmail').textContent = email;
+    if(document.getElementById('welcomeText')) document.getElementById('welcomeText').textContent = `Welcome, ${name.split(' ')[0]}`;
     
     // Fill settings
     if(document.getElementById('settingName')) document.getElementById('settingName').value = name;
@@ -34,45 +34,58 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 4. Global Action Handlers
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-        if(confirm('Ready to end your session?')) {
-            sessionStorage.clear();
-            window.location.href = 'login.php';
-        }
-    });
+    const logoutBtn = document.getElementById('logoutBtn');
+    if(logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            if(confirm('Ready to end your session?')) {
+                sessionStorage.clear();
+                window.location.href = 'login.php';
+            }
+        });
+    }
 
     // 5. Data Hydration
-    loadInvoices(email);
-    loadTickets(email);
+    loadInvoices();
+    loadTickets();
     loadServices();
 
-    // 6. Form Handlers
+    // 6. Form Handlers (Support Tickets)
     const ticketForm = document.getElementById('newTicketForm');
     if(ticketForm) {
-        ticketForm.addEventListener('submit', (e) => {
+        ticketForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const subject = document.getElementById('ticketSubject').value;
             const priority = document.getElementById('ticketPriority').value;
             const message = document.getElementById('ticketMessage').value;
 
-            const tickets = JSON.parse(localStorage.getItem('portal_tickets')) || [];
-            const newTkt = {
-                id: 'SFT-' + Math.floor(1000 + Math.random() * 9000),
-                email,
-                name,
-                subject,
-                priority,
-                message,
-                status: 'Open',
-                date: new Date().toLocaleDateString()
-            };
+            const submitBtn = ticketForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span>Logging ticket...</span> <i class="fas fa-spinner fa-spin"></i>';
+            submitBtn.disabled = true;
 
-            tickets.unshift(newTkt);
-            localStorage.setItem('portal_tickets', JSON.stringify(tickets));
-            
-            alert('Your ticket has been logged. Our team will review it shortly.');
-            ticketForm.reset();
-            loadTickets(email);
+            try {
+                const response = await fetch('api/tickets.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subject, priority, message })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Your ticket has been logged in our database. Our team will review it shortly.');
+                    ticketForm.reset();
+                    loadTickets(); // Refresh list
+                } else {
+                    alert(data.message || 'Failed to submit ticket.');
+                }
+            } catch (error) {
+                console.error('Ticket Error:', error);
+                alert('Connection to server failed. Please try again.');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
         });
     }
 });
@@ -83,7 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function switchTab(id) {
     // Nav links
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    document.querySelector(`.nav-item[data-tab="${id}"]`).classList.add('active');
+    const activeNav = document.querySelector(`.nav-item[data-tab="${id}"]`);
+    if(activeNav) activeNav.classList.add('active');
 
     // Sections
     document.querySelectorAll('.portal-tab-content').forEach(s => {
@@ -92,8 +106,10 @@ function switchTab(id) {
     });
 
     const activeTab = document.getElementById(`tab-${id}`);
-    activeTab.style.display = 'block';
-    setTimeout(() => activeTab.classList.add('active'), 10);
+    if(activeTab) {
+        activeTab.style.display = 'block';
+        setTimeout(() => activeTab.classList.add('active'), 10);
+    }
 
     // Update Header
     const titles = {
@@ -103,92 +119,103 @@ function switchTab(id) {
         'support': 'Support Center',
         'settings': 'Account Settings'
     };
-    document.getElementById('welcomeText').textContent = titles[id] || 'Dashboard';
+    const welcome = document.getElementById('welcomeText');
+    if(welcome) welcome.textContent = titles[id] || 'Dashboard';
 }
 
 /**
- * Billing Loader
+ * Billing Loader (Database Integration)
  */
-function loadInvoices(email) {
-    const invoices = JSON.parse(localStorage.getItem('admin_invoices')) || [];
-    const myInvoices = invoices.filter(i => i.customerEmail.toLowerCase() === email.toLowerCase());
+async function loadInvoices() {
+    try {
+        const response = await fetch('api/invoices.php');
+        const data = await response.json();
+        
+        const recentBody = document.querySelector('#recentInvoicesTable tbody');
+        const allBody = document.querySelector('#allInvoicesTable tbody');
+        if(!recentBody || !allBody) return;
 
-    const recentBody = document.querySelector('#recentInvoicesTable tbody');
-    const allBody = document.querySelector('#allInvoicesTable tbody');
-    
-    if(!recentBody || !allBody) return;
+        recentBody.innerHTML = '';
+        allBody.innerHTML = '';
+        let totalUnpaid = 0;
 
-    recentBody.innerHTML = '';
-    allBody.innerHTML = '';
-    let totalUnpaid = 0;
+        if (!data.success || data.invoices.length === 0) {
+            recentBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: var(--text-low); padding: 2rem;">No transaction history found.</td></tr>';
+            allBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-low); padding: 2rem;">You currently have no invoices in the database.</td></tr>';
+        } else {
+            data.invoices.forEach((inv, idx) => {
+                const isPaid = inv.status.toLowerCase() === 'paid';
+                const badge = isPaid ? 'badge-paid' : 'badge-pending';
+                if(!isPaid) totalUnpaid += parseFloat(inv.total);
 
-    if (myInvoices.length === 0) {
-        recentBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: var(--text-low); padding: 2rem;">No transaction history found.</td></tr>';
-        allBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-low); padding: 2rem;">You currently have no invoices.</td></tr>';
-    } else {
-        myInvoices.forEach((inv, idx) => {
-            const isPaid = inv.status === 'Paid';
-            const badge = isPaid ? 'badge-paid' : 'badge-pending';
-            if(!isPaid) totalUnpaid += parseFloat(inv.total);
+                const row = `
+                    <tr>
+                        <td style="font-weight:700; color:var(--p)">${inv.id}</td>
+                        <td>${inv.date}</td>
+                        <td style="font-weight:700;">Ksh ${parseFloat(inv.total).toLocaleString()}</td>
+                        <td><span class="badge ${badge}">${inv.status}</span></td>
+                        <td style="text-align:right;">
+                            <button class="portal-btn-primary" style="padding: 0.5rem 1rem; width: auto; font-size: 0.75rem;" onclick="alert('Displaying invoice PDF...')">
+                                <i class="fas fa-file-invoice mr-1"></i> View
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                allBody.innerHTML += row;
+                if(idx < 4) recentBody.innerHTML += row;
+            });
+        }
 
-            const row = `
-                <tr>
-                    <td style="font-weight:700; color:var(--p)">${inv.id}</td>
-                    <td>${inv.date}</td>
-                    <td style="font-weight:700;">Ksh ${parseFloat(inv.total).toLocaleString()}</td>
-                    <td><span class="badge ${badge}">${inv.status}</span></td>
-                    <td style="text-align:right;">
-                        <button class="portal-btn-primary" style="padding: 0.5rem 1rem; width: auto; font-size: 0.75rem;" onclick="alert('Displaying invoice PDF...')">
-                            <i class="fas fa-file-invoice mr-1"></i> View
-                        </button>
-                    </td>
-                </tr>
-            `;
-            allBody.innerHTML += row;
-            if(idx < 4) recentBody.innerHTML += row;
-        });
+        const balDisplay = document.getElementById('dashPendingBalance');
+        if(balDisplay) balDisplay.textContent = `Ksh ${totalUnpaid.toLocaleString()}`;
+    } catch (error) {
+        console.error('Invoice Load Error:', error);
     }
-
-    document.getElementById('dashPendingBalance').textContent = `Ksh ${totalUnpaid.toLocaleString()}`;
 }
 
 /**
- * Support Ticket Loader
+ * Support Ticket Loader (Database Integration)
  */
-function loadTickets(email) {
-    const tickets = JSON.parse(localStorage.getItem('portal_tickets')) || [];
-    const myTickets = tickets.filter(t => t.email === email);
+async function loadTickets() {
+    try {
+        const response = await fetch('api/tickets.php');
+        const data = await response.json();
+        
+        const list = document.getElementById('ticketList');
+        if(!list) return;
 
-    const list = document.getElementById('ticketList');
-    if(!list) return;
+        list.innerHTML = '';
+        let openCount = 0;
 
-    list.innerHTML = '';
-    let openCount = 0;
-
-    if(myTickets.length === 0) {
-        list.innerHTML = '<div style="text-align:center; padding: 2rem; color: var(--text-low);">No active support tickets.</div>';
-    } else {
-        myTickets.forEach(t => {
-            if(t.status === 'Open') openCount++;
-            list.innerHTML += `
-                <div style="background:#f8fafc; border-radius: 20px; padding: 1.5rem; margin-bottom: 1rem; border-left: 5px solid var(--s);">
-                    <div style="display:flex; justify-content:space-between; align-items:start;">
-                        <div>
-                            <h4 style="margin:0; color:var(--p);">${t.subject}</h4>
-                            <span style="font-size:0.75rem; color:var(--text-low);">${t.id} • ${t.date}</span>
+        if(!data.success || data.tickets.length === 0) {
+            list.innerHTML = '<div style="text-align:center; padding: 2rem; color: var(--text-low);">No active support tickets found.</div>';
+        } else {
+            data.tickets.forEach(t => {
+                const isOpen = t.status.toLowerCase() === 'open';
+                if(isOpen) openCount++;
+                list.innerHTML += `
+                    <div style="background:#f8fafc; border-radius: 20px; padding: 1.5rem; margin-bottom: 1rem; border-left: 5px solid var(--s);">
+                        <div style="display:flex; justify-content:space-between; align-items:start;">
+                            <div>
+                                <h4 style="margin:0; color:var(--p);">${t.subject}</h4>
+                                <span style="font-size:0.75rem; color:var(--text-low);">${t.id} • ${t.date}</span>
+                            </div>
+                            <span class="badge ${isOpen ? 'badge-pending' : 'badge-paid'}" style="font-size:0.6rem;">${t.status}</span>
                         </div>
-                        <span class="badge ${t.status === 'Open' ? 'badge-pending' : 'badge-paid'}" style="font-size:0.6rem;">${t.status}</span>
+                        <p style="font-size:0.85rem; color:var(--text-mid); margin:1rem 0;">${t.message}</p>
+                        <div style="display:flex; gap:10px;">
+                            <button class="portal-btn-primary" style="padding:0.4rem 1rem; width:auto; font-size:0.7rem; background:white; color:var(--p); border: 1px solid var(--border);" onclick="alert('Opening conversation...')">Respond</button>
+                        </div>
                     </div>
-                    <p style="font-size:0.85rem; color:var(--text-mid); margin:1rem 0;">${t.message}</p>
-                    <div style="display:flex; gap:10px;">
-                        <button class="portal-btn-primary" style="padding:0.4rem 1rem; width:auto; font-size:0.7rem; background:white; color:var(--p); border: 1px solid var(--border);" onclick="alert('Opening conversation...')">Respond</button>
-                    </div>
-                </div>
-            `;
-        });
-    }
+                `;
+            });
+        }
 
-    document.getElementById('dashOpenTickets').textContent = openCount;
+        const countDisplay = document.getElementById('dashOpenTickets');
+        if(countDisplay) countDisplay.textContent = openCount;
+    } catch (error) {
+        console.error('Ticket Load Error:', error);
+    }
 }
 
 /**
@@ -204,7 +231,8 @@ function loadServices() {
         { name: "Security Suite", icon: "fa-shield-alt", type: "Firewall", status: "Active", val: "Protected" }
     ];
 
-    document.getElementById('dashActiveServices').textContent = mocks.length;
+    const countDisplay = document.getElementById('dashActiveServices');
+    if(countDisplay) countDisplay.textContent = mocks.length;
     grid.innerHTML = '';
     
     mocks.forEach(m => {

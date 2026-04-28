@@ -99,6 +99,7 @@ CREATE TABLE IF NOT EXISTS `tickets` (
   `user_id` int(11) NOT NULL,
   `ticket_ref` varchar(20) NOT NULL,
   `subject` varchar(255) NOT NULL,
+  `message` text NOT NULL,
   `priority` enum('low', 'medium', 'high', 'critical') DEFAULT 'medium',
   `status` enum('open', 'answered', 'closed', 'on-hold') DEFAULT 'open',
   `last_update` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
