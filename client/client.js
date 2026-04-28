@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Verify Client Authentication
     const isClient = sessionStorage.getItem('isClient');
     if (isClient !== 'true') {
-        window.location.href = '../admin/login.php';
+        window.location.href = 'login.php';
         return;
     }
 
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sessionStorage.removeItem('isClient');
         sessionStorage.removeItem('client_email');
         sessionStorage.removeItem('client_name');
-        window.location.href = '../admin/login.php';
+        window.location.href = 'login.php';
     });
 
     // 5. Hydrate Data
