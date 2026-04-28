@@ -32,11 +32,24 @@ try {
 
         $name = trim($input['name'] ?? '');
         $description = trim($input['description'] ?? '');
-        $slug = strtolower(str_replace(' ', '-', $name));
+        
+        // Improve slug generation: remove special characters and handle duplicates
+        $slug = preg_replace('/[^a-z0-9\-]/', '', strtolower(str_replace(' ', '-', $name)));
+        $slug = preg_replace('/-+/', '-', $slug); // Remove multiple dashes
+        $slug = trim($slug, '-');
 
         if (empty($name)) {
             ob_clean();
             echo json_encode(['success' => false, 'message' => 'Category name is required.']);
+            exit;
+        }
+
+        // Check if slug or name already exists
+        $checkStmt = $pdo->prepare("SELECT id FROM categories WHERE slug = ? OR name = ?");
+        $checkStmt->execute([$slug, $name]);
+        if ($checkStmt->fetch()) {
+            ob_clean();
+            echo json_encode(['success' => false, 'message' => 'A category with this name already exists.']);
             exit;
         }
 
