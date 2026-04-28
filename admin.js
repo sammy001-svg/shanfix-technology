@@ -12,6 +12,7 @@ function initAdmin() {
     const loginForm = document.getElementById('adminLoginForm');
     if (loginForm) {
         handleLogin(loginForm);
+        initClientAuth();
     }
 
     // Check for auth (simple mock)
@@ -27,6 +28,145 @@ function initAdmin() {
     if (document.getElementById('invoiceForm')) initInvoicePage();
     if (document.getElementById('stat_monthly_sales')) initDashboardPage();
     if (document.getElementById('receiptsTableBody')) initReceiptPage();
+    if (document.getElementById('adminTicketsBody')) initTicketsPage();
+}
+
+function initTicketsPage() {
+    const tbody = document.getElementById('adminTicketsBody');
+    if (!tbody) return;
+
+    function renderTickets() {
+        const tickets = JSON.parse(localStorage.getItem('portal_tickets')) || [];
+        tbody.innerHTML = '';
+
+        if (tickets.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">No support tickets found.</td></tr>';
+            return;
+        }
+
+        tickets.forEach(ticket => {
+            const statusClass = ticket.status === 'Open' ? 'badge-pending' : 'badge-paid';
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${ticket.id}</strong></td>
+                    <td>${ticket.clientEmail}</td>
+                    <td>${ticket.subject}</td>
+                    <td>${ticket.priority}</td>
+                    <td><span class="badge ${statusClass}">${ticket.status}</span></td>
+                    <td>
+                        <button class="admin-btn-sm admin-btn-primary" onclick="replyTicket('${ticket.id}')">Reply</button>
+                        <button class="admin-btn-sm admin-btn-secondary" onclick="closeTicket('${ticket.id}')">Close</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    window.replyTicket = function(id) {
+        alert('Replying to ticket ' + id + '\\n\\n(Logic to be implemented to add message to ticket thread)');
+    };
+
+    window.closeTicket = function(id) {
+        if(confirm('Mark this ticket as closed?')) {
+            let tickets = JSON.parse(localStorage.getItem('portal_tickets')) || [];
+            let tIdx = tickets.findIndex(t => t.id === id);
+            if(tIdx > -1) {
+                tickets[tIdx].status = 'Closed';
+                localStorage.setItem('portal_tickets', JSON.stringify(tickets));
+                renderTickets();
+            }
+        }
+    };
+
+    window.clearAllTickets = function() {
+        if(confirm('Are you sure you want to delete all tickets?')) {
+            localStorage.removeItem('portal_tickets');
+            renderTickets();
+        }
+    };
+
+    renderTickets();
+}
+
+// ==== UNIFIED AUTH LOGIC ====
+function switchAuthTab(type) {
+    document.querySelectorAll('.auth-tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.auth-area').forEach(area => {
+        area.classList.remove('active');
+        area.classList.add('hidden-form');
+    });
+
+    if (type === 'client') {
+        document.querySelector('.auth-tab-btn:nth-child(1)').classList.add('active');
+        document.getElementById('clientAuthArea').classList.remove('hidden-form');
+        document.getElementById('clientAuthArea').classList.add('active');
+    } else {
+        document.querySelector('.auth-tab-btn:nth-child(2)').classList.add('active');
+        document.getElementById('adminAuthArea').classList.remove('hidden-form');
+        document.getElementById('adminAuthArea').classList.add('active');
+    }
+}
+
+function toggleClientMode(mode) {
+    const loginForm = document.getElementById('clientLoginForm');
+    const regForm = document.getElementById('clientRegForm');
+    
+    if (mode === 'register') {
+        loginForm.classList.remove('active-form');
+        loginForm.classList.add('hidden-form');
+        regForm.classList.remove('hidden-form');
+        regForm.classList.add('active-form');
+    } else {
+        regForm.classList.remove('active-form');
+        regForm.classList.add('hidden-form');
+        loginForm.classList.remove('hidden-form');
+        loginForm.classList.add('active-form');
+    }
+}
+
+function initClientAuth() {
+    const clientForm = document.getElementById('clientLoginForm');
+    const regForm = document.getElementById('clientRegForm');
+
+    if (clientForm) {
+        clientForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('client_email').value;
+            const pass = document.getElementById('client_password').value;
+            
+            let clients = JSON.parse(localStorage.getItem('portal_clients')) || [];
+            let found = clients.find(c => c.email === email && c.password === pass);
+
+            if (found) {
+                sessionStorage.setItem('isClient', 'true');
+                sessionStorage.setItem('client_email', email);
+                sessionStorage.setItem('client_name', found.name);
+                window.location.href = '../client/index.php'; // Correct relative path from /admin/login.php
+            } else {
+                alert('Invalid portal credentials!');
+            }
+        });
+    }
+
+    if (regForm) {
+        regForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('reg_email').value;
+            const name = document.getElementById('reg_name').value;
+            const pass = document.getElementById('reg_password').value;
+            
+            let clients = JSON.parse(localStorage.getItem('portal_clients')) || [];
+            if(clients.find(c => c.email === email)) {
+                alert('Account already exists! Please login.');
+                return;
+            }
+
+            clients.push({ name, email, password: pass });
+            localStorage.setItem('portal_clients', JSON.stringify(clients));
+            alert('Portal Account Created Successfully! You can now login.');
+            toggleClientMode('login');
+        });
+    }
 }
 
 function handleLogin(form) {
