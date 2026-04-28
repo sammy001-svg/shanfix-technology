@@ -1,0 +1,315 @@
+/* ===================================
+   MODERN WHO WE ARE PAGE SPECIFIC
+   =================================== */
+
+.page-modern-who {
+  background-color: var(--color-gray-50);
+}
+
+.modern-who-hero {
+  position: relative;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 100px;
+  background: url('assets/about_hero_bg.png') center/cover no-repeat;
+  color: var(--color-white);
+  text-align: center;
+  overflow: hidden;
+}
+
+.modern-who-hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, rgba(8,63,12,0.85) 0%, rgba(17,24,39,0.95) 100%);
+  z-index: 1;
+}
+
+.modern-who-hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  padding: var(--spacing-lg);
+  animation: fadeUp 1s ease-out;
+}
+
+.modern-who-hero-title {
+  font-size: clamp(3rem, 6vw, 5rem);
+  font-weight: 800;
+  margin-bottom: var(--spacing-md);
+  background: linear-gradient(to right, #4ade80, #ffffff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+}
+
+.modern-who-hero-subtitle {
+  font-size: 1.25rem;
+  color: var(--color-gray-200);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Story Section */
+.story-section {
+  padding: var(--spacing-3xl) 0;
+  background: var(--color-white);
+}
+
+.story-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-2xl);
+  align-items: center;
+}
+
+.story-text-content h2 {
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-md);
+  color: var(--color-gray-900);
+}
+
+.story-text-content .highlight {
+  color: var(--color-primary);
+}
+
+.story-text-content p {
+  font-size: 1.125rem;
+  color: var(--color-gray-600);
+  margin-bottom: var(--spacing-md);
+  line-height: 1.8;
+}
+
+.story-image-wrapper {
+  position: relative;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-2xl);
+  transform: perspective(1000px) rotateY(-5deg);
+  transition: var(--transition-slow);
+}
+
+.story-image-wrapper:hover {
+  transform: perspective(1000px) rotateY(0deg);
+}
+
+.story-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.story-image-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
+}
+
+/* Impact Metrics */
+.impact-section {
+  padding: var(--spacing-2xl) 0;
+  background: var(--color-gray-900);
+  color: var(--color-white);
+}
+
+.impact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-lg);
+  text-align: center;
+}
+
+.impact-card {
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: var(--transition-base);
+}
+
+.impact-card:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--color-primary);
+}
+
+.impact-value {
+  font-size: 3.5rem;
+  font-weight: 800;
+  font-family: var(--font-heading);
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.impact-label {
+  font-size: 1.125rem;
+  color: var(--color-gray-300);
+  font-weight: 500;
+}
+
+/* Bento Philosophy Grid */
+.bento-section {
+  padding: var(--spacing-3xl) 0;
+  background: var(--color-gray-50);
+}
+
+.bento-header {
+  text-align: center;
+  margin-bottom: var(--spacing-2xl);
+}
+
+.bento-header h2 {
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--spacing-md);
+}
+
+.bento-card {
+  background: var(--color-white);
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-base);
+  border: 1px solid var(--color-gray-100);
+  position: relative;
+  overflow: hidden;
+}
+
+.bento-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 4px;
+  background: var(--gradient-primary);
+  opacity: 0;
+  transition: var(--transition-base);
+}
+
+.bento-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-xl);
+}
+
+.bento-card:hover::before {
+  opacity: 1;
+}
+
+.bento-item-large {
+  grid-column: span 12;
+}
+@media (min-width: 992px) {
+  .bento-item-large { grid-column: span 8; }
+}
+
+.bento-item-tall {
+  grid-column: span 12;
+}
+@media (min-width: 992px) {
+  .bento-item-tall { grid-column: span 4; grid-row: span 2; }
+}
+
+.bento-item-standard {
+  grid-column: span 12;
+}
+@media (min-width: 768px) {
+  .bento-item-standard { grid-column: span 6; }
+}
+@media (min-width: 992px) {
+  .bento-item-standard { grid-column: span 4; }
+}
+
+.bento-icon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-gray-50);
+  color: var(--color-primary);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--spacing-md);
+  transition: var(--transition-base);
+}
+
+.bento-card:hover .bento-icon {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.bento-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.bento-title {
+  font-size: 1.5rem;
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-gray-900);
+}
+
+.bento-text {
+  color: var(--color-gray-600);
+  line-height: 1.7;
+}
+
+/* CTA Banner */
+.modern-cta-banner {
+  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-gray-900) 100%);
+  padding: var(--spacing-3xl) 0;
+  text-align: center;
+  color: var(--color-white);
+  position: relative;
+  overflow: hidden;
+}
+
+.modern-cta-banner::after {
+  content: '';
+  position: absolute;
+  top: -50%; right: -10%;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(74,222,128,0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(40px);
+}
+
+.cta-banner-content {
+  position: relative;
+  z-index: 2;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.cta-banner-title {
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-md);
+  color: var(--color-white);
+}
+
+.cta-banner-text {
+  font-size: 1.125rem;
+  color: var(--color-gray-200);
+  margin-bottom: var(--spacing-lg);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .story-grid {
+    grid-template-columns: 1fr;
+  }
+}
