@@ -46,7 +46,15 @@ function initClientAuth() {
                     body: JSON.stringify({ email, password })
                 });
 
-                const data = await response.json();
+                const text = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    console.error('Server response was not JSON:', text);
+                    alert('Server Error: The response from the server was invalid. Please check the console for details.');
+                    return;
+                }
 
                 if (data.success) {
                     sessionStorage.setItem('isClient', 'true');
@@ -85,7 +93,15 @@ function initClientAuth() {
                     body: JSON.stringify({ name, email, password })
                 });
 
-                const data = await response.json();
+                const text = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    console.error('Server response was not JSON:', text);
+                    alert('Server Error: Registration response was invalid. Please check the console for details.');
+                    return;
+                }
 
                 if (data.success) {
                     alert(data.message || 'Portal Account Created Successfully! You can now login.');

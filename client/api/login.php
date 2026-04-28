@@ -51,6 +51,7 @@ try {
             $_SESSION['user_name'] = $user['full_name'];
             $_SESSION['is_client'] = true;
 
+            ob_clean();
             echo json_encode([
                 'success' => true, 
                 'message' => 'Login successful!',
@@ -60,13 +61,16 @@ try {
                 ]
             ]);
         } else {
+            ob_clean();
             echo json_encode(['success' => false, 'message' => 'Invalid email or password.']);
         }
     } else {
+        ob_clean();
         echo json_encode(['success' => false, 'message' => 'No partner account found with this email.']);
     }
 
 } catch (PDOException $e) {
     error_log("Login Error: " . $e->getMessage());
+    ob_clean();
     echo json_encode(['success' => false, 'message' => 'Database error occurred. Please contact support.']);
 }

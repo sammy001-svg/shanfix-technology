@@ -7,6 +7,9 @@
 header('Content-Type: application/json');
 require_once '../../includes/db_connect.php';
 
+// Clean any accidental output (like warnings or whitespace) to ensure valid JSON
+ob_start();
+
 // Get POST data (handle both JSON and standard form-data)
 $input = json_decode(file_get_contents('php://input'), true);
 
@@ -47,12 +50,15 @@ try {
     $result = $stmt->execute([$name, $email, $hashedPassword]);
 
     if ($result) {
+        ob_clean();
         echo json_encode(['success' => true, 'message' => 'Portal account created successfully!']);
     } else {
+        ob_clean();
         echo json_encode(['success' => false, 'message' => 'Failed to create account. Please try again.']);
     }
 
 } catch (PDOException $e) {
     error_log("Registration Error: " . $e->getMessage());
+    ob_clean();
     echo json_encode(['success' => false, 'message' => 'Database error occurred. Please contact support.']);
 }
