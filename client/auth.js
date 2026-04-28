@@ -1,6 +1,6 @@
 /**
  * COMPONENT: Client Portal Authentication
- * Isolated login/registration logic for the end-user facing portal
+ * Re-engineered to use MySQL backend APIs (register.php and login.php)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -29,42 +29,77 @@ function initClientAuth() {
     const regForm = document.getElementById('clientRegForm');
 
     if (clientForm) {
-        clientForm.addEventListener('submit', (e) => {
+        clientForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('client_email').value;
-            const pass = document.getElementById('client_password').value;
+            const password = document.getElementById('client_password').value;
             
-            let clients = JSON.parse(localStorage.getItem('portal_clients')) || [];
-            let found = clients.find(c => c.email === email && c.password === pass);
+            const submitBtn = clientForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span>Verifying...</span> <i class="fas fa-spinner fa-spin"></i>';
+            submitBtn.disabled = true;
 
-            if (found) {
-                sessionStorage.setItem('isClient', 'true');
-                sessionStorage.setItem('client_email', email);
-                sessionStorage.setItem('client_name', found.name);
-                window.location.href = 'index.php'; // Correct relative path since we are in /client/login.php
-            } else {
-                alert('Invalid portal credentials!');
+            try {
+                const response = await fetch('api/login.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    sessionStorage.setItem('isClient', 'true');
+                    sessionStorage.setItem('client_email', data.user.email);
+                    sessionStorage.setItem('client_name', data.user.name);
+                    window.location.href = 'index.php';
+                } else {
+                    alert(data.message || 'Invalid portal credentials!');
+                }
+            } catch (error) {
+                console.error('Auth Error:', error);
+                alert('Connection to server failed. Please try again.');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
             }
         });
     }
 
     if (regForm) {
-        regForm.addEventListener('submit', (e) => {
+        regForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('reg_email').value;
             const name = document.getElementById('reg_name').value;
-            const pass = document.getElementById('reg_password').value;
+            const password = document.getElementById('reg_password').value;
             
-            let clients = JSON.parse(localStorage.getItem('portal_clients')) || [];
-            if(clients.find(c => c.email === email)) {
-                alert('Account already exists! Please login.');
-                return;
-            }
+            const submitBtn = regForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span>Processing Request...</span> <i class="fas fa-spinner fa-spin"></i>';
+            submitBtn.disabled = true;
 
-            clients.push({ name, email, password: pass });
-            localStorage.setItem('portal_clients', JSON.stringify(clients));
-            alert('Portal Account Created Successfully! You can now login.');
-            toggleClientMode('login');
+            try {
+                const response = await fetch('api/register.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(data.message || 'Portal Account Created Successfully! You can now login.');
+                    toggleClientMode('login');
+                } else {
+                    alert(data.message || 'Registration failed.');
+                }
+            } catch (error) {
+                console.error('Registration Error:', error);
+                alert('Connection to server failed. Please try again.');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
         });
     }
 }
