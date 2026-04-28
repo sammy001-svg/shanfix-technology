@@ -1,30 +1,30 @@
 /**
- * SHANFIX CLIENT PORTAL LOGIC - MODERNIZED
- * Handles dashboard data hydration, tab switching, and enhanced interactivity.
+ * SHANFIX CLIENT PORTAL - MODERN LOGIC
+ * Re-engineered for the premium dashboard experience.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Verify Client Authentication
+    // 1. Authentication Layer
     const isClient = sessionStorage.getItem('isClient');
     if (isClient !== 'true') {
         window.location.href = 'login.php';
         return;
     }
 
-    const clientEmail = sessionStorage.getItem('client_email');
-    const clientName = sessionStorage.getItem('client_name');
+    const email = sessionStorage.getItem('client_email');
+    const name = sessionStorage.getItem('client_name');
     
-    // 2. Set Profile Data
-    document.getElementById('headerClientName').textContent = clientName;
-    document.getElementById('headerClientEmail').textContent = clientEmail;
-    document.getElementById('welcomeText').textContent = `Welcome back, ${clientName.split(' ')[0]}!`;
+    // 2. UI Initialization
+    document.getElementById('headerClientName').textContent = name;
+    document.getElementById('headerClientEmail').textContent = email;
+    document.getElementById('welcomeText').textContent = `Welcome, ${name.split(' ')[0]}`;
     
-    // Settings hydration
-    if(document.getElementById('settingName')) document.getElementById('settingName').value = clientName;
-    if(document.getElementById('settingEmail')) document.getElementById('settingEmail').value = clientEmail;
+    // Fill settings
+    if(document.getElementById('settingName')) document.getElementById('settingName').value = name;
+    if(document.getElementById('settingEmail')) document.getElementById('settingEmail').value = email;
 
-    // 3. Init Navigation Tabs
-    const navItems = document.querySelectorAll('.portal-nav-item');
+    // 3. Navigation Engine
+    const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
@@ -33,22 +33,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 4. Logout Handler
+    // 4. Global Action Handlers
     document.getElementById('logoutBtn').addEventListener('click', () => {
-        if(confirm('Are you sure you want to securely sign out?')) {
-            sessionStorage.removeItem('isClient');
-            sessionStorage.removeItem('client_email');
-            sessionStorage.removeItem('client_name');
+        if(confirm('Ready to end your session?')) {
+            sessionStorage.clear();
             window.location.href = 'login.php';
         }
     });
 
-    // 5. Hydrate Data
-    loadClientInvoices(clientEmail);
-    loadClientTickets(clientEmail);
-    loadClientServices();
+    // 5. Data Hydration
+    loadInvoices(email);
+    loadTickets(email);
+    loadServices();
 
-    // 6. Handle New Ticket Submission
+    // 6. Form Handlers
     const ticketForm = document.getElementById('newTicketForm');
     if(ticketForm) {
         ticketForm.addEventListener('submit', (e) => {
@@ -57,12 +55,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const priority = document.getElementById('ticketPriority').value;
             const message = document.getElementById('ticketMessage').value;
 
-            const existingTickets = JSON.parse(localStorage.getItem('portal_tickets')) || [];
-            
-            const newTicket = {
-                id: 'TKT-' + Math.floor(Math.random() * 10000),
-                clientEmail: clientEmail,
-                clientName: clientName,
+            const tickets = JSON.parse(localStorage.getItem('portal_tickets')) || [];
+            const newTkt = {
+                id: 'SFT-' + Math.floor(1000 + Math.random() * 9000),
+                email,
+                name,
                 subject,
                 priority,
                 message,
@@ -70,192 +67,158 @@ document.addEventListener('DOMContentLoaded', () => {
                 date: new Date().toLocaleDateString()
             };
 
-            existingTickets.unshift(newTicket);
-            localStorage.setItem('portal_tickets', JSON.stringify(existingTickets));
+            tickets.unshift(newTkt);
+            localStorage.setItem('portal_tickets', JSON.stringify(tickets));
             
-            // Custom alert/toast logic could go here
-            alert('Your support ticket has been submitted successfully!');
+            alert('Your ticket has been logged. Our team will review it shortly.');
             ticketForm.reset();
-            loadClientTickets(clientEmail);
+            loadTickets(email);
         });
     }
-
-    // 7. Micro-interactions: Header blur on scroll
-    const main = document.querySelector('.portal-main');
-    main.addEventListener('scroll', () => {
-        const header = document.querySelector('.portal-header');
-        if (main.scrollTop > 20) {
-            header.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.05)';
-        } else {
-            header.style.boxShadow = 'none';
-        }
-    });
 });
 
 /**
- * Global Tab Switcher with transition support
+ * Tab Switching Logic
  */
-function switchTab(tabId) {
-    const navItems = document.querySelectorAll('.portal-nav-item');
-    const tabs = document.querySelectorAll('.portal-tab-content');
-    
-    // Update Sidebar
-    navItems.forEach(n => {
-        n.classList.remove('active');
-        if(n.getAttribute('data-tab') === tabId) n.classList.add('active');
+function switchTab(id) {
+    // Nav links
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    document.querySelector(`.nav-item[data-tab="${id}"]`).classList.add('active');
+
+    // Sections
+    document.querySelectorAll('.portal-tab-content').forEach(s => {
+        s.style.display = 'none';
+        s.classList.remove('active');
     });
 
-    // Update Content with smooth transition
-    tabs.forEach(t => {
-        t.style.opacity = '0';
-        setTimeout(() => {
-            t.classList.remove('active');
-            if(t.id === `tab-${tabId}`) {
-                t.classList.add('active');
-                setTimeout(() => {
-                    t.style.opacity = '1';
-                }, 50);
-            }
-        }, 300);
-    });
+    const activeTab = document.getElementById(`tab-${id}`);
+    activeTab.style.display = 'block';
+    setTimeout(() => activeTab.classList.add('active'), 10);
 
-    // Update Header Text
-    const headerTitle = document.getElementById('welcomeText');
-    const headerSub = document.getElementById('headerSubtitle');
-    
-    const meta = {
-        'dashboard': { title: 'Dashboard', sub: 'Welcome back to your workspace.' },
-        'billing': { title: 'Billing & Payments', sub: 'Manage your invoices and payment history.' },
-        'services': { title: 'My Services', sub: 'Overview of your active subscriptions.' },
-        'support': { title: 'Support Center', sub: 'Get help with your technical issues.' },
-        'settings': { title: 'Account Settings', sub: 'Manage your profile and security.' }
+    // Update Header
+    const titles = {
+        'dashboard': 'Overview',
+        'billing': 'Billing & Payments',
+        'services': 'Active Services',
+        'support': 'Support Center',
+        'settings': 'Account Settings'
     };
-
-    if(meta[tabId]) {
-        headerTitle.textContent = meta[tabId].title;
-        headerSub.textContent = meta[tabId].sub;
-    }
+    document.getElementById('welcomeText').textContent = titles[id] || 'Dashboard';
 }
 
-function loadClientInvoices(email) {
-    const allInvoices = JSON.parse(localStorage.getItem('admin_invoices')) || [];
-    const myInvoices = allInvoices.filter(inv => inv.customerEmail.toLowerCase() === email.toLowerCase());
+/**
+ * Billing Loader
+ */
+function loadInvoices(email) {
+    const invoices = JSON.parse(localStorage.getItem('admin_invoices')) || [];
+    const myInvoices = invoices.filter(i => i.customerEmail.toLowerCase() === email.toLowerCase());
 
-    const recentTable = document.querySelector('#recentInvoicesTable tbody');
-    const allTable = document.querySelector('#allInvoicesTable tbody');
+    const recentBody = document.querySelector('#recentInvoicesTable tbody');
+    const allBody = document.querySelector('#allInvoicesTable tbody');
     
-    if(!recentTable || !allTable) return;
+    if(!recentBody || !allBody) return;
 
-    recentTable.innerHTML = '';
-    allTable.innerHTML = '';
-
-    let pendingBalance = 0;
+    recentBody.innerHTML = '';
+    allBody.innerHTML = '';
+    let totalUnpaid = 0;
 
     if (myInvoices.length === 0) {
-        recentTable.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color: #64748b;">No recent invoices found.</td></tr>';
-        allTable.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 2rem; color: #64748b;">Your billing history is empty.</td></tr>';
+        recentBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: var(--text-low); padding: 2rem;">No transaction history found.</td></tr>';
+        allBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-low); padding: 2rem;">You currently have no invoices.</td></tr>';
     } else {
-        myInvoices.forEach((inv, index) => {
-            const statusClass = inv.status === 'Paid' ? 'badge-paid' : 'badge-pending';
-            if(inv.status !== 'Paid') pendingBalance += parseFloat(inv.total);
+        myInvoices.forEach((inv, idx) => {
+            const isPaid = inv.status === 'Paid';
+            const badge = isPaid ? 'badge-paid' : 'badge-pending';
+            if(!isPaid) totalUnpaid += parseFloat(inv.total);
 
-            const rowHtml = `
+            const row = `
                 <tr>
-                    <td><strong>${inv.id}</strong></td>
+                    <td style="font-weight:700; color:var(--p)">${inv.id}</td>
                     <td>${inv.date}</td>
-                    <td>${inv.dueDate || inv.date}</td>
-                    <td>Ksh ${parseFloat(inv.total).toLocaleString()}</td>
-                    <td><span class="badge ${statusClass}">${inv.status}</span></td>
-                    <td>
-                        <button class="portal-btn-sm portal-btn-outline" onclick="alert('Downloading invoice ${inv.id}...')"><i class="fas fa-download"></i></button>
+                    <td style="font-weight:700;">Ksh ${parseFloat(inv.total).toLocaleString()}</td>
+                    <td><span class="badge ${badge}">${inv.status}</span></td>
+                    <td style="text-align:right;">
+                        <button class="portal-btn-primary" style="padding: 0.5rem 1rem; width: auto; font-size: 0.75rem;" onclick="alert('Displaying invoice PDF...')">
+                            <i class="fas fa-file-invoice mr-1"></i> View
+                        </button>
                     </td>
                 </tr>
             `;
-            allTable.innerHTML += rowHtml;
-
-            if (index < 3) {
-                recentTable.innerHTML += `
-                    <tr>
-                        <td><strong>${inv.id}</strong></td>
-                        <td>${inv.date}</td>
-                        <td>Ksh ${parseFloat(inv.total).toLocaleString()}</td>
-                        <td><span class="badge ${statusClass}">${inv.status}</span></td>
-                        <td>
-                            <button class="portal-btn-sm portal-btn-outline" onclick="alert('Viewing details...')">Details</button>
-                        </td>
-                    </tr>
-                `;
-            }
+            allBody.innerHTML += row;
+            if(idx < 4) recentBody.innerHTML += row;
         });
     }
 
-    document.getElementById('dashPendingBalance').textContent = `Ksh ${pendingBalance.toLocaleString()}`;
+    document.getElementById('dashPendingBalance').textContent = `Ksh ${totalUnpaid.toLocaleString()}`;
 }
 
-function loadClientTickets(email) {
-    const allTickets = JSON.parse(localStorage.getItem('portal_tickets')) || [];
-    const myTickets = allTickets.filter(t => t.clientEmail === email);
+/**
+ * Support Ticket Loader
+ */
+function loadTickets(email) {
+    const tickets = JSON.parse(localStorage.getItem('portal_tickets')) || [];
+    const myTickets = tickets.filter(t => t.email === email);
 
-    const ticketList = document.getElementById('ticketList');
-    if(!ticketList) return;
+    const list = document.getElementById('ticketList');
+    if(!list) return;
 
-    ticketList.innerHTML = '';
-    let openTicketsCount = 0;
+    list.innerHTML = '';
+    let openCount = 0;
 
     if(myTickets.length === 0) {
-        ticketList.innerHTML = '<div style="padding: 2rem; text-align: center; color: #64748b;"><i class="fas fa-comment-slash" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i><p>No support history found.</p></div>';
+        list.innerHTML = '<div style="text-align:center; padding: 2rem; color: var(--text-low);">No active support tickets.</div>';
     } else {
         myTickets.forEach(t => {
-            const statusBadge = t.status === 'Open' ? 'badge-open' : 'badge-closed';
-            if(t.status === 'Open') openTicketsCount++;
-
-            ticketList.innerHTML += `
-                <div class="ticket-item" style="padding: 1.25rem; border-radius: 16px; border: 1px solid #f1f5f9; margin-bottom: 1rem; background: #fff;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+            if(t.status === 'Open') openCount++;
+            list.innerHTML += `
+                <div style="background:#f8fafc; border-radius: 20px; padding: 1.5rem; margin-bottom: 1rem; border-left: 5px solid var(--s);">
+                    <div style="display:flex; justify-content:space-between; align-items:start;">
                         <div>
-                            <h4 style="margin: 0; font-family: 'Outfit'; font-size: 1.05rem;">${t.subject}</h4>
-                            <span style="font-size: 0.75rem; color: #94a3b8;">${t.id} • Opened ${t.date}</span>
+                            <h4 style="margin:0; color:var(--p);">${t.subject}</h4>
+                            <span style="font-size:0.75rem; color:var(--text-low);">${t.id} • ${t.date}</span>
                         </div>
-                        <span class="badge ${statusBadge}">${t.status}</span>
+                        <span class="badge ${t.status === 'Open' ? 'badge-pending' : 'badge-paid'}" style="font-size:0.6rem;">${t.status}</span>
                     </div>
-                    <p style="font-size: 0.85rem; color: #475569; margin: 0.5rem 0;">${t.message}</p>
-                    <div style="margin-top: 10px; display: flex; gap: 10px;">
-                         <button class="portal-btn-sm portal-btn-outline" style="font-size: 0.75rem;" onclick="alert('Opening chat...')">Reply</button>
-                         <span style="font-size: 0.75rem; color: #94a3b8; align-self: center;">Priority: ${t.priority}</span>
+                    <p style="font-size:0.85rem; color:var(--text-mid); margin:1rem 0;">${t.message}</p>
+                    <div style="display:flex; gap:10px;">
+                        <button class="portal-btn-primary" style="padding:0.4rem 1rem; width:auto; font-size:0.7rem; background:white; color:var(--p); border: 1px solid var(--border);" onclick="alert('Opening conversation...')">Respond</button>
                     </div>
                 </div>
             `;
         });
     }
 
-    document.getElementById('dashOpenTickets').textContent = openTicketsCount;
+    document.getElementById('dashOpenTickets').textContent = openCount;
 }
 
-function loadClientServices() {
-    const servicesGrid = document.getElementById('servicesGrid');
-    if(!servicesGrid) return;
+/**
+ * Service Mock Loader
+ */
+function loadServices() {
+    const grid = document.getElementById('servicesGrid');
+    if(!grid) return;
     
-    const mockServices = [
-        { name: "Premium Hosting Plan", cycle: "Annually", exp: "Oct 12, 2026", icon: "fa-server", status: "Active" },
-        { name: "Bulk SMS (10K Units)", cycle: "Prepaid", exp: "Never", icon: "fa-comment-alt", status: "Active" },
-        { name: "maintenance.shanfix.com", cycle: "Monthly", exp: "Nov 01, 2026", icon: "fa-globe", status: "Active" }
+    const mocks = [
+        { name: "Enterprise Hosting", icon: "fa-server", type: "Server", status: "Active", val: "Online" },
+        { name: "Bulk Messaging", icon: "fa-comments", type: "SMS API", status: "Active", val: "5K Units" },
+        { name: "Security Suite", icon: "fa-shield-alt", type: "Firewall", status: "Active", val: "Protected" }
     ];
 
-    document.getElementById('dashActiveServices').textContent = mockServices.length;
-
-    servicesGrid.innerHTML = '';
-    mockServices.forEach(srv => {
-        servicesGrid.innerHTML += `
-            <div class="service-card glass-card">
-                <div class="service-card-header">
-                    <div class="service-icon-box"><i class="fas ${srv.icon}"></i></div>
-                    <span class="service-status">${srv.status}</span>
+    document.getElementById('dashActiveServices').textContent = mocks.length;
+    grid.innerHTML = '';
+    
+    mocks.forEach(m => {
+        grid.innerHTML += `
+            <div class="stat-card" style="padding:1.5rem; border-radius: 24px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem;">
+                    <div class="stat-icon" style="margin:0; width:48px; height:48px;"><i class="fas ${m.icon}"></i></div>
+                    <span style="font-size:0.7rem; font-weight:800; color:var(--s); background:rgba(11, 181, 11, 0.1); padding: 4px 10px; border-radius: 10px;">${m.status}</span>
                 </div>
-                <h4>${srv.name}</h4>
-                <p>${srv.cycle} Billing Cycle</p>
-                <div class="service-footer">
-                    <span class="renewal-date">Renews: ${srv.exp}</span>
-                    <button class="portal-btn-sm portal-btn-outline">Manage</button>
+                <h4 style="margin:0; color:var(--p);">${m.name}</h4>
+                <div style="font-size:0.8rem; color:var(--text-low); margin-top: 4px;">${m.type}</div>
+                <div style="margin-top: 1.5rem; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:700; font-size:1.1rem; color:var(--p);">${m.val}</span>
+                    <i class="fas fa-arrow-right" style="color:var(--text-low); cursor:pointer;"></i>
                 </div>
             </div>
         `;
