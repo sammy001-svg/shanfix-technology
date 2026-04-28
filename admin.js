@@ -151,18 +151,38 @@ function initTicketsPage() {
 
 
 
-function handleLogin(form) {
-    form.addEventListener('submit', (e) => {
+async function handleLogin(form) {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('email').value;
-        const pass = document.getElementById('password').value;
+        const password = document.getElementById('password').value;
 
-        // Mock login
-        if (email === 'admin@shanfix.com' && pass === 'admin123') {
-            sessionStorage.setItem('isAdmin', 'true');
-            window.location.href = 'index.php';
-        } else {
-            alert('Invalid credentials!');
+        const btn = form.querySelector('button');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authorizing...';
+        btn.disabled = true;
+
+        try {
+            const response = await fetch('api/login.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                sessionStorage.setItem('isAdmin', 'true');
+                sessionStorage.setItem('adminName', data.admin_name);
+                window.location.href = 'index.php';
+            } else {
+                alert(data.message || 'Invalid credentials!');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        } catch (error) {
+            alert('Server connection failed. Please try again.');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
         }
     });
 }
