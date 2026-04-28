@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shanfix Technology | Our Story</title>
+    <link rel="stylesheet" href="./index.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+        .service-hero {
+            height: 60vh;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+        }
+        .service-hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+        }
+        .service-hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        .service-hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+        .service-detail-section {
+            padding: 80px 0;
+        }
+        .service-content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+        }
+        .sidebar-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+        }
+        .sidebar-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #083F0C;
+        }
+        .service-list {
+            list-style: none;
+            padding: 0;
+        }
+        .service-list li {
+            margin-bottom: 10px;
+        }
+        .service-list a {
+            color: #4b5563;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        .service-list a:hover, .service-list a.active {
+            background: #083F0C;
+            color: white;
+        }
+        @media (max-width: 992px) {
+            .service-content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+      <link rel="stylesheet" href="./chatbot.css" />
+  </head>
+  <body>
+    <!-- Top Header Bar -->
+    <div class="top-header">
+      <div class="container top-header-container">
+        <div class="top-header-left">
+          <a href="tel:+254751869165" class="top-header-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+            </svg>
+            <span>+254 751 869 165</span>
+          </a>
+          <a href="mailto:info@shanfixtechnology.com" class="top-header-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+            <span>info@shanfixtechnology.com</span>
+          </a>
+          <span class="top-header-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span>Tana House, Karen - Nairobi</span>
+          </span>
+        </div>
+        <div class="top-header-right">
+          <a href="https://www.kaki.co.ke" target="_blank" rel="noopener noreferrer" class="top-header-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+            </svg>
+            <span>Computer Repair / Shop</span>
+          </a>
+          <a href="admin/login.html" class="top-header-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>Login</span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <nav class="navbar" id="navbar">
+      <div class="container nav-container">
+        <div class="logo">
+          <a href="index.html">
+            <img src="assets/shanfix-logo.png" alt="Shanfix Technology Logo" class="logo-image">
+          </a>
+        </div>
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li class="nav-item-dropdown">
+            <a href="index.html#about" class="nav-link">
+              About Us
+              <svg class="dropdown-arrow" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+            </a>
+            <div class="mega-menu">
+              <div class="mega-menu-content">
+                <a href="who-we-are.html" class="mega-menu-item">
+                  <div class="mega-menu-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="9" cy="7" r="4"></circle>
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                  </div>
+                  <div class="mega-menu-text">
+                    <h4>Who We Are</h4>
+                    <p>Our Mission, Vision & Team</p>
+                  </div>
+                </a>
+                <a href="portfolio.html" class="mega-menu-item">
+                  <div class="mega-menu-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                  </div>
+                  <div class="mega-menu-text">
+                    <h4>Portfolio</h4>
+                    <p>Showcase of Our Recent Work</p>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </li>
+          <li class="nav-item-dropdown">
+            <a href="index.html#services" class="nav-link">
+              Our Services
+              <svg class="dropdown-arrow" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+            </a>
+             <div class="mega-menu">
+              <div class="mega-menu-content">
+                <a href="web-development.html" class="mega-menu-item">
+                  <div class="mega-menu-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="2" y="4" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+                      <path d="M2 8 H22" stroke="currentColor" stroke-width="2"/>
+                      <path d="M7 12 L10 15 L7 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M13 18 H17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                  <div class="mega-menu-text">
+                    <h4>Web Development</h4>
+                    <p>Custom websites & web applications</p>
+                  </div>
+                </a>
+                <a href="web-hosting.html" class="mega-menu-item">
+                  <div class="mega-menu-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="3" y="4" width="18" height="5" rx="1" stroke="currentColor" stroke-width="2"/>
+                      <rect x="3" y="11" width="18" height="5" rx="1" stroke="currentColor" stroke-width="2"/>
+                      <rect x="3" y="18" width="18" height="2" rx="1" stroke="currentColor" stroke-width="2"/>
+                      <circle cx="6" cy="6.5" r="0.5" fill="currentColor"/>
+                      <circle cx="8" cy="6.5" r="0.5" fill="currentColor"/>
+                      <circle cx="6" cy="13.5" r="0.5" fill="currentColor"/>
+                      <circle cx="8" cy="13.5" r="0.5" fill="currentColor"/>
+                    </svg>
+                  </div>
+                  <div class="mega-menu-text">
+                    <h4>Web Hosting</h4>
+                    <p>Reliable & secure hosting solutions</p>
+                  </div>
+                </a>
+                <a href="software-solution.html" class="mega-menu-item">
+                  <div class="mega-menu-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="4" y="6" width="16" height="12" rx="2" stroke="currentColor" stroke-width="2"/>
+                      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                      <path d="M12 9 V6" stroke="currentColor" stroke-width="2"/>
+                      <path d="M12 18 V15" stroke="currentColor" stroke-width="2"/>
+                      <path d="M9 12 H4" stroke="currentColor" stroke-width="2"/>
+                      <path d="M20 12 H15" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                  </div>
+                  <div class="mega-menu-text">
+                    <h4>Software Solution</h4>
+                    <p>Custom software & system development</p>
+                  </div>
+                </a>
+                <a href="digital-marketing.html" class="mega-menu-item">
+                  <div class="mega-menu-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3 8 L10 12 L3 16 V8Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                      <path d="M10 4 L21 12 L10 20 V4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                      <circle cx="17" cy="8" r="2" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                  </div>
+                  <div class="mega-menu-text">
+                    <h4>Digital Marketing</h4>
+                    <p>SEO, social media & online advertising</p>
+                  </div>
+                </a>
+                <a href="networking-solution.html" class="mega-menu-item">
+                  <div class="mega-menu-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="12" cy="5" r="2" stroke="currentColor" stroke-width="2"/>
+                      <circle cx="5" cy="19" r="2" stroke="currentColor" stroke-width="2"/>
+                      <circle cx="19" cy="19" r="2" stroke="currentColor" stroke-width="2"/>
+                      <path d="M11 7 L7 17" stroke="currentColor" stroke-width="2"/>
+                      <path d="M13 7 L17 17" stroke="currentColor" stroke-width="2"/>
+                      <path d="M7 19 H17" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                  </div>
+                  <div class="mega-menu-text">
+                    <h4>Networking</h4>
+                    <p>Network setup & IT infrastructure</p>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </li>
+          <li class="nav-item-dropdown">
+            <a href="printing-branding.html" class="nav-link">
+              Printing & Branding
+              <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </a>
+            <div class="mega-menu">
+              <div class="mega-menu-content">
+                <a href="printing-branding.html" class="mega-menu-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                  </svg>
+                  <div>
+                    <h4>Printing & Branding</h4>
+                    <p>Professional printing services and brand materials</p>
+                  </div>
+                </a>
+                <a href="printing-branding.html" class="mega-menu-item">
+                  <div class="mega-menu-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                      <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                      <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                  </div>
+                  <div class="mega-menu-text">
+                    <h4>Graphics Design</h4>
+                    <p>Creative design solutions for your brand identity</p>
+                  </div>
+                </a>
+                <a href="printing-branding.html" class="mega-menu-item">
+                  <div class="mega-menu-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 3h18v18H3z"></path>
+                      <path d="M9 9h6v6H9z"></path>
+                    </svg>
+                  </div>
+                  <div class="mega-menu-text">
+                    <h4>3D & 2D Signages</h4>
+                    <p>Eye-catching signage solutions for your business</p>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </li>
+          <li><a href="event-management.html" class="nav-link">Event Solution</a></li>
+          <li><a href="contact.html" class="nav-link">Contacts</a></li>
+        </ul>
+        <button
+          class="mobile-menu-toggle"
+          id="mobileMenuToggle"
+          aria-label="Toggle menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </nav>    <section class="service-hero who-we-are-hero">
+        <div class="service-hero-overlay"></div>
+        <div class="container service-hero-content">
+            <h1 data-aos="fade-up">Our Story</h1>
+            <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="100">Providing a collaborative nurturing space for digital, technology and internet companies since 2019.</p>
+        </div>
+    </section>
+
+    <section class="service-detail-section">
+        <div class="container">
+                <div class="service-main">
+                    <h2 class="section-title">Our Story</h2>
+                    <p class="lead section-lead">
+                        Providing a collaborative nurturing space for digital, technology and internet companies since 2019.
+                    </p>
+                    <p class="mb-25">
+                        Our solutions reflect a deep understanding of real-world business challenges, thanks to our utilization of technology to render practical solutions. As a result, we have successfully completed 1k plus projects within and outside the Kenyan markets. Shanfix was built on core values and continuously work towards excellence, which results in uncompromising quality and outstanding performance.
+                    </p>
+                    
+                    <h3 class="mt-2rem mb-25">Our Key Differentiators:</h3>
+                    <ul class="feature-list">
+                        <li class="feature-item">
+                            <div class="feature-icon-circle">1</div>
+                            <div>
+                                <strong class="feature-inner-title">Digital Assurance Capabilities:</strong>
+                                <p>We have created award-winning tools that assure the digital transformation of enterprises.</p>
+                            </div>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon-circle">2</div>
+                            <div>
+                                <strong class="feature-inner-title">Quality Engineering Expertise:</strong>
+                                <p>Our decade of experience in quality engineering enable us to impact customers businesses remarkably.</p>
+                            </div>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon-circle">3</div>
+                            <div>
+                                <strong class="feature-inner-title">Phenomenal Customer Relationship:</strong>
+                                <p>Here we preserve confidentiality and build enduring relationships based on trust, with clients.</p>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <!-- Belief and Action Cards Section -->
+                    <div class="belief-cards-section" data-aos="fade-up">
+                        <div class="belief-cards-grid">
+                            <!-- Our Belief -->
+                            <div class="belief-card">
+                                <div class="belief-card-icon">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M19,22H5V20H19V22M17,10C17,13.27 15.34,16.14 12.83,17.8L12,18.33L11.17,17.8C8.66,16.14 7,13.27 7,10A5,5 0 0,1 12,5A5,5 0 0,1 17,10M15,10A3,3 0 0,0 12,7A3,3 0 0,0 9,10A3,3 0 0,0 12,13A3,3 0 0,0 15,10Z" />
+                                    </svg>
+                                </div>
+                                <h3 class="belief-card-title">Our belief</h3>
+                                <p class="belief-card-text">
+                                    Individual commitment fuels teamwork, fostering company growth.
+                                </p>
+                                <p class="belief-card-text">
+                                    Shanfix Technology is a leading Mobile App and Web Development company in Kenya. We use the latest and high-quality technologies to develop apps and websites that deliver unique and mesmerizing experiences to users.
+                                </p>
+                            </div>
+
+                            <!-- What We Do -->
+                            <div class="belief-card">
+                                <div class="belief-card-icon">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15M12,2C6.47,2 2,6.47 2,12C2,17.53 6.47,22 12,22C17.53,22 22,17.53 22,12C22,6.47 17.53,2 12,2M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20Z" />
+                                    </svg>
+                                </div>
+                                <h3 class="belief-card-title">What We Do</h3>
+                                <p class="belief-card-text">
+                                    Shanfix Technology is a leading Mobile App Development & Website Development company. With our skillful and dedicated team, we serve the growing portfolio of our clients from all over the world.
+                                </p>
+                                <p class="belief-card-text">
+                                    Shanfix creates Robust Applications, Exemplary Websites, world-class content, high-quality graphics, superior services, and result-oriented solutions on time and within your budget.
+                                </p>
+                            </div>
+
+                            <!-- What We Believe -->
+                            <div class="belief-card">
+                                <div class="belief-card-icon">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,11A1,1 0 0,1 13,12A1,1 0 0,1 12,13A1,1 0 0,1 11,12A1,1 0 0,1 12,11M11,18H13V16H11V18M11,10H13V6H11V10Z" />
+                                    </svg>
+                                </div>
+                                <h3 class="belief-card-title">What We Believe</h3>
+                                <p class="belief-card-text">
+                                    We believe in offering excellent services that are backed with international standards of coding. We blend the perfect plan for your project with our deep analysis and market research that ensures an accurate outcome.
+                                </p>
+                                <p class="belief-card-text">
+                                    We also conduct several workshops and programs to update our employees and keep support in their self-growth.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us Section -->
+    <section class="why-choose-us" id="why-us">
+      <div class="why-grid">
+        <div class="why-image-wrapper" data-aos="fade-right">
+          <img src="assets/why_choose_us_woman_working.png" alt="Professional lady working" class="why-image">
+        </div>
+        <div class="why-content" data-aos="fade-left">
+          <h2 class="why-title">Why Choose Us?</h2>
+          <p class="why-text">
+            We work with change-oriented executives to help them make better decisions, 
+            convert those decisions to actions and deliver the sustainable success they desire.
+          </p>
+          <p class="why-text">
+            Our management consulting services focus on our clients' most critical issues and 
+            opportunities: strategy, marketing, organization, operations, technology, 
+            transformation, digital.
+          </p>
+          
+          <div class="why-skills">
+            <!-- Web Development -->
+            <div class="skill-item">
+              <span class="skill-name">Web Development</span>
+              <div class="skill-bar">
+                <div class="skill-progress w-90" data-aos="skill-animate"></div>
+              </div>
+            </div>
+            
+            <!-- Digital Marketing -->
+            <div class="skill-item">
+              <span class="skill-name">Digital Marketing</span>
+              <div class="skill-bar">
+                <div class="skill-progress w-80" data-aos="skill-animate"></div>
+              </div>
+            </div>
+            
+            <!-- System Development -->
+            <div class="skill-item">
+              <span class="skill-name">System Development</span>
+              <div class="skill-bar">
+                <div class="skill-progress w-75" data-aos="skill-animate"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+        <footer class="footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div class="footer-col">
+            <img src="assets/shanfix-logo.png" alt="Shanfix Technology Logo" class="footer-logo">
+            <p class="footer-text">
+              Your trusted partner for innovative technology and business
+              solutions in Nairobi, Kenya.
+            </p>
+          </div>
+          <div class="footer-col">
+            <h4 class="footer-heading">Quick Links</h4>
+            <ul class="footer-links">
+              <li><a href="index.html">Home</a></li>
+              <li><a href="who-we-are.html">About Us</a></li>
+              <li><a href="index.html#services">Our Services</a></li>
+              <li><a href="portfolio.html">Portfolio</a></li>
+              <li><a href="contact.html">Contact Us</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4 class="footer-heading">Our Services</h4>
+            <ul class="footer-links">
+              <li><a href="web-development.html">Web Development</a></li>
+              <li><a href="software-solution.html">Software Solution</a></li>
+              <li><a href="bulk-sms.html">Bulk SMS</a></li>
+              <li><a href="seo-boost.html">SEO Boost</a></li>
+              <li><a href="networking-solution.html">Networking</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4 class="footer-heading">Connect</h4>
+            <div class="social-links">
+              <a href="#" aria-label="Facebook" class="social-link">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
+                  />
+                </svg>
+              </a>
+              <a href="#" aria-label="Twitter" class="social-link">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"
+                  />
+                </svg>
+              </a>
+              <a href="#" aria-label="LinkedIn" class="social-link">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"
+                  />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2026 Shanfix Technology. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+    <script src="./main.js"></script>
+      <script src="./chatbot.js"></script>
+  </body>
+</html>
+
+
+
