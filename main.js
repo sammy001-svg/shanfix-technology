@@ -86,18 +86,26 @@ indicators.forEach((indicator, index) => {
 });
 
 // Smooth Scroll Navigation
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+document.querySelectorAll('a[href*="#"]').forEach(anchor => {
   anchor.addEventListener('click', function (e) {
-    e.preventDefault();
-    const target = document.querySelector(this.getAttribute('href'));
-    if (target) {
-      const navHeight = document.querySelector('.navbar').offsetHeight;
-      const targetPosition = target.offsetTop - navHeight;
+    const href = this.getAttribute('href');
+    
+    // Check if it's purely a fragment on the current page OR if it's for current page
+    if (href.startsWith('#') || href.startsWith('index.php#')) {
+      const fragment = href.includes('#') ? '#' + href.split('#')[1] : null;
+      const target = fragment ? document.querySelector(fragment) : null;
       
-      window.scrollTo({
-        top: targetPosition,
-        behavior: 'smooth'
-      });
+      if (target) {
+        e.preventDefault();
+        const navHeight = document.querySelector('.navbar').offsetHeight;
+        const targetPosition = target.offsetTop - navHeight;
+        
+        window.scrollTo({
+          top: targetPosition,
+          behavior: 'smooth'
+        });
+      }
+      // If it's index.php#ButNotThisPage, let the link follow normally
     }
   });
 });

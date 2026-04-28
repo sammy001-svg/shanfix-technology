@@ -72,13 +72,13 @@
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
       <div class="container nav-container">
-        <div class="logo">
+        <div class="logo" onclick="window.location.href='index.php'" style="cursor: pointer;">
           <img src="assets/shanfix-logo.png" alt="Shanfix Technology Logo" class="logo-image">
         </div>
         <ul class="nav-menu" id="navMenu">
-          <li><a href="#home" class="nav-link">Home</a></li>
+          <li><a href="index.php" class="nav-link">Home</a></li>
           <li class="nav-item-dropdown">
-            <a href="#about" class="nav-link">
+            <a href="index.php#about" class="nav-link">
               About Us
               <svg class="dropdown-arrow" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
@@ -116,7 +116,7 @@
             </div>
           </li>
           <li class="nav-item-dropdown">
-            <a href="#services" class="nav-link">
+            <a href="index.php#services" class="nav-link">
               Our Services
               <svg class="dropdown-arrow" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
@@ -204,7 +204,7 @@
             </div>
           </li>
           <li class="nav-item-dropdown">
-            <a href="#printing" class="nav-link">
+            <a href="index.php#services" class="nav-link">
               Printing & Branding
               <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="6 9 12 15 18 9"></polyline>
