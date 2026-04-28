@@ -461,80 +461,122 @@ if (orderModal) {
 // DYNAMIC CATEGORIZED CATALOG
 // ===================================
 
-function renderCategorizedCatalog() {
+async function renderCategorizedCatalog() {
     const catalogContainer = document.getElementById('dynamicCatalog');
     if (!catalogContainer) return;
 
-    // Load data
-    const products = JSON.parse(localStorage.getItem('admin_products')) || [];
-    const categories = JSON.parse(localStorage.getItem('admin_categories')) || ['T-shirt Branding', 'Corporate Stationery', 'Signage & Banners', 'Promotional Items'];
+    // Show loading state
+    catalogContainer.innerHTML = `
+        <div class="loading-catalog" style="text-align: center; padding: 50px;">
+            <div class="spinner" style="margin-bottom: 20px;"><i class="fas fa-circle-notch fa-spin fa-3x"></i></div>
+            <p>Loading our premium catalog...</p>
+        </div>
+    `;
 
-    if (products.length === 0) {
-        catalogContainer.innerHTML = `
-            <div class="empty-catalog" data-aos="fade-up">
-                <i class="fas fa-box-open"></i>
-                <p>Our premium catalog is currently being updated. Please check back soon!</p>
-            </div>
-        `;
-        return;
-    }
+    try {
+        // Fetch categories and products in parallel
+        const [catRes, prodRes] = await Promise.all([
+            fetch('admin/api/categories.php'),
+            fetch('admin/api/products.php')
+        ]);
 
-    // Group products by category
-    const grouped = {};
-    categories.forEach(cat => grouped[cat] = []);
-    products.forEach(p => {
-        if (!grouped[p.category]) grouped[p.category] = [];
-        grouped[p.category].push(p);
-    });
+        const catData = await catRes.json();
+        const prodData = await prodRes.json();
 
-    // Generate HTML
-    let catalogHtml = '';
-    categories.forEach(cat => {
-        const catProducts = grouped[cat];
-        if (catProducts && catProducts.length > 0) {
-            catalogHtml += `
-                <div class="catalog-category-section" data-aos="fade-up">
-                    <h2 class="category-heading">${cat}</h2>
-                    <div class="product-grid">
-                        ${catProducts.map(p => `
-                            <div class="product-card" data-aos="fade-up"
-                                 data-product-name="${p.name}" 
-                                 data-product-price="${p.price}" 
-                                 data-product-image="${p.image}"
-                                 data-product-description="${p.description}">
-                                <div class="product-image-wrapper">
-                                    <img src="${p.image}" alt="${p.name}" class="product-image">
-                                    <div class="product-overlay">
-                                        <div class="overlay-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        if (!catData.success || !prodData.success) {
+            throw new Error('Failed to load catalog data');
+        }
+
+        const categories = catData.categories.map(c => c.name);
+        const products = prodData.products;
+
+        if (products.length === 0) {
+            catalogContainer.innerHTML = `
+                <div class="empty-catalog" data-aos="fade-up">
+                    <i class="fas fa-box-open"></i>
+                    <p>Our premium catalog is currently being updated. Please check back soon!</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Group products by category name
+        const grouped = {};
+        categories.forEach(cat => grouped[cat] = []);
+        
+        products.forEach(p => {
+            const catName = p.category_name;
+            if (!grouped[catName]) grouped[catName] = [];
+            grouped[catName].push(p);
+        });
+
+        // Generate HTML
+        let catalogHtml = '';
+        categories.forEach(cat => {
+            const catProducts = grouped[cat];
+            if (catProducts && catProducts.length > 0) {
+                catalogHtml += `
+                    <div class="catalog-category-section" data-aos="fade-up">
+                        <h2 class="category-heading">${cat}</h2>
+                        <div class="product-grid">
+                            ${catProducts.map(p => `
+                                <div class="product-card" data-aos="fade-up"
+                                     data-product-name="${p.name}" 
+                                     data-product-price="${p.price}" 
+                                     data-product-image="${p.image_url}"
+                                     data-product-description="${p.description}">
+                                    <div class="product-image-wrapper">
+                                        <img src="${p.image_url}" alt="${p.name}" class="product-image" onerror="this.src='assets/img/placeholder.jpg'">
+                                        <div class="product-overlay">
+                                            <div class="overlay-icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="product-content">
+                                        <span class="product-category">${cat}</span>
+                                        <h3 class="product-title">${p.name}</h3>
+                                        <p class="product-description">${(p.description || '').substring(0, 100)}${(p.description || '').length > 100 ? '...' : ''}</p>
+                                        <div class="product-footer">
+                                            <div class="product-price"><span>KES</span> ${p.price}</div>
+                                            <button class="btn btn-primary btn-buy open-order-modal">Order Now</button>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="product-content">
-                                    <span class="product-category">${cat}</span>
-                                    <h3 class="product-title">${p.name}</h3>
-                                    <p class="product-description">${p.description.substring(0, 100)}${p.description.length > 100 ? '...' : ''}</p>
-                                    <div class="product-footer">
-                                        <div class="product-price"><span>KES</span> ${p.price}</div>
-                                        <button class="btn btn-primary btn-buy open-order-modal">Order Now</button>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
+                            `).join('')}
+                        </div>
                     </div>
+                `;
+            }
+        });
+
+        if (catalogHtml === '') {
+             catalogContainer.innerHTML = `
+                <div class="empty-catalog" data-aos="fade-up">
+                    <i class="fas fa-box-open"></i>
+                    <p>No products available in the selected categories.</p>
                 </div>
             `;
+        } else {
+            catalogContainer.innerHTML = catalogHtml;
         }
-    });
 
-    catalogContainer.innerHTML = catalogHtml;
+        // Re-initialize Order Modal triggers for dynamic content
+        initOrderModalTriggers();
+        
+        // Re-initialize AOS for new elements
+        if (window.AOS) {
+            AOS.refresh();
+        }
 
-    // Re-initialize Order Modal triggers for dynamic content
-    initOrderModalTriggers();
-    
-    // Re-initialize AOS for new elements
-    if (window.AOS) {
-        AOS.refresh();
+    } catch (error) {
+        console.error('Catalog loading error:', error);
+        catalogContainer.innerHTML = `
+            <div class="error-catalog" style="text-align: center; padding: 50px; color: #dc3545;">
+                <i class="fas fa-exclamation-triangle fa-3x" style="margin-bottom: 20px;"></i>
+                <p>Unable to load the catalog. Please try refreshing the page.</p>
+            </div>
+        `;
     }
 }
 

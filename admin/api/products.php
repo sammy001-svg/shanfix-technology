@@ -9,8 +9,8 @@ require_once '../../includes/db_connect.php';
 
 session_start();
 
-// Security Check (In production, verify role === 'admin')
-if (!isset($_SESSION['user_id'])) {
+// The GET method is public (for storefront), but POST/DELETE require auth
+if ($_SERVER['REQUEST_METHOD'] !== 'GET' && !isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized.']);
     exit;
 }

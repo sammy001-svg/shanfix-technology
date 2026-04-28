@@ -8,7 +8,8 @@ require_once '../../includes/db_connect.php';
 
 session_start();
 
-if (!isset($_SESSION['user_id'])) {
+// Public GET access, but other methods require auth
+if ($_SERVER['REQUEST_METHOD'] !== 'GET' && !isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized.']);
     exit;
 }
