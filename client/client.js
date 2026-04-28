@@ -204,7 +204,7 @@ async function loadTickets() {
                         </div>
                         <p style="font-size:0.85rem; color:var(--text-mid); margin:1rem 0;">${t.message}</p>
                         <div style="display:flex; gap:10px;">
-                            <button class="portal-btn-primary" style="padding:0.4rem 1rem; width:auto; font-size:0.7rem; background:white; color:var(--p); border: 1px solid var(--border);" onclick="alert('Opening conversation...')">Respond</button>
+                            <button class="portal-btn-primary" style="padding:0.4rem 1rem; width:auto; font-size:0.7rem; background:white; color:var(--p); border: 1px solid var(--border);" onclick="viewTicketConversation('${t.id}')">View Conversation</button>
                         </div>
                     </div>
                 `;
@@ -217,6 +217,74 @@ async function loadTickets() {
         console.error('Ticket Load Error:', error);
     }
 }
+
+let activeTicketId = null;
+
+window.viewTicketConversation = async function(ref) {
+    try {
+        const response = await fetch(`api/ticket_details.php?ref=${ref}`);
+        const data = await response.json();
+
+        if (data.success) {
+            activeTicketId = data.ticket.id;
+            document.getElementById('modalTicketTitle').textContent = `${data.ticket.ticket_ref} - ${data.ticket.subject}`;
+            
+            const thread = document.getElementById('ticketThread');
+            thread.innerHTML = `
+                <div class="ticket-bubble bubble-client">
+                    <span class="bubble-meta">You (${data.ticket.created_at})</span>
+                    ${data.ticket.message}
+                </div>
+            `;
+
+            data.replies.forEach(reply => {
+                const isMe = !reply.is_admin_reply;
+                thread.innerHTML += `
+                    <div class="ticket-bubble bubble-${isMe ? 'client' : 'admin'}">
+                        <span class="bubble-meta">${isMe ? 'You' : 'Shanfix Support'} (${reply.created_at})</span>
+                        ${reply.message}
+                    </div>
+                `;
+            });
+
+            // Handle closed state
+            const isClosed = data.ticket.status.toLowerCase() === 'closed';
+            document.getElementById('clientReplyArea').style.display = isClosed ? 'none' : 'block';
+            document.getElementById('ticketClosedMsg').style.display = isClosed ? 'block' : 'none';
+
+            document.getElementById('ticketModal').style.display = 'block';
+            thread.scrollTop = thread.scrollHeight;
+        }
+    } catch (error) {
+        alert('Could not load conversation.');
+    }
+};
+
+window.submitClientReply = async function() {
+    const msg = document.getElementById('clientReplyMessage').value.trim();
+    if (!msg) return;
+
+    try {
+        const response = await fetch('api/ticket_reply.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ticket_id: activeTicketId, message: msg })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            document.getElementById('clientReplyMessage').value = '';
+            const ref = document.getElementById('modalTicketTitle').textContent.split(' - ')[0];
+            viewTicketConversation(ref); // Refresh
+        }
+    } catch (error) {
+        alert('Failed to send reply.');
+    }
+};
+
+window.closeTicketModal = function() {
+    document.getElementById('ticketModal').style.display = 'none';
+};
 
 /**
  * Service Mock Loader

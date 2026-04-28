@@ -263,6 +263,36 @@
         </div>
     </main>
 
+    <!-- Ticket Detail Modal -->
+    <div id="ticketModal" class="portal-modal">
+        <div class="portal-modal-content" style="max-width: 800px;">
+            <div class="portal-modal-header">
+                <h3 id="modalTicketTitle" class="outfit" style="color: var(--p);">Ticket Conversation</h3>
+                <button class="close-modal" onclick="closeTicketModal()">&times;</button>
+            </div>
+            <div class="portal-modal-body">
+                <div id="ticketThread" class="ticket-thread-container">
+                    <!-- Conversation loads here -->
+                </div>
+
+                <div class="reply-section mt-20" id="clientReplyArea">
+                    <div class="form-group-premium">
+                        <textarea id="clientReplyMessage" class="form-control" placeholder=" " rows="4" style="border: 1px solid var(--border);"></textarea>
+                        <label for="clientReplyMessage">Your Response</label>
+                    </div>
+                    <div class="mt-15" style="display:flex; justify-content:flex-end;">
+                        <button class="portal-btn-primary" onclick="submitClientReply()" style="width: auto; padding: 0.8rem 2rem;">
+                            <i class="fas fa-paper-plane mr-1"></i> Send Reply
+                        </button>
+                    </div>
+                </div>
+                <div id="ticketClosedMsg" style="display:none; text-align:center; padding: 1rem; background: #fee2e2; color: #b91c1c; border-radius: 12px; margin-top: 1rem;">
+                    This ticket has been closed. Please open a new ticket for further assistance.
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="client.js"></script>
 </body>
 </html>

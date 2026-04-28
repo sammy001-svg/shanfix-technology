@@ -52,8 +52,7 @@
         <section class="admin-content">
             <div class="admin-card">
                 <div class="flex-end-gap mb-15">
-                    <h2>Manage Open Tickets</h2>
-                    <button class="admin-btn admin-btn-secondary" onclick="clearAllTickets()"><i class="fas fa-trash"></i> Clear All</button>
+                    <h2>Manage Support Tickets</h2>
                 </div>
                 
                 <div class="admin-table-container">
@@ -76,6 +75,31 @@
             </div>
         </section>
     </main>
+
+    <!-- Ticket Detail Modal -->
+    <div id="ticketModal" class="admin-modal">
+        <div class="admin-modal-content" style="max-width: 800px;">
+            <div class="admin-modal-header">
+                <h3 id="modalTicketTitle">Ticket Conversation</h3>
+                <button class="close-modal" onclick="closeTicketModal()">&times;</button>
+            </div>
+            <div class="admin-modal-body">
+                <div id="ticketThread" class="ticket-thread-container">
+                    <!-- Conversation loads here -->
+                </div>
+
+                <div class="reply-section mt-20">
+                    <label class="admin-label">Admin Response</label>
+                    <textarea id="adminReplyMessage" class="admin-input" rows="4" placeholder="Type your response to the client..."></textarea>
+                    <div class="mt-15 flex-end">
+                        <button class="admin-btn admin-btn-primary" onclick="submitAdminReply()">
+                            <i class="fas fa-paper-plane mr-1"></i> Send Response
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="../admin.js?v=4"></script>
 </body>

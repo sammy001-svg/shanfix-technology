@@ -35,53 +35,114 @@ function initTicketsPage() {
     const tbody = document.getElementById('adminTicketsBody');
     if (!tbody) return;
 
-    function renderTickets() {
-        const tickets = JSON.parse(localStorage.getItem('portal_tickets')) || [];
-        tbody.innerHTML = '';
+    let currentTicketId = null;
 
-        if (tickets.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">No support tickets found.</td></tr>';
-            return;
+    async function renderTickets() {
+        try {
+            const response = await fetch('api/tickets.php');
+            const data = await response.json();
+            
+            tbody.innerHTML = '';
+            if (!data.success || data.tickets.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">No support tickets found in database.</td></tr>';
+                return;
+            }
+
+            data.tickets.forEach(ticket => {
+                const statusClass = ticket.status.toLowerCase() === 'open' ? 'badge-pending' : 'badge-paid';
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${ticket.ticket_ref}</strong></td>
+                        <td>${ticket.clientEmail}</td>
+                        <td>${ticket.subject}</td>
+                        <td>${ticket.priority}</td>
+                        <td><span class="badge ${statusClass}">${ticket.status}</span></td>
+                        <td>
+                            <button class="admin-btn-sm admin-btn-primary" onclick="viewTicketDetails('${ticket.ticket_ref}')">View & Reply</button>
+                            ${ticket.status.toLowerCase() === 'open' ? `<button class="admin-btn-sm admin-btn-secondary" onclick="closeTicket('${ticket.id}')">Close</button>` : ''}
+                        </td>
+                    </tr>
+                `;
+            });
+        } catch (error) {
+            console.error('Fetch Tickets Error:', error);
         }
-
-        tickets.forEach(ticket => {
-            const statusClass = ticket.status === 'Open' ? 'badge-pending' : 'badge-paid';
-            tbody.innerHTML += `
-                <tr>
-                    <td><strong>${ticket.id}</strong></td>
-                    <td>${ticket.clientEmail}</td>
-                    <td>${ticket.subject}</td>
-                    <td>${ticket.priority}</td>
-                    <td><span class="badge ${statusClass}">${ticket.status}</span></td>
-                    <td>
-                        <button class="admin-btn-sm admin-btn-primary" onclick="replyTicket('${ticket.id}')">Reply</button>
-                        <button class="admin-btn-sm admin-btn-secondary" onclick="closeTicket('${ticket.id}')">Close</button>
-                    </td>
-                </tr>
-            `;
-        });
     }
 
-    window.replyTicket = function(id) {
-        alert('Replying to ticket ' + id + '\\n\\n(Logic to be implemented to add message to ticket thread)');
-    };
+    window.viewTicketDetails = async function(ref) {
+        try {
+            const response = await fetch(`../client/api/ticket_details.php?ref=${ref}`);
+            const data = await response.json();
 
-    window.closeTicket = function(id) {
-        if(confirm('Mark this ticket as closed?')) {
-            let tickets = JSON.parse(localStorage.getItem('portal_tickets')) || [];
-            let tIdx = tickets.findIndex(t => t.id === id);
-            if(tIdx > -1) {
-                tickets[tIdx].status = 'Closed';
-                localStorage.setItem('portal_tickets', JSON.stringify(tickets));
-                renderTickets();
+            if (data.success) {
+                currentTicketId = data.ticket.id;
+                document.getElementById('modalTicketTitle').textContent = `Ticket: ${data.ticket.ticket_ref} - ${data.ticket.subject}`;
+                
+                const thread = document.getElementById('ticketThread');
+                thread.innerHTML = `
+                    <div class="ticket-bubble bubble-client">
+                        <span class="bubble-meta">${data.ticket.client_name} (${data.ticket.created_at})</span>
+                        ${data.ticket.message}
+                    </div>
+                `;
+
+                data.replies.forEach(reply => {
+                    const type = reply.is_admin_reply ? 'admin' : 'client';
+                    thread.innerHTML += `
+                        <div class="ticket-bubble bubble-${type}">
+                            <span class="bubble-meta">${reply.author_name} (${reply.created_at})</span>
+                            ${reply.message}
+                        </div>
+                    `;
+                });
+
+                document.getElementById('ticketModal').style.display = 'block';
+                thread.scrollTop = thread.scrollHeight;
             }
+        } catch (error) {
+            alert('Could not load ticket details.');
         }
     };
 
-    window.clearAllTickets = function() {
-        if(confirm('Are you sure you want to delete all tickets?')) {
-            localStorage.removeItem('portal_tickets');
-            renderTickets();
+    window.submitAdminReply = async function() {
+        const message = document.getElementById('adminReplyMessage').value.trim();
+        if (!message) return;
+
+        try {
+            const response = await fetch('../client/api/ticket_reply.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ticket_id: currentTicketId, message: message })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                document.getElementById('adminReplyMessage').value = '';
+                const ticket_ref = document.getElementById('modalTicketTitle').textContent.split(': ')[1].split(' - ')[0];
+                viewTicketDetails(ticket_ref); // Refresh thread
+            }
+        } catch (error) {
+            alert('Failed to send reply.');
+        }
+    };
+
+    window.closeTicketModal = function() {
+        document.getElementById('ticketModal').style.display = 'none';
+    };
+
+    window.closeTicket = async function(id) {
+        if(confirm('Mark this ticket as closed?')) {
+            try {
+                const response = await fetch('api/tickets.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'close', ticket_id: id })
+                });
+                const data = await response.json();
+                if (data.success) renderTickets();
+            } catch (error) {
+                alert('Failed to close ticket.');
+            }
         }
     };
 
