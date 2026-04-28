@@ -129,14 +129,14 @@ CREATE TABLE IF NOT EXISTS `ticket_replies` (
 -- --------------------------------------------------------
 
 -- Categories
-INSERT INTO `categories` (`name`, `slug`, `description`) VALUES
+INSERT IGNORE INTO `categories` (`name`, `slug`, `description`) VALUES
 ('Web Hosting', 'web-hosting', 'Premium server space for your online presence'),
 ('Printing & Branding', 'printing-branding', 'High-quality physical marketing materials'),
 ('Software Solutions', 'software-solutions', 'Custom software and app development'),
 ('Digital Marketing', 'digital-marketing', 'Boost your online visibility');
 
 -- Default Admin (Password: admin123)
-INSERT INTO `users` (`full_name`, `email`, `password`, `role`) VALUES
+INSERT IGNORE INTO `users` (`full_name`, `email`, `password`, `role`) VALUES
 ('Shanfix Admin', 'admin@shanfix.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
 
 COMMIT;

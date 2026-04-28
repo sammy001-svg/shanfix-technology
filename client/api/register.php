@@ -7,11 +7,17 @@
 header('Content-Type: application/json');
 require_once '../../includes/db_connect.php';
 
-// Get POST data
+// Get POST data (handle both JSON and standard form-data)
 $input = json_decode(file_get_contents('php://input'), true);
 
 if (!$input) {
-    echo json_encode(['success' => false, 'message' => 'Invalid request data.']);
+    // Fallback to standard $_POST if JSON decode fails
+    $input = $_POST;
+}
+
+if (empty($input)) {
+    error_log("Registration Attempt Failed: No input data received.");
+    echo json_encode(['success' => false, 'message' => 'No data received by the server.']);
     exit;
 }
 
