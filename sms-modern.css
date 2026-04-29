@@ -238,7 +238,45 @@
 }
 
 @media (max-width: 768px) {
+    .sms-hero {
+        margin-top: 98px; /* Adjusted for mobile header height */
+        height: auto;
+        padding: var(--spacing-3xl) 0;
+    }
+
+    .sms-hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .sms-features, .sms-pricing, .sms-cta {
+        padding: var(--spacing-2xl) 0;
+    }
+
+    .section-header {
+        margin-bottom: var(--spacing-2xl);
+    }
+
+    .pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 450px;
+        margin: 0 auto;
+    }
+
     .pricing-card.featured {
         transform: scale(1);
+    }
+}
+
+@media (max-width: 480px) {
+    .sms-hero h1 {
+        font-size: 2rem;
+    }
+
+    .pricing-card {
+        padding: var(--spacing-xl);
+    }
+
+    .price {
+        font-size: 2.5rem;
     }
 }
