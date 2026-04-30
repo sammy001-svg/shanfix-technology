@@ -306,7 +306,7 @@ a {
 
 .nav-container {
   display: flex;
-  align-items: flex-end;
+  align-items: center; /* Changed from flex-end for better centering */
   justify-content: space-between;
   padding: var(--spacing-sm) var(--spacing-md);
 }
@@ -389,6 +389,9 @@ a {
 @media (min-width: 768px) {
   .nav-menu {
     display: flex;
+    gap: 2rem; /* Added gap for proper spacing */
+    align-items: center;
+    list-style: none;
   }
 }
 
@@ -487,8 +490,8 @@ a {
   margin-top: 1rem;
   opacity: 0;
   visibility: hidden;
-  transition: all var(--transition-base);
-  transition-delay: 0.5s; /* Delay disappearance */
+  display: none; /* Ensure it's not rendered by default */
+  transition: opacity var(--transition-base), transform var(--transition-base), margin var(--transition-base);
   pointer-events: none;
   z-index: 1000;
 }
@@ -496,9 +499,9 @@ a {
 .nav-item-dropdown:hover .mega-menu {
   opacity: 1;
   visibility: visible;
+  display: block; /* Show on hover */
   margin-top: 0.5rem;
   pointer-events: all;
-  transition-delay: 0s; /* Show immediately */
 }
 
 /* Bridge the gap between trigger and menu to prevent accidental closing */
@@ -512,15 +515,32 @@ a {
 }
 
 .mega-menu-content {
-  background: #59e00a;
+  background: var(--color-white); /* Changed to white for better contrast */
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-2xl);
-  padding: var(--spacing-md);
-  min-width: 500px;
+  padding: var(--spacing-lg);
+  min-width: 900px; /* Increased width for 3 columns */
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.5rem;
+  grid-template-columns: repeat(3, 1fr); /* 3 columns */
+  gap: 1.5rem;
   border: 1px solid var(--color-gray-100);
+}
+
+.mega-menu-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mega-menu-category-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-primary-dark);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-gray-100);
 }
 
 .mega-menu-item {
