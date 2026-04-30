@@ -53,8 +53,9 @@
     <!--End of Tawk.to Script-->
   </head>
   <body>
-    <!-- Top Header Bar -->
-    <div class="top-header">
+    <header class="main-header">
+      <!-- Top Header Bar -->
+      <div class="top-header">
       <div class="container top-header-container">
         <div class="top-header-left">
           <a href="tel:+254751869165" class="top-header-item">
@@ -266,6 +267,8 @@
           </li>
           <li><a href="portfolio.php" class="nav-link">Portfolio</a></li>
           <li><a href="contact.php" class="nav-link">Contacts</a></li>
+          <li><a href="https://aicoder.shanfixtechnology.com/" class="btn btn-primary nav-btn-small">AI Coder</a></li>
+          <li><a href="https://automation.shanfixtechnology.com/" class="btn btn-secondary nav-btn-small">AI Automations</a></li>
         </ul>
         <button
           class="mobile-menu-toggle"
@@ -278,3 +281,4 @@
         </button>
       </div>
     </nav>
+    </header>

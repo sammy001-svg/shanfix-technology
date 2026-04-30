@@ -80,6 +80,10 @@
   --transition-fast: 150ms ease-in-out;
   --transition-base: 250ms ease-in-out;
   --transition-slow: 350ms ease-in-out;
+
+  /* Header heights */
+  --header-height-desktop: 110px;
+  --header-height-mobile: 130px;
 }
 
 /* ===================================
@@ -169,14 +173,25 @@ a {
 }
 
 /* ===================================
-   TOP HEADER
+   MAIN HEADER WRAPPER
    =================================== */
 
-.top-header {
+.main-header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
+  z-index: 1000;
+  box-shadow: var(--shadow-md);
+  background: var(--color-white);
+}
+
+/* ===================================
+   TOP HEADER
+   =================================== */
+
+.top-header {
+  position: relative;
   z-index: 1001;
   background: #59e00a;
   color: var(--color-gray-900);
@@ -261,23 +276,28 @@ a {
     display: none; /* Hide contact info on small mobile to save space */
   }
   
-  @media (min-width: 480px) {
-    .top-header-left {
-      display: flex;
-      gap: 1rem;
-    }
+  .top-header-link {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.7rem;
+    gap: 0.25rem;
+  }
+
+  .top-header-link svg {
+    width: 14px;
+    height: 14px;
   }
 
   .top-header-item span {
     display: none;
   }
+}
 
-  .top-header-link {
-    padding: 0.4rem 0.75rem;
-  }
-
+@media (max-width: 480px) {
   .top-header-link span {
-    font-size: 0.7rem;
+    display: none; /* Icons only on tiny screens */
+  }
+  .top-header-link {
+    padding: 0.5rem;
   }
 }
 
@@ -286,8 +306,7 @@ a {
    =================================== */
 
 .navbar {
-  position: fixed;
-  top: 53px; /* Default desktop */
+  position: relative;
   left: 0;
   right: 0;
   z-index: 1000;
@@ -300,7 +319,7 @@ a {
 
 @media (max-width: 768px) {
   .navbar {
-    top: 40px; /* Adjusted for compact mobile top-header */
+    top: 0; /* Reset since parent is fixed */
   }
 }
 
@@ -359,10 +378,10 @@ a {
 @media (max-width: 767px) {
   .nav-menu {
     position: fixed;
-    top: 98px; /* navbar top (40) + navbar height (approx 58) */
+    top: var(--header-height-mobile);
     left: 0;
     width: 100%;
-    height: calc(100vh - 98px);
+    height: calc(100vh - var(--header-height-mobile));
     background: #083f0c;
     flex-direction: column;
     padding: var(--spacing-xl) var(--spacing-md);
@@ -649,9 +668,20 @@ a {
 
 @media (max-width: 768px) {
   .hero {
-    padding-top: 98px;
+    padding-top: var(--header-height-mobile);
     min-height: 80vh;
   }
+}
+
+/* Adjust standard sections too */
+.section-white, .section-light {
+    scroll-margin-top: var(--header-height-desktop);
+}
+
+@media (max-width: 768px) {
+    .section-white, .section-light {
+        scroll-margin-top: var(--header-height-mobile);
+    }
 }
 
 .hero-carousel {
@@ -898,6 +928,24 @@ a {
 
 .btn-block {
   width: 100%;
+}
+
+/* Nav Button Specifics */
+.nav-btn-small {
+  padding: 0.5rem 1.25rem !important;
+  font-size: 0.875rem !important;
+  border-radius: var(--radius-md) !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .nav-btn-small {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
 }
 
 /* ===================================
