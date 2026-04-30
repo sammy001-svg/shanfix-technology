@@ -3,18 +3,32 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Primary Meta Tags -->
+    <title>Shanfix Technology | Premier IT Solutions & Digital Services in Nairobi</title>
+    <meta name="title" content="Shanfix Technology | Premier IT Solutions & Digital Services in Nairobi" />
     <meta
       name="description"
-      content="Shanfix Technology - Leading provider of web development, system development, bulk SMS, SEO, networking, printing & branding, and event management services in Nairobi, Kenya."
+      content="Shanfix Technology is a leading IT solutions provider in Nairobi, Kenya, specializing in Web Development, Software Solutions, Bulk SMS, SEO, Networking, Printing & Branding, and Event Management."
     />
     <meta
       name="keywords"
-      content="web development, system development, bulk SMS, SEO, networking, printing, branding, event management, Nairobi, Kenya"
+      content="web development, system development, bulk SMS, SEO, networking, printing, branding, event management, Nairobi, Kenya, Shanfix Technology"
     />
     <meta name="author" content="Shanfix Technology" />
-    <title>
-      Shanfix Technology | Web Development & IT Solutions in Nairobi
-    </title>
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://shanfixtechnology.com/" />
+    <meta property="og:title" content="Shanfix Technology | Premier IT Solutions & Digital Services" />
+    <meta property="og:description" content="Innovating your digital future with expert Web Development, Software Solutions, and Branding services in Nairobi, Kenya." />
+    <meta property="og:image" content="https://shanfixtechnology.com/assets/og-image.png" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://shanfixtechnology.com/" />
+    <meta property="twitter:title" content="Shanfix Technology | Premier IT Solutions & Digital Services" />
+    <meta property="twitter:description" content="Innovating your digital future with expert Web Development, Software Solutions, and Branding services in Nairobi, Kenya." />
+    <meta property="twitter:image" content="https://shanfixtechnology.com/assets/og-image.png" />
     <link rel="stylesheet" href="./index.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
