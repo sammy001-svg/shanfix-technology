@@ -620,3 +620,167 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCategorizedCatalog();
     }
 });
+// ===================================
+// HOSTING CHECKOUT LOGIC
+// ===================================
+
+const checkoutModal = document.getElementById('checkoutModal');
+const checkoutForm = document.getElementById('checkoutForm');
+const steps = document.querySelectorAll('.checkout-step');
+const stepIndicators = document.querySelectorAll('.step-indicator .step');
+const nextBtns = document.querySelectorAll('.next-step');
+const prevBtns = document.querySelectorAll('.prev-step');
+let currentCheckoutStep = 1;
+
+// Function to open checkout modal
+function openCheckout(packageName, packagePrice) {
+    const displayPackageName = document.getElementById('displayPackageName');
+    const displayPackagePrice = document.getElementById('displayPackagePrice');
+    
+    if (displayPackageName) displayPackageName.textContent = packageName;
+    if (displayPackagePrice) displayPackagePrice.textContent = packagePrice;
+    
+    // Reset to step 1
+    currentCheckoutStep = 1;
+    updateStepVisibility();
+    
+    if (checkoutModal) {
+        checkoutModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+// Update step visibility and indicators
+function updateStepVisibility() {
+    steps.forEach((step, index) => {
+        step.classList.toggle('active', index + 1 === currentCheckoutStep);
+    });
+    
+    stepIndicators.forEach((indicator, index) => {
+        indicator.classList.toggle('active', index + 1 <= currentCheckoutStep);
+    });
+}
+
+// Navigation Listeners
+nextBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        if (validateStep(currentCheckoutStep)) {
+            currentCheckoutStep++;
+            updateStepVisibility();
+        }
+    });
+});
+
+prevBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        currentCheckoutStep--;
+        updateStepVisibility();
+    });
+});
+
+// Basic step validation
+function validateStep(step) {
+    if (step === 1) {
+        const confirmCheck = document.getElementById('confirmPackage');
+        if (!confirmCheck.checked) {
+            alert('Please confirm your package selection.');
+            return false;
+        }
+    } else if (step === 2) {
+        const requiredInputs = steps[1].querySelectorAll('[required]');
+        let valid = true;
+        requiredInputs.forEach(input => {
+            if (!input.value.trim()) {
+                input.style.borderColor = '#ef4444';
+                valid = false;
+            } else {
+                input.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            }
+        });
+        
+        // Password match check
+        const password = document.getElementById('regPassword').value;
+        const confirm = document.getElementById('confirmPassword').value;
+        if (password !== confirm) {
+            alert('Passwords do not match!');
+            valid = false;
+        }
+        
+        if (!valid) alert('Please fill in all required fields.');
+        return valid;
+    }
+    return true;
+}
+
+// Payment method toggle
+const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+paymentRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        const bankDetails = document.getElementById('bankDetails');
+        const mpesaDetails = document.getElementById('mpesaDetails');
+        
+        if (e.target.value === 'bank') {
+            bankDetails.classList.remove('hidden');
+            mpesaDetails.classList.add('hidden');
+        } else {
+            bankDetails.classList.add('hidden');
+            mpesaDetails.classList.remove('hidden');
+        }
+    });
+});
+
+// Close modal
+const closeCheckoutBtn = document.querySelector('.checkout-modal .close-modal');
+if (closeCheckoutBtn) {
+    closeCheckoutBtn.addEventListener('click', () => {
+        checkoutModal.classList.remove('active');
+        document.body.style.overflow = '';
+    });
+}
+
+// Form Submission
+if (checkoutForm) {
+    checkoutForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = document.getElementById('submitOrder');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Processing...';
+        
+        const formData = new FormData(checkoutForm);
+        // Add package details from the display elements
+        formData.append('package_name', document.getElementById('displayPackageName').textContent);
+        formData.append('package_price', document.getElementById('displayPackagePrice').textContent);
+        
+        try {
+            const response = await fetch('process_checkout.php', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('Success! Your order has been placed and is awaiting approval. You will be redirected to your dashboard.');
+                window.location.href = 'client-area.php'; // Redirect to client area
+            } else {
+                alert('Error: ' + result.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Complete Purchase';
+            }
+        } catch (error) {
+            console.error('Checkout error:', error);
+            alert('An unexpected error occurred. Please try again.');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Complete Purchase';
+        }
+    });
+}
+
+// Attach to hosting buttons
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('open-checkout-modal')) {
+        e.preventDefault();
+        const packageName = e.target.dataset.packageName;
+        const packagePrice = e.target.dataset.packagePrice;
+        openCheckout(packageName, packagePrice);
+    }
+});
