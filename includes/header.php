@@ -265,6 +265,150 @@
               </div>
             </div>
           </li>
+          <li class="nav-item-dropdown">
+            <a href="software-solution.php" class="nav-link">
+              Our Software
+              <svg class="dropdown-arrow" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+            </a>
+            <div class="mega-menu">
+              <div class="mega-menu-content">
+                <!-- Column 1: Retail & Enterprise -->
+                <div class="mega-menu-column">
+                  <h5 class="mega-menu-category-title">Retail & Enterprise</h5>
+                  <a href="pos-solution.php" class="mega-menu-item">
+                    <div class="mega-menu-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    </div>
+                    <div class="mega-menu-text">
+                      <h4>Point of Sales</h4>
+                      <p>Retail & Hospitality POS</p>
+                    </div>
+                  </a>
+                  <a href="erp-solution.php" class="mega-menu-item">
+                    <div class="mega-menu-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/><path d="M3 9h6M15 9h6M9 3v6M9 15v6"/></svg>
+                    </div>
+                    <div class="mega-menu-text">
+                      <h4>Business ERP</h4>
+                      <p>Full business integration</p>
+                    </div>
+                  </a>
+                  <a href="software-solution.php#accounting" class="mega-menu-item">
+                    <div class="mega-menu-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="16" y2="18"/></svg>
+                    </div>
+                    <div class="mega-menu-text">
+                      <h4>Accounting System</h4>
+                      <p>Financial tracking & reports</p>
+                    </div>
+                  </a>
+                  <a href="software-solution.php#hardware" class="mega-menu-item">
+                    <div class="mega-menu-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                    </div>
+                    <div class="mega-menu-text">
+                      <h4>Hardware Management</h4>
+                      <p>Specialized inventory POS</p>
+                    </div>
+                  </a>
+                  <a href="software-solution.php#crm" class="mega-menu-item">
+                    <div class="mega-menu-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <div class="mega-menu-text">
+                      <h4>CRM</h4>
+                      <p>Client relationship tools</p>
+                    </div>
+                  </a>
+                </div>
+
+                <!-- Column 2: Specialized Systems -->
+                <div class="mega-menu-column">
+                  <h5 class="mega-menu-category-title">Specialized Systems</h5>
+                  <a href="software-solution.php#school" class="mega-menu-item">
+                    <div class="mega-menu-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                    </div>
+                    <div class="mega-menu-text">
+                      <h4>School Management</h4>
+                      <p>Academic institution ERP</p>
+                    </div>
+                  </a>
+                  <a href="software-solution.php#hospital" class="mega-menu-item">
+                    <div class="mega-menu-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                    </div>
+                    <div class="mega-menu-text">
+                      <h4>Hospital Management</h4>
+                      <p>Healthcare records & billing</p>
+                    </div>
+                  </a>
+                  <a href="software-solution.php#rental" class="mega-menu-item">
+                    <div class="mega-menu-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    </div>
+                    <div class="mega-menu-text">
+                      <h4>Rental Management</h4>
+                      <p>Property & rental tracking</p>
+                    </div>
+                  </a>
+                  <a href="software-solution.php#caryard" class="mega-menu-item">
+                    <div class="mega-menu-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+                    </div>
+                    <div class="mega-menu-text">
+                      <h4>Car Yard Management</h4>
+                      <p>Inventory & sales tracking</p>
+                    </div>
+                  </a>
+                </div>
+
+                <!-- Column 3: Finance & Operations -->
+                <div class="mega-menu-column">
+                  <h5 class="mega-menu-category-title">Finance & Operations</h5>
+                  <a href="software-solution.php#sacco" class="mega-menu-item">
+                    <div class="mega-menu-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <div class="mega-menu-text">
+                      <h4>SACCO Management</h4>
+                      <p>Savings & credit tools</p>
+                    </div>
+                  </a>
+                  <a href="software-solution.php#microfinance" class="mega-menu-item">
+                    <div class="mega-menu-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    </div>
+                    <div class="mega-menu-text">
+                      <h4>Microfinance System</h4>
+                      <p>Loan & interest tracking</p>
+                    </div>
+                  </a>
+                  <a href="software-solution.php#hrm" class="mega-menu-item">
+                    <div class="mega-menu-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+                    </div>
+                    <div class="mega-menu-text">
+                      <h4>HRM</h4>
+                      <p>Employee & payroll management</p>
+                    </div>
+                  </a>
+                  <a href="software-solution.php#transport" class="mega-menu-item">
+                    <div class="mega-menu-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polyline points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                    </div>
+                    <div class="mega-menu-text">
+                      <h4>Transport Management</h4>
+                      <p>Logistics & fleet tracking</p>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </li>
+
           <li><a href="portfolio.php" class="nav-link">Portfolio</a></li>
           <li><a href="contact.php" class="nav-link">Contacts</a></li>
           <li><a href="https://aicoder.shanfixtechnology.com/" class="btn btn-primary nav-btn-small">AI Coder</a></li>
