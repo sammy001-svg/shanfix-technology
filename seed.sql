@@ -6,7 +6,7 @@ INSERT INTO `users` (`full_name`, `email`, `password`, `role`, `status`)
 VALUES (
     'Shanfix Administrator', 
     'info@shanfixtechnology.com', 
-    '$2y$10$lkPZLgfOI3n1HV6plD2DNu.VlbGEDjkIxdHI/sM0qyB0QGz1ooJsG', 
+    '$2y$10$AzUVKD/iX3kZhqUYgsry6OPuQg6hblSo6guCy.e/lQ9/y6sghrBXy', 
     'admin', 
     'active'
 ) 

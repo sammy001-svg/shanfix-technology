@@ -5,10 +5,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap');
 
 :root {
-    /* Brand Colors */
-    --p: #083f0c; /* Deep Forest Green */
-    --s: #22c55e; /* High-Viz Green */
-    --accent: #ef4444; /* Alert Red */
+    /* Brand Colors - Modern Palette */
+    --p: #6366f1; /* Indigo Primary */
+    --s: #10b981; /* Emerald Success */
+    --accent: #f59e0b; /* Amber Accent */
+    --danger: #ef4444; /* Rose Danger */
     
     /* Layout Tokens */
     --sidebar-w: 280px;
@@ -17,20 +18,20 @@
     --radius-xl: 32px;
     
     /* Modern Glass System */
-    --admin-bg: #030816;
-    --card-bg: rgba(255, 255, 255, 0.03);
-    --card-border: rgba(255, 255, 255, 0.08);
+    --admin-bg: #0b0f1a;
+    --card-bg: rgba(30, 41, 59, 0.4);
+    --card-border: rgba(255, 255, 255, 0.05);
     --glass: rgba(255, 255, 255, 0.02);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.08);
     
     /* Typography */
     --text-main: #f8fafc;
     --text-low: #94a3b8;
     
     /* Gradients */
-    --grad-primary: linear-gradient(135deg, #083f0c 0%, #052607 100%);
-    --grad-accent: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-    --grad-card: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+    --grad-primary: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    --grad-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --grad-glass: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
 }
 
 * {
@@ -43,9 +44,8 @@
 body.admin-body {
     background: var(--admin-bg);
     background-image: 
-        radial-gradient(circle at 10% 10%, rgba(34, 197, 94, 0.05) 0%, transparent 40%),
-        radial-gradient(circle at 90% 90%, rgba(239, 68, 68, 0.03) 0%, transparent 40%),
-        url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+        radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 90%, rgba(16, 185, 129, 0.05) 0%, transparent 40%);
     color: var(--text-main);
     font-family: 'Inter', sans-serif;
     min-height: 100vh;
@@ -123,9 +123,9 @@ body.admin-body {
 }
 
 .admin-nav-item.active {
-    background: var(--grad-accent);
+    background: var(--grad-primary);
     color: white;
-    box-shadow: 0 8px 25px rgba(34, 197, 94, 0.25);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.25);
 }
 
 .admin-nav-divider {
@@ -300,11 +300,13 @@ body.admin-body {
 /* Modern Cards */
 .admin-card {
     background: var(--card-bg);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     border: 1px solid var(--card-border);
     border-radius: var(--radius-xl);
     padding: 3rem;
     margin-bottom: 3rem;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
 .admin-card h2 {
@@ -428,6 +430,31 @@ body.admin-body {
     border-color: var(--s);
     background: rgba(255, 255, 255, 0.08);
     box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.15);
+}
+
+select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1.5rem center;
+    background-size: 1.2rem;
+    padding-right: 3.5rem;
+    cursor: pointer;
+}
+
+select.form-control option {
+    background: var(--admin-bg);
+    color: white;
+    padding: 1rem;
+}
+
+.admin-select-custom {
+    color: white !important;
+}
+
+.admin-select-custom option {
+    background-color: #1e293b !important;
+    color: white !important;
 }
 
 /* --- Auth & Login --- */
@@ -595,7 +622,10 @@ body.admin-body {
 
 /* Template System */
 .hidden-template, 
-#invoiceTemplateContainer, 
+#invoiceTemplateContainer,
+#welcomeLetterContainer {
+    display: none !important;
+}
 #receiptTemplateContainer,
 .preview-hidden {
     display: none !important;
@@ -690,3 +720,310 @@ body.admin-body {
 .bubble-admin .bubble-meta {
     color: rgba(255, 255, 255, 0.8);
 }
+
+/* --- Modern Dashboard Specifics --- */
+.admin-subtitle {
+    color: var(--text-low);
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+.icon-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.icon-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.stat-main {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.stat-icon-box {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+}
+
+.bg-indigo { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+.bg-emerald { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+.bg-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+
+.stat-trend {
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.text-success { color: var(--s); }
+.text-danger { color: var(--danger); }
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.grid-60-40 {
+    grid-template-columns: 1.5fr 1fr;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+.doughnut-container {
+    height: 250px;
+}
+
+.form-control-sm {
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: white;
+    font-size: 0.8rem;
+}
+
+.link-btn {
+    color: var(--p);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.transparent-table {
+    border: none;
+    background: transparent;
+}
+
+.transparent-table .admin-table th {
+    background: transparent;
+    padding-left: 0;
+}
+
+.transparent-table .admin-table td {
+    padding-left: 0;
+}
+
+.report-box {
+    background: rgba(255, 255, 255, 0.02);
+    padding: 1.5rem;
+    border-radius: 16px;
+    border: 1px solid var(--glass-border);
+}
+
+.report-box label {
+    font-size: 0.8rem;
+    color: var(--text-low);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.flex-align-center {
+    display: flex;
+    align-items: center;
+}
+
+.gap-10 { gap: 10px; }
+
+.admin-avatar-sm {
+    width: 40px;
+    height: 40px;
+    background: var(--grad-primary);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.flex-end-gap-sm {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.mb-30 { margin-bottom: 3rem; }
+
+.admin-search-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-low);
+}
+
+.admin-search-wrapper .form-control {
+    padding-left: 3.5rem;
+}
+
+.alert-box {
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    padding: 1.25rem;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--text-main);
+}
+
+.alert-box i {
+    font-size: 1.25rem;
+    color: var(--p);
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.status-active { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+.status-suspended { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+.status-pending { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+
+/* Selection Fixes */
+.admin-select-custom option {
+    background: #1e293b !important;
+    color: white !important;
+    padding: 1rem;
+}
+
+/* Featured Service Ribbon */
+.featured-service {
+    box-shadow: 0 15px 50px rgba(99, 102, 241, 0.15);
+}
+
+.popular-ribbon {
+    position: absolute;
+    top: 10px;
+    right: -30px;
+    background: var(--grad-primary);
+    color: white;
+    padding: 5px 40px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    transform: rotate(45deg);
+    z-index: 10;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    font-family: 'Outfit', sans-serif;
+}
+
+.badge-paid { background: rgba(34, 197, 94, 0.1); color: var(--s); border: 1px solid rgba(34, 197, 94, 0.2); }
+.badge-pending { background: rgba(245, 158, 11, 0.1); color: var(--accent); border: 1px solid rgba(245, 158, 11, 0.2); }
+
+/* Priority Pills */
+.priority-pill {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+.priority-low { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.priority-medium { background: rgba(99, 102, 241, 0.1); color: #6366f1; }
+.priority-high { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.priority-critical { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+/* Ticket Conversation Thread */
+.ticket-thread-container {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.01);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    border: 1px solid var(--glass-border);
+}
+
+.ticket-message {
+    max-width: 85%;
+    padding: 15px;
+    border-radius: 16px;
+    position: relative;
+}
+
+.ticket-client-message {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-bottom-left-radius: 4px;
+}
+
+.ticket-admin-message {
+    align-self: flex-end;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-bottom-right-radius: 4px;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.75rem;
+    color: var(--text-low);
+}
+
+.message-header strong {
+    color: var(--text-main);
+}
+
+.message-body {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text-main);
+    white-space: pre-wrap;
+}
+

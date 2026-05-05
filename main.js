@@ -526,7 +526,7 @@ async function renderCategorizedCatalog() {
                                      data-product-image="${p.image_url}"
                                      data-product-description="${p.description}">
                                     <div class="product-image-wrapper">
-                                        <img src="${p.image_url}" alt="${p.name}" class="product-image" onerror="this.src='assets/img/placeholder.jpg'">
+                                        <img src="${p.image_url}" alt="${p.name}" class="product-image" onerror="this.src='assets/img/placeholder.png'">
                                         <div class="product-overlay">
                                             <div class="overlay-icon">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>

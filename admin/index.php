@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Shanfix Admin</title>
+    <title>Analytics Dashboard - Shanfix Admin</title>
     <link rel="stylesheet" href="../admin.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="admin-body">
@@ -15,31 +15,39 @@
             <div class="admin-logo">Shanfix <span>Admin</span></div>
             <nav class="admin-nav">
                 <a href="index.php" class="admin-nav-item active">
-                    <i class="fas fa-grid-2"></i> <span>Dashboard</span>
+                    <i class="fas fa-chart-line"></i> <span>Insights</span>
                 </a>
+                <a href="clients.php" class="admin-nav-item">
+                    <i class="fas fa-users"></i> <span>Clients</span>
+                </a>
+                <a href="categories.php" class="admin-nav-item"><i class="fas fa-tags"></i> <span>Categories</span></a>
+                <a href="services.php" class="admin-nav-item"><i class="fas fa-concierge-bell"></i> <span>Services</span></a>
                 <a href="products.php" class="admin-nav-item">
-                    <i class="fas fa-boxes-stacked"></i> <span>Products & Catalog</span>
+                    <i class="fas fa-box"></i> <span>Catalog</span>
+                </a>
+                <a href="orders.php" class="admin-nav-item">
+                    <i class="fas fa-shopping-bag"></i> <span>Orders</span>
                 </a>
                 <a href="invoices.php" class="admin-nav-item">
-                    <i class="fas fa-file-invoice-dollar"></i> <span>Invoices</span>
+                    <i class="fas fa-file-invoice"></i> <span>Billing</span>
                 </a>
                 <a href="receipts.php" class="admin-nav-item">
                     <i class="fas fa-receipt"></i> <span>Receipts</span>
                 </a>
                 <a href="adverts.php" class="admin-nav-item">
-                    <i class="fas fa-rectangle-ad"></i> <span>Adverts</span>
+                    <i class="fas fa-ad"></i> <span>Adverts</span>
                 </a>
                 <a href="tickets.php" class="admin-nav-item">
-                    <i class="fas fa-headset"></i> <span>Support Tickets</span>
+                    <i class="fas fa-life-ring"></i> <span>Support</span>
                 </a>
                 <div class="admin-nav-divider"></div>
                 <a href="../index.php" class="admin-nav-item">
-                    <i class="fas fa-external-link-alt"></i> <span>View Portal</span>
+                    <i class="fas fa-external-link-alt"></i> <span>Live Site</span>
                 </a>
             </nav>
             <div class="admin-sidebar-footer">
                 <a href="login.php" class="admin-nav-item admin-footer-link" onclick="sessionStorage.clear()">
-                    <i class="fas fa-power-off"></i> <span>Secure Logout</span>
+                    <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
                 </a>
             </div>
         </aside>
@@ -47,51 +55,122 @@
         <!-- Main Content -->
         <main class="admin-main">
             <header class="admin-header">
-                <h1 class="admin-page-title">Dashboard Overview</h1>
+                <div class="admin-header-left">
+                    <h1 class="admin-page-title">Performance Overview</h1>
+                    <p class="admin-subtitle">Real-time business insights and analytics</p>
+                </div>
                 <div class="admin-user-profile">
-                    <span>Welcome, Administrator</span>
+                    <div class="admin-header-actions">
+                        <button class="icon-btn"><i class="fas fa-bell"></i></button>
+                        <button class="icon-btn"><i class="fas fa-search"></i></button>
+                    </div>
                     <div class="admin-avatar">A</div>
                 </div>
             </header>
 
             <section class="admin-content">
+                <!-- Analytics Cards -->
                 <div class="admin-stats-grid">
-                    <div class="admin-stat-card">
-                        <div class="stat-icon stat-icon-sales">
-                            <i class="fas fa-money-bill-trend-up"></i>
-                        </div>
-                        <div class="stat-info">
-                            <span id="stat_monthly_sales" class="stat-value">KES 0</span>
-                            <span class="stat-label">Monthly Sales</span>
-                        </div>
-                    </div>
-                    <div class="admin-stat-card">
-                        <div class="stat-icon stat-icon-pending">
-                            <i class="fas fa-wallet"></i>
-                        </div>
-                        <div class="stat-info">
-                            <span id="stat_pending_balances" class="stat-value">KES 0</span>
-                            <span class="stat-label">Pending Balances</span>
+                    <div class="admin-stat-card glass-card">
+                        <div class="stat-main">
+                            <div class="stat-icon-box bg-indigo">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <div class="stat-details">
+                                <span class="stat-label">Total Revenue</span>
+                                <h2 id="stat_yearly_sales" class="stat-value">KES 0</h2>
+                                <span class="stat-trend text-success"><i class="fas fa-arrow-up"></i> 12.5% vs last year</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="admin-stat-card">
-                        <div class="stat-icon stat-icon-yearly">
-                            <i class="fas fa-chart-line-up"></i>
+
+                    <div class="admin-stat-card glass-card">
+                        <div class="stat-main">
+                            <div class="stat-icon-box bg-emerald">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                            <div class="stat-details">
+                                <span class="stat-label">Monthly Sales</span>
+                                <h2 id="stat_monthly_sales" class="stat-value">KES 0</h2>
+                                <span class="stat-trend text-success"><i class="fas fa-arrow-up"></i> 8.2% vs last month</span>
+                            </div>
                         </div>
-                        <div class="stat-info">
-                            <span id="stat_yearly_sales" class="stat-value">KES 0</span>
-                            <span class="stat-label">Total Yearly Sales</span>
+                    </div>
+
+                    <div class="admin-stat-card glass-card">
+                        <div class="stat-main">
+                            <div class="stat-icon-box bg-amber">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-details">
+                                <span class="stat-label">Outstanding</span>
+                                <h2 id="stat_pending_balances" class="stat-value">KES 0</h2>
+                                <span class="stat-trend text-danger"><i class="fas fa-arrow-up"></i> 2.4% increase</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="banners-grid mb-20">
-                    <div class="admin-card">
-                        <h2 class="mb-15">Monthly Statement</h2>
-                        <div class="flex-end-gap">
-                            <div class="form-group mb-0">
-                                <label>Select Month</label>
-                                <select id="statement_month" class="form-control" title="Select Month">
+                <!-- Main Charts Area -->
+                <div class="dashboard-grid">
+                    <div class="admin-card chart-main-card glass-card">
+                        <div class="card-header">
+                            <h3>Revenue Trends</h3>
+                            <div class="card-actions">
+                                <select id="revenueRange" class="form-control-sm">
+                                    <option value="6">Last 6 Months</option>
+                                    <option value="12">Last 12 Months</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="admin-card chart-side-card glass-card">
+                        <div class="card-header">
+                            <h3>Order Distribution</h3>
+                        </div>
+                        <div class="chart-container doughnut-container">
+                            <canvas id="orderStatusChart"></canvas>
+                        </div>
+                        <div id="chartLegend" class="custom-legend"></div>
+                    </div>
+                </div>
+
+                <!-- Bottom Row -->
+                <div class="dashboard-grid grid-60-40">
+                    <div class="admin-card glass-card">
+                        <div class="flex-between mb-20">
+                            <h3>Recent Transactions</h3>
+                            <a href="invoices.php" class="link-btn">View All</a>
+                        </div>
+                        <div class="admin-table-container transparent-table">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Reference</th>
+                                        <th>Client</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashboard_activity">
+                                    <!-- Populated via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="admin-card glass-card">
+                        <h3>Quick Reports</h3>
+                        <p class="text-low mb-20">Generate on-demand financial statements</p>
+                        
+                        <div class="report-box mb-20">
+                            <label>Monthly Audit</label>
+                            <div class="flex-gap mt-10">
+                                <select id="statement_month" class="form-control-sm">
                                     <option value="0">January</option>
                                     <option value="1">February</option>
                                     <option value="2">March</option>
@@ -104,52 +183,30 @@
                                     <option value="9">October</option>
                                     <option value="10">November</option>
                                     <option value="11">December</option>
-                                 </select>
+                                </select>
+                                <button class="admin-btn-sm admin-btn-secondary" onclick="generateStatement('month')">
+                                    <i class="fas fa-download"></i>
+                                </button>
                             </div>
-                            <button class="admin-btn admin-btn-secondary" onclick="generateStatement('month')">
-                                <i class="fas fa-file-arrow-down"></i> Monthly
-                            </button>
                         </div>
-                    </div>
-                    <div class="admin-card">
-                        <h2 class="mb-15">Yearly Statement</h2>
-                        <div class="flex-end-gap">
-                            <div class="form-group mb-0">
-                                <label>Select Year</label>
-                                <select id="statement_year" class="form-control" title="Select Year">
+
+                        <div class="report-box">
+                            <label>Annual Statement</label>
+                            <div class="flex-gap mt-10">
+                                <select id="statement_year" class="form-control-sm">
                                     <option value="2026">2026</option>
                                     <option value="2025">2025</option>
-                                    <option value="2024">2024</option>
-                                 </select>
+                                </select>
+                                <button class="admin-btn-sm admin-btn-primary" onclick="generateStatement('year')">
+                                    <i class="fas fa-file-pdf"></i> Generate
+                                </button>
                             </div>
-                            <button class="admin-btn admin-btn-primary" onclick="generateStatement('year')">
-                                <i class="fas fa-file-shield"></i> Download Yearly
-                            </button>
                         </div>
-                    </div>
-                </div>
-
-                <div class="admin-card">
-                    <h2 class="mb-15">Recent Activity</h2>
-                    <div class="admin-table-container">
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Activity</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="dashboard_activity">
-                                <!-- Populated via JS -->
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </section>
         </main>
     </div>
-
 
     <!-- Financial Statement Template (Hidden) -->
     <div id="statementTemplateContainer" class="hidden-template">
@@ -212,8 +269,14 @@
         </div>
     </div>
 
-    <!-- PDF Library -->
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="../admin.js?v=10"></script>
+    <script src="../admin.js?v=13"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof initDashboard === 'function') initDashboard();
+        });
+    </script>
 </body>
 </html>

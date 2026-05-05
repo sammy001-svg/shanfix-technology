@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Support Center - Shanfix Admin</title>
+    <title>Orders - Shanfix Admin</title>
     <link rel="stylesheet" href="../admin.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -23,7 +23,7 @@
                 <a href="products.php" class="admin-nav-item">
                     <i class="fas fa-box"></i> <span>Catalog</span>
                 </a>
-                <a href="orders.php" class="admin-nav-item">
+                <a href="orders.php" class="admin-nav-item active">
                     <i class="fas fa-shopping-bag"></i> <span>Orders</span>
                 </a>
                 <a href="invoices.php" class="admin-nav-item">
@@ -35,7 +35,7 @@
                 <a href="adverts.php" class="admin-nav-item">
                     <i class="fas fa-ad"></i> <span>Adverts</span>
                 </a>
-                <a href="tickets.php" class="admin-nav-item active">
+                <a href="tickets.php" class="admin-nav-item">
                     <i class="fas fa-life-ring"></i> <span>Support</span>
                 </a>
                 <div class="admin-nav-divider"></div>
@@ -53,27 +53,24 @@
         <!-- Main Content -->
         <main class="admin-main">
             <header class="admin-header">
-                <div class="admin-header-left">
-                    <h1 class="admin-page-title">Client Support Center</h1>
-                    <p class="admin-subtitle">Manage service requests and technical assistance threads</p>
-                </div>
+                <h1 class="admin-page-title">Orders Management</h1>
                 <div class="admin-user-profile">
-                    <div class="admin-header-actions">
-                        <button class="icon-btn"><i class="fas fa-bell"></i></button>
-                    </div>
+                    <span>Welcome, Admin</span>
                     <div class="admin-avatar">A</div>
                 </div>
             </header>
 
             <section class="admin-content">
-                <div class="admin-card glass-card">
-                    <div class="flex-between mb-30">
-                        <h2 style="margin:0;">Support Interactions</h2>
+                <div class="admin-card">
+                    <div class="flex-between-center mb-20">
+                        <h2>Client Orders</h2>
                         <div class="flex-gap">
-                            <select id="ticketStatusFilter" class="form-control-sm" style="width: 150px;">
-                                <option value="all">All Tickets</option>
-                                <option value="open">Open Only</option>
-                                <option value="closed">Resolved</option>
+                            <select id="orderStatusFilter" class="form-control" style="width: 150px;">
+                                <option value="all">All Orders</option>
+                                <option value="pending">Pending</option>
+                                <option value="processing">Processing</option>
+                                <option value="ready">Ready</option>
+                                <option value="delivered">Delivered</option>
                             </select>
                         </div>
                     </div>
@@ -82,16 +79,17 @@
                         <table class="admin-table">
                             <thead>
                                 <tr>
-                                    <th>Ticket Ref</th>
-                                    <th>Client Identity</th>
-                                    <th>Subject / Topic</th>
-                                    <th>Priority</th>
-                                    <th>Current Status</th>
-                                    <th style="text-align: right;">Portal Action</th>
+                                    <th>Order #</th>
+                                    <th>Client</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="adminTicketsBody">
-                                <!-- Populated via admin.js -->
+                            <tbody id="orderTableBody">
+                                <!-- Populated via JS -->
                             </tbody>
                         </table>
                     </div>
@@ -100,27 +98,18 @@
         </main>
     </div>
 
-    <!-- Ticket Detail Modal -->
-    <div id="ticketModal" class="admin-modal">
-        <div class="admin-modal-content" style="max-width: 800px;">
+    <!-- Order Details Modal -->
+    <div id="orderDetailsModal" class="admin-modal">
+        <div class="admin-modal-content">
             <div class="admin-modal-header">
-                <h3 id="modalTicketTitle" class="admin-modal-title">Ticket Conversation</h3>
-                <span class="admin-modal-close" onclick="closeTicketModal()">&times;</span>
+                <h3 class="admin-modal-title">Order Details</h3>
+                <span class="admin-modal-close" onclick="closeOrderModal()">&times;</span>
             </div>
-            <div class="admin-modal-body">
-                <div id="ticketThread" class="ticket-thread-container">
-                    <!-- Conversation loads here -->
-                </div>
-
-                <div class="reply-section mt-20">
-                    <label class="form-group label" style="margin-bottom:10px; display:block;">Admin Official Response</label>
-                    <textarea id="adminReplyMessage" class="form-control" rows="4" placeholder="Type your response to the client..." style="background: rgba(255,255,255,0.02);"></textarea>
-                    <div class="mt-15" style="display:flex; justify-content:flex-end;">
-                        <button class="admin-btn admin-btn-primary" onclick="submitAdminReply()">
-                            <i class="fas fa-paper-plane mr-1"></i> Dispatch Response
-                        </button>
-                    </div>
-                </div>
+            <div class="admin-modal-body" id="orderDetailsArea">
+                <!-- Order info injected here -->
+            </div>
+            <div class="admin-modal-footer">
+                <button class="admin-btn admin-btn-secondary" onclick="closeOrderModal()">Close</button>
             </div>
         </div>
     </div>
@@ -128,7 +117,7 @@
     <script src="../admin.js?v=13"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            if (typeof initTicketsPage === 'function') initTicketsPage();
+            if (typeof initOrdersPage === 'function') initOrdersPage();
         });
     </script>
 </body>

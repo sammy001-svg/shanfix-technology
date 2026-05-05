@@ -11,31 +11,40 @@
 <body class="admin-body">
     <!-- Sidebar -->
     <aside class="admin-sidebar">
-        <div class="admin-logo">Shanfix Admin</div>
+        <div class="admin-logo">Shanfix <span>Admin</span></div>
         <nav class="admin-nav">
             <a href="index.php" class="admin-nav-item">
-                <i class="fas fa-home"></i> Dashboard
+                <i class="fas fa-chart-line"></i> <span>Insights</span>
+            </a>
+            <a href="clients.php" class="admin-nav-item">
+                <i class="fas fa-users"></i> <span>Clients</span>
             </a>
             <a href="products.php" class="admin-nav-item">
-                <i class="fas fa-box"></i> Products & Categories
+                <i class="fas fa-box"></i> <span>Catalog</span>
+            </a>
+            <a href="orders.php" class="admin-nav-item">
+                <i class="fas fa-shopping-bag"></i> <span>Orders</span>
             </a>
             <a href="invoices.php" class="admin-nav-item">
-                <i class="fas fa-file-invoice"></i> Invoices
+                <i class="fas fa-file-invoice"></i> <span>Billing</span>
             </a>
             <a href="receipts.php" class="admin-nav-item">
-                <i class="fas fa-receipt"></i> Receipts
+                <i class="fas fa-receipt"></i> <span>Receipts</span>
             </a>
             <a href="adverts.php" class="admin-nav-item active">
-                <i class="fas fa-ad"></i> Adverts
+                <i class="fas fa-ad"></i> <span>Adverts</span>
+            </a>
+            <a href="tickets.php" class="admin-nav-item">
+                <i class="fas fa-life-ring"></i> <span>Support</span>
             </a>
             <div class="admin-nav-divider"></div>
             <a href="../index.php" class="admin-nav-item">
-                <i class="fas fa-external-link-alt"></i> View Portal
+                <i class="fas fa-external-link-alt"></i> <span>Live Site</span>
             </a>
         </nav>
         <div class="admin-sidebar-footer">
             <a href="login.php" class="admin-nav-item admin-footer-link" onclick="sessionStorage.clear()">
-                <i class="fas fa-sign-out-alt"></i> Logout
+                <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
             </a>
         </div>
     </aside>
@@ -104,6 +113,6 @@
             </div>
         </section>
     </main>
-    <script src="../admin.js?v=10"></script>
+    <script src="../admin.js?v=13"></script>
 </body>
 </html>
