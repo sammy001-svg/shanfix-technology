@@ -327,7 +327,7 @@
                 <!-- Column 2: Specialized Systems -->
                 <div class="mega-menu-column">
                   <h5 class="mega-menu-category-title">Specialized Systems</h5>
-                  <a href="software-solution.php#school" class="mega-menu-item">
+                  <a href="school-management.php" class="mega-menu-item">
                     <div class="mega-menu-icon">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
                     </div>

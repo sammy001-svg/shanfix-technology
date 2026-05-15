@@ -10,8 +10,8 @@
                 <h1 data-aos="fade-up" data-aos-delay="100">The Next Generation of <span>Point of Sales</span></h1>
                 <p data-aos="fade-up" data-aos-delay="200">Empower your business with a unified POS system that synchronizes sales, inventory, and customer data in real-time across all your locations.</p>
                 <div class="hero-btns" data-aos="fade-up" data-aos-delay="300">
-                    <a href="contact.php" class="btn btn-primary">Get a Free Demo</a>
-                    <a href="#features" class="btn btn-secondary">Explore Features</a>
+                    <a href="https://pos.shanfixtechnology.com/" class="btn btn-primary">Login to POS</a>
+                    <a href="https://pos.shanfixtechnology.com/register.php" class="btn btn-secondary">Register Today</a>
                 </div>
                 
                 <div class="pos-stats" data-aos="fade-up" data-aos-delay="400">

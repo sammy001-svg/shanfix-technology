@@ -22,7 +22,7 @@
 .pos-hero {
     position: relative;
     padding: 220px 0 120px;
-    background: linear-gradient(rgba(var(--pos-bg-rgb, 2, 6, 23), 0.8), rgba(var(--pos-bg-rgb, 2, 6, 23), 0.8)), url('assets/pos-hero.png') no-repeat center center;
+    background: linear-gradient(rgba(2, 6, 23, 0.7), rgba(2, 6, 23, 0.7)), url('assets/pos-hero-new.png') no-repeat center center;
     background-size: cover;
     background-attachment: fixed;
 }
