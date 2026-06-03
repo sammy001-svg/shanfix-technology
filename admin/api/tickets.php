@@ -6,6 +6,7 @@
 
 header('Content-Type: application/json');
 require_once '../../includes/db_connect.php';
+require_once '../../includes/mailer.php';
 
 session_start();
 
@@ -90,9 +91,18 @@ if ($method === 'GET') {
         try {
             $stmt = $pdo->prepare("INSERT INTO ticket_replies (ticket_id, user_id, message, is_admin_reply) VALUES (?, ?, ?, 1)");
             $stmt->execute([$ticket_id, $_SESSION['user_id'], $message]);
-            
-            // Auto-update ticket status to 'replied' or keep 'open'
+
             $pdo->prepare("UPDATE tickets SET status = 'replied' WHERE id = ?")->execute([$ticket_id]);
+
+            // Notify client by email
+            $tStmt = $pdo->prepare("SELECT t.ticket_ref, t.subject, u.full_name, u.email
+                                    FROM tickets t JOIN users u ON t.user_id = u.id WHERE t.id = ?");
+            $tStmt->execute([$ticket_id]);
+            $tRow = $tStmt->fetch(PDO::FETCH_ASSOC);
+            if ($tRow) {
+                $replierName = $_SESSION['admin_name'] ?? 'Shanfix Support';
+                Mailer::ticketReply($tRow['full_name'], $tRow['email'], $tRow['ticket_ref'], $tRow['subject'], $replierName);
+            }
 
             ob_clean();
             echo json_encode(['success' => true, 'message' => 'Reply sent successfully.']);

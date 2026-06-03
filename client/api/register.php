@@ -6,6 +6,7 @@
 
 header('Content-Type: application/json');
 require_once '../../includes/db_connect.php';
+require_once '../../includes/mailer.php';
 
 // Clean any accidental output (like warnings or whitespace) to ensure valid JSON
 ob_start();
@@ -50,6 +51,7 @@ try {
     $result = $stmt->execute([$name, $email, $hashedPassword]);
 
     if ($result) {
+        Mailer::welcome($name, $email);
         ob_clean();
         echo json_encode(['success' => true, 'message' => 'Portal account created successfully!']);
     } else {

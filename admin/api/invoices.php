@@ -4,6 +4,7 @@
  */
 header('Content-Type: application/json');
 require_once '../../includes/db_connect.php';
+require_once '../../includes/mailer.php';
 
 session_start();
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
@@ -65,6 +66,17 @@ try {
             }
 
             $pdo->commit();
+
+            // Send invoice notification email to client
+            if ($user_id) {
+                $uStmt = $pdo->prepare("SELECT full_name, email FROM users WHERE id = ?");
+                $uStmt->execute([$user_id]);
+                $u = $uStmt->fetch(PDO::FETCH_ASSOC);
+                if ($u) Mailer::invoiceCreated($u['full_name'], $u['email'], $ref, (float)$amount, $due_date);
+            } elseif (!empty($guest_email)) {
+                Mailer::invoiceCreated($guest_name, $guest_email, $ref, (float)$amount, $due_date);
+            }
+
             echo json_encode(['success' => true, 'message' => 'Invoice generated successfully.', 'id' => $invoice_id, 'reference' => $ref]);
         }
     }

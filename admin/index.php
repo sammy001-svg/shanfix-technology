@@ -40,6 +40,10 @@
                 <a href="tickets.php" class="admin-nav-item">
                     <i class="fas fa-life-ring"></i> <span>Support</span>
                 </a>
+                <a href="messages.php" class="admin-nav-item">
+                    <i class="fas fa-inbox"></i> <span>Inbox</span>
+                    <span id="sidebarMsgBadge" style="display:none; background:#ef4444; color:#fff; font-size:0.65rem; font-weight:800; padding:2px 6px; border-radius:20px; margin-left:auto;"></span>
+                </a>
                 <div class="admin-nav-divider"></div>
                 <a href="../index.php" class="admin-nav-item">
                     <i class="fas fa-external-link-alt"></i> <span>Live Site</span>
@@ -79,7 +83,7 @@
                             <div class="stat-details">
                                 <span class="stat-label">Total Revenue</span>
                                 <h2 id="stat_yearly_sales" class="stat-value">KES 0</h2>
-                                <span class="stat-trend text-success"><i class="fas fa-arrow-up"></i> 12.5% vs last year</span>
+                                <span id="trend_yearly" class="stat-trend text-low"><i class="fas fa-minus"></i> vs last year</span>
                             </div>
                         </div>
                     </div>
@@ -92,7 +96,7 @@
                             <div class="stat-details">
                                 <span class="stat-label">Monthly Sales</span>
                                 <h2 id="stat_monthly_sales" class="stat-value">KES 0</h2>
-                                <span class="stat-trend text-success"><i class="fas fa-arrow-up"></i> 8.2% vs last month</span>
+                                <span id="trend_monthly" class="stat-trend text-low"><i class="fas fa-minus"></i> vs last month</span>
                             </div>
                         </div>
                     </div>
@@ -105,7 +109,20 @@
                             <div class="stat-details">
                                 <span class="stat-label">Outstanding</span>
                                 <h2 id="stat_pending_balances" class="stat-value">KES 0</h2>
-                                <span class="stat-trend text-danger"><i class="fas fa-arrow-up"></i> 2.4% increase</span>
+                                <span id="trend_outstanding" class="stat-trend text-low"><i class="fas fa-minus"></i> unpaid invoices</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-stat-card glass-card">
+                        <div class="stat-main">
+                            <div class="stat-icon-box bg-purple" style="background: rgba(139,92,246,0.15);">
+                                <i class="fas fa-percentage" style="color: #a78bfa;"></i>
+                            </div>
+                            <div class="stat-details">
+                                <span class="stat-label">Collection Rate</span>
+                                <h2 id="stat_collection_rate" class="stat-value">0%</h2>
+                                <span id="trend_collection" class="stat-trend text-low"><i class="fas fa-minus"></i> of invoices paid</span>
                             </div>
                         </div>
                     </div>
@@ -136,6 +153,28 @@
                             <canvas id="orderStatusChart"></canvas>
                         </div>
                         <div id="chartLegend" class="custom-legend"></div>
+                    </div>
+                </div>
+
+                <!-- Secondary Charts -->
+                <div class="dashboard-grid">
+                    <div class="admin-card chart-main-card glass-card">
+                        <div class="card-header">
+                            <h3>Collection by Month</h3>
+                            <span class="text-low" style="font-size:0.8rem;">Paid vs Outstanding (KES)</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="collectionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="admin-card chart-side-card glass-card">
+                        <div class="card-header">
+                            <h3>Support Overview</h3>
+                        </div>
+                        <div class="chart-container doughnut-container">
+                            <canvas id="ticketSummaryChart"></canvas>
+                        </div>
                     </div>
                 </div>
 
@@ -201,6 +240,14 @@
                                     <i class="fas fa-file-pdf"></i> Generate
                                 </button>
                             </div>
+                        </div>
+
+                        <div class="report-box mt-20" style="border-top: 1px solid var(--glass-border); padding-top: 20px;">
+                            <label>Renewal Reminders</label>
+                            <p class="text-low mt-5" style="font-size:0.8rem;">Send emails for services due in 7 days</p>
+                            <button id="sendRenewalsBtn" class="admin-btn admin-btn-secondary mt-10" style="width:100%;" onclick="sendRenewalReminders()">
+                                <i class="fas fa-bell"></i> Send Reminders
+                            </button>
                         </div>
                     </div>
                 </div>

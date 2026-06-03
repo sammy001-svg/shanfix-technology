@@ -1,73 +1,67 @@
+<?php
+require_once 'includes/db_connect.php';
+
+// Load hero slides from DB; fall back to static defaults if table is empty
+$heroSlides = [];
+try {
+    $s = $pdo->query("SELECT * FROM adverts WHERE is_active = 1 ORDER BY sort_order ASC, id ASC");
+    $heroSlides = $s->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) { /* table may not exist yet */ }
+
+if (empty($heroSlides)) {
+    $heroSlides = [
+        ['headline' => 'Innovative Technology Solutions for <span class="highlight">Your Business</span>', 'subtitle' => 'From web development to event management, we provide comprehensive IT and business solutions in Nairobi, Kenya', 'btn1_text' => 'Explore Services', 'btn1_link' => '#services', 'btn2_text' => 'Get in Touch', 'btn2_link' => 'contact.php', 'bg_image' => null, '_css_class' => 'hero-bg-1'],
+        ['headline' => 'Transform Your Digital Presence with <span class="highlight">Expert Solutions</span>', 'subtitle' => 'Professional web development, hosting, and digital marketing services tailored to your business needs', 'btn1_text' => 'Our Services', 'btn1_link' => '#services', 'btn2_text' => 'Learn More', 'btn2_link' => '#about', 'bg_image' => null, '_css_class' => 'hero-bg-2'],
+        ['headline' => 'Empowering Businesses Through <span class="highlight">Technology</span>', 'subtitle' => 'Networking, software solutions, and IT infrastructure services to drive your business forward', 'btn1_text' => 'Contact Us', 'btn1_link' => 'contact.php', 'btn2_text' => 'View Services', 'btn2_link' => '#services', 'bg_image' => null, '_css_class' => 'hero-bg-3'],
+    ];
+}
+
+// Load ad banners from DB; fall back to static defaults
+$adBanners = [];
+try {
+    $b = $pdo->query("SELECT * FROM banners WHERE is_active = 1 ORDER BY sort_order ASC, id ASC");
+    $adBanners = $b->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) { /* table may not exist yet */ }
+
+$staticBanners = empty($adBanners);
+if ($staticBanners) {
+    $adBanners = [
+        ['image_url' => 'assets/Banners-1.jpg', 'title' => 'Ring Back Tone Advertisement', 'link_url' => ''],
+        ['image_url' => 'assets/Banners-2.jpg', 'title' => 'Bulk SMS Sender Advertisement', 'link_url' => ''],
+    ];
+}
+?>
 <?php include 'includes/header.php'; ?>
 
     <!-- Hero Section with Carousel -->
     <section class="hero" id="home">
       <div class="hero-carousel">
-        <!-- Slide 1 -->
-        <div class="hero-slide active">
-          <div class="hero-slide-bg hero-bg-1"></div>
-          <div class="hero-slide-overlay"></div>
-          <div class="container hero-container">
-            <div class="hero-content">
-              <h1 class="hero-title">
-                Innovative Technology Solutions for
-                <span class="highlight">Your Business</span>
-              </h1>
-              <p class="hero-subtitle">
-                From web development to event management, we provide comprehensive
-                IT and business solutions in Nairobi, Kenya
-              </p>
-              <div class="hero-buttons">
-                <a href="#services" class="btn btn-primary">Explore Services</a>
-                <a href="contact.php" class="btn btn-secondary">Get in Touch</a>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <!-- Slide 2 -->
-        <div class="hero-slide">
-          <div class="hero-slide-bg hero-bg-2"></div>
+        <?php foreach ($heroSlides as $i => $slide):
+            $bgStyle  = !empty($slide['bg_image']) ? ' style="background-image:url(\'' . htmlspecialchars($slide['bg_image']) . '\')"' : '';
+            $bgClass  = !empty($slide['bg_image']) ? 'hero-slide-bg' : ('hero-slide-bg ' . ($slide['_css_class'] ?? ('hero-bg-' . ($i + 1))));
+        ?>
+        <div class="hero-slide<?= $i === 0 ? ' active' : '' ?>">
+          <div class="<?= $bgClass ?>"<?= $bgStyle ?>></div>
           <div class="hero-slide-overlay"></div>
           <div class="container hero-container">
             <div class="hero-content">
-              <h1 class="hero-title">
-                Transform Your Digital Presence with
-                <span class="highlight">Expert Solutions</span>
-              </h1>
-              <p class="hero-subtitle">
-                Professional web development, hosting, and digital marketing services
-                tailored to your business needs
-              </p>
+              <h1 class="hero-title"><?= $slide['headline'] ?></h1>
+              <?php if (!empty($slide['subtitle'])): ?>
+              <p class="hero-subtitle"><?= htmlspecialchars($slide['subtitle']) ?></p>
+              <?php endif; ?>
               <div class="hero-buttons">
-                <a href="#services" class="btn btn-primary">Our Services</a>
-                <a href="#about" class="btn btn-secondary">Learn More</a>
+                <?php if (!empty($slide['btn1_text'])): ?>
+                <a href="<?= htmlspecialchars($slide['btn1_link'] ?? '#') ?>" class="btn btn-primary"><?= htmlspecialchars($slide['btn1_text']) ?></a>
+                <?php endif; ?>
+                <?php if (!empty($slide['btn2_text'])): ?>
+                <a href="<?= htmlspecialchars($slide['btn2_link'] ?? '#') ?>" class="btn btn-secondary"><?= htmlspecialchars($slide['btn2_text']) ?></a>
+                <?php endif; ?>
               </div>
             </div>
           </div>
         </div>
-
-        <!-- Slide 3 -->
-        <div class="hero-slide">
-          <div class="hero-slide-bg hero-bg-3"></div>
-          <div class="hero-slide-overlay"></div>
-          <div class="container hero-container">
-            <div class="hero-content">
-              <h1 class="hero-title">
-                Empowering Businesses Through
-                <span class="highlight">Technology</span>
-              </h1>
-              <p class="hero-subtitle">
-                Networking, software solutions, and IT infrastructure services
-                to drive your business forward
-              </p>
-              <div class="hero-buttons">
-                <a href="contact.php" class="btn btn-primary">Contact Us</a>
-                <a href="#services" class="btn btn-secondary">View Services</a>
-              </div>
-            </div>
-          </div>
-        </div>
+        <?php endforeach; ?>
 
         <!-- Carousel Controls -->
         <button class="carousel-control prev" aria-label="Previous slide">
@@ -81,11 +75,11 @@
           </svg>
         </button>
 
-        <!-- Carousel Indicators -->
+        <!-- Carousel Indicators (dynamic count) -->
         <div class="carousel-indicators">
-          <button class="indicator active" data-slide="0" aria-label="Go to slide 1"></button>
-          <button class="indicator" data-slide="1" aria-label="Go to slide 2"></button>
-          <button class="indicator" data-slide="2" aria-label="Go to slide 3"></button>
+          <?php foreach ($heroSlides as $i => $slide): ?>
+          <button class="indicator<?= $i === 0 ? ' active' : '' ?>" data-slide="<?= $i ?>" aria-label="Go to slide <?= $i + 1 ?>"></button>
+          <?php endforeach; ?>
         </div>
       </div>
     </section>
@@ -170,17 +164,19 @@
     <section class="advert-carousel-section">
       <div class="container">
         <div class="advert-carousel">
-          <!-- Banner 1 -->
-          <div class="advert-slide active">
-            <img src="assets/Banners-1.jpg" alt="Ring Back Tone Advertisement" class="advert-image">
-          </div>
 
-          <!-- Banner 2 -->
-          <div class="advert-slide">
-            <img src="assets/Banners-2.jpg" alt="Bulk SMS Sender Advertisement" class="advert-image">
+          <?php foreach ($adBanners as $i => $banner):
+              $imgSrc = htmlspecialchars($banner['image_url']);
+              $imgAlt = htmlspecialchars($banner['title'] ?? 'Advertisement');
+              $wrap   = !empty($banner['link_url']);
+          ?>
+          <div class="advert-slide<?= $i === 0 ? ' active' : '' ?>">
+            <?php if ($wrap): ?><a href="<?= htmlspecialchars($banner['link_url']) ?>"><?php endif; ?>
+            <img src="<?= $imgSrc ?>" alt="<?= $imgAlt ?>" class="advert-image">
+            <?php if ($wrap): ?></a><?php endif; ?>
           </div>
+          <?php endforeach; ?>
 
-          <!-- Navigation Arrows -->
           <button class="advert-control prev" aria-label="Previous advertisement">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -192,10 +188,10 @@
             </svg>
           </button>
 
-          <!-- Carousel Indicators -->
           <div class="advert-indicators">
-            <button class="advert-indicator active" data-slide="0" aria-label="Go to advertisement 1"></button>
-            <button class="advert-indicator" data-slide="1" aria-label="Go to advertisement 2"></button>
+            <?php foreach ($adBanners as $i => $banner): ?>
+            <button class="advert-indicator<?= $i === 0 ? ' active' : '' ?>" data-slide="<?= $i ?>" aria-label="Go to advertisement <?= $i + 1 ?>"></button>
+            <?php endforeach; ?>
           </div>
         </div>
       </div>

@@ -67,32 +67,89 @@
             <section class="contact-v2-form-area" data-aos="fade-left">
                 <h2 class="v2-form-title">Start a Conversation</h2>
                 
-                <form action="#" class="modern-v2-form" id="contactFormV2">
+                <div id="contactSuccess" style="display:none; text-align:center; padding:3rem 1rem;">
+                    <div style="font-size:3rem; margin-bottom:1rem;">✅</div>
+                    <h3 style="color:#22c55e; margin-bottom:0.5rem;">Message Sent!</h3>
+                    <p style="color:#64748b;">We've received your enquiry and will get back to you within 24 hours.<br>Check your inbox for a confirmation email.</p>
+                </div>
+
+                <form class="modern-v2-form" id="contactFormV2" novalidate>
+                    <!-- Honeypot (hidden from real users) -->
+                    <div style="display:none;" aria-hidden="true">
+                        <input type="text" name="website" tabindex="-1" autocomplete="off">
+                    </div>
+
                     <div class="v2-input-box">
-                        <input type="text" id="name" required>
+                        <input type="text" id="c_name" required autocomplete="name">
                         <label>Your Full Name</label>
                     </div>
 
                     <div class="v2-input-box">
-                        <input type="email" id="email" required>
+                        <input type="email" id="c_email" required autocomplete="email">
                         <label>Email Address</label>
                     </div>
 
                     <div class="v2-input-box">
-                        <input type="text" id="subject" required>
+                        <input type="text" id="c_subject" required>
                         <label>Interested In (e.g. Web Dev, App Design)</label>
                     </div>
 
                     <div class="v2-input-box">
-                        <textarea id="message" required></textarea>
+                        <textarea id="c_message" required rows="5"></textarea>
                         <label>Tell us about your project</label>
                     </div>
 
-                    <button type="submit" class="v2-submit-btn">
+                    <div id="contactError" style="display:none; color:#ef4444; font-size:0.9rem; margin-bottom:1rem; padding:10px 16px; background:rgba(239,68,68,0.08); border-radius:10px;"></div>
+
+                    <button type="submit" class="v2-submit-btn" id="contactSubmitBtn">
                         Submit Request
-                        <i class="fas fa-arrow-right"></i>
+                        <i class="fas fa-arrow-right" id="contactBtnIcon"></i>
                     </button>
                 </form>
+
+                <script>
+                document.getElementById('contactFormV2').addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const btn      = document.getElementById('contactSubmitBtn');
+                    const icon     = document.getElementById('contactBtnIcon');
+                    const errBox   = document.getElementById('contactError');
+                    const original = btn.innerHTML;
+
+                    btn.disabled = true;
+                    btn.innerHTML = 'Sending... <i class="fas fa-spinner fa-spin"></i>';
+                    errBox.style.display = 'none';
+
+                    try {
+                        const res  = await fetch('api/contact.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                name:    document.getElementById('c_name').value.trim(),
+                                email:   document.getElementById('c_email').value.trim(),
+                                subject: document.getElementById('c_subject').value.trim(),
+                                message: document.getElementById('c_message').value.trim(),
+                                website: document.querySelector('[name="website"]').value
+                            })
+                        });
+                        const data = await res.json();
+
+                        if (data.success) {
+                            document.getElementById('contactFormV2').style.display = 'none';
+                            document.getElementById('contactSuccess').style.display = 'block';
+                        } else {
+                            errBox.textContent     = data.message || 'Something went wrong. Please try again.';
+                            errBox.style.display   = 'block';
+                            btn.disabled           = false;
+                            btn.innerHTML          = original;
+                        }
+                    } catch (err) {
+                        errBox.textContent   = 'Connection error. Please try again or email us directly.';
+                        errBox.style.display = 'block';
+                        btn.disabled         = false;
+                        btn.innerHTML        = original;
+                    }
+                });
+                </script>
             </section>
         </div>
 

@@ -213,6 +213,76 @@ CREATE TABLE IF NOT EXISTS `ticket_replies` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
+-- 13. Table structure for table `mpesa_transactions`
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mpesa_transactions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `invoice_id` int(11) NOT NULL,
+  `checkout_request_id` varchar(100) NOT NULL,
+  `merchant_request_id` varchar(100) DEFAULT NULL,
+  `phone` varchar(20) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `status` enum('pending','completed','failed','cancelled') DEFAULT 'pending',
+  `mpesa_receipt` varchar(50) DEFAULT NULL,
+  `result_code` varchar(10) DEFAULT NULL,
+  `result_desc` text DEFAULT NULL,
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `checkout_request_id` (`checkout_request_id`),
+  KEY `invoice_id` (`invoice_id`),
+  CONSTRAINT `mpesa_txn_ibfk_1` FOREIGN KEY (`invoice_id`) REFERENCES `invoices` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+-- 14. Table structure for table `contact_messages`
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `contact_messages` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `subject` varchar(255) NOT NULL,
+  `message` text NOT NULL,
+  `status` enum('unread','read','replied') DEFAULT 'unread',
+  `reply_message` text DEFAULT NULL,
+  `replied_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+-- 14. Table structure for table `adverts` (Hero Carousel Slides)
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `adverts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `headline` varchar(200) NOT NULL,
+  `subtitle` text DEFAULT NULL,
+  `btn1_text` varchar(100) DEFAULT 'Explore Services',
+  `btn1_link` varchar(255) DEFAULT '#services',
+  `btn2_text` varchar(100) DEFAULT NULL,
+  `btn2_link` varchar(255) DEFAULT NULL,
+  `bg_image` varchar(255) DEFAULT NULL,
+  `sort_order` int(11) DEFAULT 0,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+-- 14. Table structure for table `banners` (Ad Carousel)
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `banners` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(100) DEFAULT NULL,
+  `image_url` varchar(255) NOT NULL,
+  `link_url` varchar(255) DEFAULT NULL,
+  `sort_order` int(11) DEFAULT 0,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
 -- SEED INITIAL DATA
 -- --------------------------------------------------------
 

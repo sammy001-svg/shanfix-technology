@@ -17,12 +17,15 @@ function initAdmin() {
     // Check for auth (simple mock)
     if (window.location.pathname.includes('/admin/') && !window.location.pathname.includes('login.php')) {
         checkAuth();
+        _loadUnreadBadge();
     }
 
     // Sidebar active state
     updateNavActive();
 
     // Specific page init
+    if (document.getElementById('messagesTableBody')) initMessagesPage();
+    if (document.getElementById('slidesTableBody')) initAdvertsPage();
     if (document.getElementById('productModal')) initProductsPage();
     if (document.getElementById('categoryModal')) initCategoriesPage();
     if (document.getElementById('invoiceTableBody')) initBillingPage();
@@ -519,171 +522,236 @@ function initProductsPage() {
     loadCatalog();
 }
 
-// --- SERVICES MANAGEMENT ---
+// ── CLIENT SUBSCRIPTIONS MANAGEMENT ─────────────────────────────────────
+
 function initServicesPage() {
-    const servicesContainer = document.getElementById('servicesContainer');
-    const serviceForm = document.getElementById('serviceForm');
-    const serviceModal = document.getElementById('serviceModal');
-    if (!servicesContainer || !serviceForm) return;
+    if (!document.getElementById('subscriptionsTableBody')) return;
 
-    window.allServices = [];
+    let _allSubs     = [];
+    let _allClients  = [];
+    let _allProducts = [];
 
-    async function loadServices() {
+    async function loadAll() {
         try {
-            const [pRes, cRes] = await Promise.all([
-                fetch('api/products.php'),
-                fetch('api/categories.php')
+            const [sRes, cRes, pRes] = await Promise.all([
+                fetch('api/services.php'),
+                fetch('api/clients.php'),
+                fetch('api/products.php')
             ]);
-            const pData = await pRes.json();
-            const cData = await cRes.json();
+            const [sData, cData, pData] = await Promise.all([sRes.json(), cRes.json(), pRes.json()]);
 
-            if (pData.success && cData.success) {
-                window.allServices = pData.products;
-                
-                // Populate category dropdown
-                const sCat = document.getElementById('s_category');
-                sCat.innerHTML = cData.categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-
-                renderServices(pData.products, cData.categories);
+            if (sData.success) { _allSubs = sData.services; renderSubs(_allSubs); updateStats(_allSubs); }
+            if (cData.success) {
+                _allClients = cData.clients;
+                const sel = document.getElementById('assign_client');
+                if (sel) sel.innerHTML = '<option value="">— Select Client —</option>' +
+                    cData.clients.map(c => `<option value="${c.id}">${c.full_name} (${c.email})</option>`).join('');
             }
-        } catch (e) { console.error(e); }
+            if (pData.success) {
+                _allProducts = pData.products;
+                const pSel = document.getElementById('assign_product');
+                if (pSel) pSel.innerHTML = '<option value="">— None / Custom —</option>' +
+                    pData.products.map(p => `<option value="${p.id}" data-name="${p.name}" data-price="${p.price}">${p.name} — KES ${parseFloat(p.price).toLocaleString()}</option>`).join('');
+            }
+        } catch (e) { console.error('Load subscriptions error:', e); }
     }
 
-    function renderServices(products, categories) {
-        if (products.length === 0) {
-            servicesContainer.innerHTML = '<div class="admin-card text-center py-50"><p>No services found. Start by adding your first rate card!</p></div>';
+    function updateStats(subs) {
+        const now  = new Date();
+        const week = new Date(now); week.setDate(week.getDate() + 7);
+        document.getElementById('stat_total_subs').textContent  = subs.length;
+        document.getElementById('stat_active_subs').textContent = subs.filter(s => s.status === 'active').length;
+        document.getElementById('stat_due_subs').textContent    = subs.filter(s =>
+            s.status === 'active' && s.next_due_date && new Date(s.next_due_date) <= week
+        ).length;
+    }
+
+    function renderSubs(subs) {
+        const tbody = document.getElementById('subscriptionsTableBody');
+        if (!subs.length) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2.5rem; color:var(--text-low);">No subscriptions yet. Use "Assign Service" to add one.</td></tr>';
             return;
         }
+        const now  = new Date();
+        const week = new Date(now); week.setDate(week.getDate() + 7);
+        const statusClasses = { active:'status-active', pending:'status-pending', suspended:'badge-pending', terminated:'badge-cancelled' };
 
-        // Filter products that are "services" (usually by category name or a flag, but here we show all as rate cards)
-        servicesContainer.innerHTML = categories.map(cat => {
-            const catServices = products.filter(p => p.category_id == cat.id);
-            if (catServices.length === 0) return '';
-
+        tbody.innerHTML = subs.map(s => {
+            const due     = s.next_due_date ? new Date(s.next_due_date) : null;
+            const isOverdue = due && due < now  && s.status === 'active';
+            const isDueSoon = due && due <= week && !isOverdue && s.status === 'active';
+            const dueStr  = due ? due.toLocaleDateString('en-KE', {day:'numeric', month:'short', year:'numeric'}) : '—';
             return `
-                <div class="category-group mb-40">
-                    <h2 class="category-title" style="border-bottom: 2px solid var(--glass-border); padding-bottom: 15px; margin-bottom: 25px; display: flex; align-items: center; gap: 15px;">
-                        <i class="fas fa-layer-group text-primary"></i> ${cat.name}
-                        <span class="badge" style="font-size: 0.8rem; background: var(--glass-bg);">${catServices.length} Rates</span>
-                    </h2>
-                    <div class="product-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
-                        ${catServices.map(s => {
-                            const isFeatured = s.is_featured == 1;
-                            return `
-                            <div class="product-card service-card-admin ${isFeatured ? 'featured-service' : ''}" style="position: relative; border: ${isFeatured ? '2px solid var(--p)' : '1px solid var(--glass-border)'}; background: ${isFeatured ? 'rgba(99, 102, 241, 0.05)' : 'var(--glass-bg)'};">
-                                ${isFeatured ? '<div class="popular-ribbon">Most Popular</div>' : ''}
-                                <div class="product-details" style="padding: 25px;">
-                                    <div class="flex-between mb-15">
-                                        <div class="product-name" style="font-size: 1.2rem; font-weight: 800; font-family: 'Outfit';">${s.name}</div>
-                                        <span class="badge ${s.status === 'active' ? 'badge-paid' : 'badge-pending'}" style="text-transform: uppercase; font-size: 0.7rem;">${s.status}</span>
-                                    </div>
-                                    <div class="product-price" style="font-size: 1.8rem; font-weight: 900; margin-bottom: 10px; color: var(--text-main);">
-                                        <span style="font-size: 0.9rem; font-weight: 500; color: var(--text-low);">KES</span> ${parseFloat(s.price).toLocaleString()}
-                                    </div>
-                                    <p class="text-low mb-20" style="font-size: 0.9rem; line-height: 1.6; height: 3.2em; overflow: hidden;">${s.description || 'Professional solution for your business.'}</p>
-                                    
-                                    <div class="service-features-list mb-25" style="border-top: 1px solid var(--glass-border); padding-top: 20px;">
-                                        ${(s.features || '').split('\n').filter(f => f.trim()).map(f => `
-                                            <div class="feature-item-mini" style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.85rem; color: var(--text-main);">
-                                                <i class="fas fa-check-circle text-success"></i> ${f.trim()}
-                                            </div>
-                                        `).slice(0, 4).join('')}
-                                        ${(s.features || '').split('\n').filter(f => f.trim()).length > 4 ? '<div class="text-low" style="font-size: 0.75rem; margin-top: 5px;">+ more features included</div>' : ''}
-                                    </div>
-
-                                    <div class="product-actions" style="display: flex; gap: 10px;">
-                                        <button class="admin-btn admin-btn-secondary" style="flex: 1;" onclick="editService(${s.id})">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </button>
-                                        <button class="admin-btn" style="border-color: #ef444455; color: #ef4444;" onclick="deleteService(${s.id})">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            `;
-                        }).join('')}
-                    </div>
-                </div>
+                <tr>
+                    <td>
+                        <div style="font-weight:700; color:var(--text-main);">${s.client_name}</div>
+                        <div style="font-size:0.75rem; color:var(--text-low);">${s.client_email}</div>
+                    </td>
+                    <td>
+                        <strong>${s.service_name}</strong>
+                        ${s.product_name ? `<div style="font-size:0.75rem; color:var(--text-low);">${s.product_name}</div>` : ''}
+                    </td>
+                    <td style="text-transform:capitalize;">${s.billing_cycle}</td>
+                    <td>
+                        <span style="color:${isOverdue ? '#ef4444' : isDueSoon ? '#f59e0b' : 'var(--text-main)'}; font-weight:${isOverdue || isDueSoon ? '700' : '400'};">
+                            ${isOverdue ? '<i class="fas fa-exclamation-triangle"></i> ' : isDueSoon ? '<i class="fas fa-clock"></i> ' : ''}${dueStr}
+                        </span>
+                    </td>
+                    <td><span class="status-badge ${statusClasses[s.status] || ''}">${s.status}</span></td>
+                    <td style="text-align:right;">
+                        <div class="flex-end-gap-sm">
+                            ${s.product_price > 0 ? `
+                            <button class="admin-btn-sm admin-btn-primary" onclick="generateSubInvoice(${s.id})" title="Generate Renewal Invoice">
+                                <i class="fas fa-file-invoice"></i>
+                            </button>` : ''}
+                            <button class="icon-btn" onclick="openEditSub(${JSON.stringify(s).replace(/"/g, '&quot;')})" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="icon-btn" style="color:#ef4444;" onclick="deleteSub(${s.id})" title="Delete">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
             `;
         }).join('');
     }
 
-    window.openServiceModal = () => {
-        serviceForm.reset();
-        document.getElementById('s_id').value = '';
-        document.getElementById('serviceModalTitle').textContent = 'Add New Service Rate Card';
-        serviceModal.classList.add('active');
+    window.filterSubscriptions = (status) => {
+        const filtered = status === 'all' ? _allSubs : _allSubs.filter(s => s.status === status);
+        renderSubs(filtered);
     };
 
-    window.closeServiceModal = () => {
-        serviceModal.classList.remove('active');
+    // ── Assign modal ──────────────────────────────────────────────────────
+    window.openAssignModal = () => {
+        document.getElementById('assign_client').value  = '';
+        document.getElementById('assign_product').value = '';
+        document.getElementById('assign_name').value    = '';
+        document.getElementById('assign_cycle').value   = 'monthly';
+        document.getElementById('assign_status').value  = 'active';
+        document.getElementById('assign_due').value     = '';
+        document.getElementById('assignModal').classList.add('active');
     };
+    window.closeAssignModal = () => document.getElementById('assignModal').classList.remove('active');
 
-    window.editService = (id) => {
-        const s = window.allServices.find(item => item.id == id);
-        if (!s) return;
-
-        document.getElementById('s_id').value = s.id;
-        document.getElementById('s_name').value = s.name;
-        document.getElementById('s_price').value = s.price;
-        document.getElementById('s_category').value = s.category_id;
-        document.getElementById('s_status').value = s.status;
-        document.getElementById('s_desc').value = s.description;
-        document.getElementById('s_features').value = s.features || '';
-        document.getElementById('s_featured').checked = s.is_featured == 1;
-
-        document.getElementById('serviceModalTitle').textContent = 'Update Rate Card';
-        serviceModal.classList.add('active');
-    };
-
-    serviceForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData();
-        formData.append('name', document.getElementById('s_name').value);
-        formData.append('price', document.getElementById('s_price').value);
-        formData.append('category_id', document.getElementById('s_category').value);
-        formData.append('description', document.getElementById('s_desc').value);
-        formData.append('features', document.getElementById('s_features').value);
-        formData.append('status', document.getElementById('s_status').value);
-        formData.append('is_featured', document.getElementById('s_featured').checked ? 1 : 0);
-        
-        const id = document.getElementById('s_id').value;
-        if (id) {
-            formData.append('id', id);
-            formData.append('action', 'update');
-        } else {
-            formData.append('action', 'create');
+    window.onProductSelect = () => {
+        const sel = document.getElementById('assign_product');
+        const opt = sel.options[sel.selectedIndex];
+        if (opt && opt.dataset.name) {
+            document.getElementById('assign_name').value = opt.dataset.name;
         }
+    };
+
+    window.saveAssignment = async () => {
+        const userId = document.getElementById('assign_client').value;
+        const name   = document.getElementById('assign_name').value.trim();
+        if (!userId || !name) { alert('Client and service name are required.'); return; }
 
         try {
-            const response = await fetch('api/products.php', { method: 'POST', body: formData });
-            const data = await response.json();
-            if (data.success) {
-                closeServiceModal();
-                loadServices();
-                alert(data.message);
-            }
-        } catch (e) { alert('Failed to save service.'); }
-    });
-
-    window.deleteService = async (id) => {
-        if (confirm('Are you sure you want to delete this service rate card? This will permanently remove it from the catalog.')) {
-            try {
-                const response = await fetch(`api/products.php?id=${id}&action=delete`, { method: 'DELETE' });
-                const data = await response.json();
-                if (data.success) {
-                    loadServices();
-                } else {
-                    alert(data.message || 'Deletion failed.');
-                }
-            } catch (e) {
-                alert('Connection error. Could not delete service.');
-            }
-        }
+            const res  = await fetch('api/services.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action:        'create',
+                    user_id:       userId,
+                    product_id:    document.getElementById('assign_product').value || null,
+                    service_name:  name,
+                    billing_cycle: document.getElementById('assign_cycle').value,
+                    status:        document.getElementById('assign_status').value,
+                    next_due_date: document.getElementById('assign_due').value || null
+                })
+            });
+            const data = await res.json();
+            if (data.success) { closeAssignModal(); loadAll(); alert(data.message); }
+            else alert(data.message);
+        } catch (e) { alert('Failed to assign service.'); }
     };
 
-    loadServices();
+    // ── Edit modal ────────────────────────────────────────────────────────
+    window.openEditSub = (s) => {
+        document.getElementById('edit_sub_id').value     = s.id;
+        document.getElementById('edit_sub_name').value   = s.service_name;
+        document.getElementById('edit_sub_cycle').value  = s.billing_cycle;
+        document.getElementById('edit_sub_status').value = s.status;
+        document.getElementById('edit_sub_due').value    = s.next_due_date || '';
+        document.getElementById('editSubModal').classList.add('active');
+    };
+    window.closeEditSubModal = () => document.getElementById('editSubModal').classList.remove('active');
+
+    window.saveEditSub = async () => {
+        const id = document.getElementById('edit_sub_id').value;
+        try {
+            const res  = await fetch('api/services.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action:        'update',
+                    id:            id,
+                    service_name:  document.getElementById('edit_sub_name').value,
+                    billing_cycle: document.getElementById('edit_sub_cycle').value,
+                    status:        document.getElementById('edit_sub_status').value,
+                    next_due_date: document.getElementById('edit_sub_due').value || null
+                })
+            });
+            const data = await res.json();
+            if (data.success) { closeEditSubModal(); loadAll(); alert(data.message); }
+            else alert(data.message);
+        } catch (e) { alert('Update failed.'); }
+    };
+
+    // ── Invoice generation ────────────────────────────────────────────────
+    window.generateSubInvoice = async (id) => {
+        const sub = _allSubs.find(s => s.id == id);
+        const confirmMsg = sub
+            ? `Generate renewal invoice for "${sub.service_name}" (${sub.client_name})?`
+            : 'Generate renewal invoice for this subscription?';
+        if (!confirm(confirmMsg)) return;
+
+        try {
+            const res  = await fetch('api/services.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'generate_invoice', id })
+            });
+            const data = await res.json();
+            alert(data.message);
+            if (data.success) loadAll();
+        } catch (e) { alert('Invoice generation failed.'); }
+    };
+
+    window.generateDueInvoices = async () => {
+        const btn  = document.getElementById('genDueBtn');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        btn.disabled  = true;
+        try {
+            const res  = await fetch('api/services.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'generate_due' })
+            });
+            const data = await res.json();
+            alert(data.message);
+            if (data.success && data.generated > 0) loadAll();
+        } catch (e) { alert('Batch generation failed.'); }
+        finally { btn.innerHTML = orig; btn.disabled = false; }
+    };
+
+    window.deleteSub = async (id) => {
+        if (!confirm('Remove this subscription? The client will no longer see it in their portal.')) return;
+        try {
+            const res  = await fetch('api/services.php', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            });
+            const data = await res.json();
+            if (data.success) loadAll();
+            else alert(data.message);
+        } catch (e) { alert('Delete failed.'); }
+    };
+
+    loadAll();
 }
 
 
@@ -842,6 +910,25 @@ window.savePaymentUpdate = () => {
     closePaymentModal();
 };
 
+window.sendRenewalReminders = async () => {
+    const btn = document.getElementById('sendRenewalsBtn');
+    if (!btn) return;
+    const original = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    btn.disabled = true;
+
+    try {
+        const res = await fetch('api/renewals.php', { method: 'GET' });
+        const data = await res.json();
+        alert(data.message || (data.success ? 'Reminders sent.' : 'Failed.'));
+    } catch (e) {
+        alert('Connection error. Could not send reminders.');
+    } finally {
+        btn.innerHTML = original;
+        btn.disabled = false;
+    }
+};
+
 // Helper to parse dates with ordinal suffixes (e.g., "February 10th 2026")
 function helperParseInvDate(dateStr) {
     if (!dateStr) return new Date();
@@ -850,139 +937,166 @@ function helperParseInvDate(dateStr) {
     return new Date(cleaned);
 }
 
+let _dashboardInvoices = [];
+
 function initDashboard() {
-    initDashboardStats();
-    updateActivityTable();
-    initDashboardCharts();
+    _loadDashboardData();
 }
 
-async function initDashboardStats() {
+async function _loadDashboardData() {
     try {
-        const response = await fetch('api/invoices.php');
-        const data = await response.json();
-        
-        if (!data.success || !data.invoices || data.invoices.length === 0) {
-            console.log('No dashboard data available');
-            return;
-        }
+        const [invRes, orderRes, ticketRes] = await Promise.all([
+            fetch('api/invoices.php'),
+            fetch('api/orders.php'),
+            fetch('api/tickets.php')
+        ]);
+        const invData = await invRes.json();
+        const orderData = await orderRes.json();
+        const ticketData = await ticketRes.json();
 
-        const invoices = data.invoices;
-        const now = new Date();
-        const currentMonth = now.getMonth();
-        const currentYear = now.getFullYear();
+        const invoices = invData.success ? invData.invoices : [];
+        const orders = orderData.success ? orderData.orders : [];
+        const tickets = ticketData.success ? ticketData.tickets : [];
 
-        let monthlyTotal = 0;
-        let pendingTotal = 0;
-        let yearlyTotal = 0;
+        _dashboardInvoices = invoices;
 
-        invoices.forEach(inv => {
-            const invDate = new Date(inv.created_at);
-            const invMonth = invDate.getMonth();
-            const invYear = invDate.getFullYear();
-
-            const amount = parseFloat(inv.amount || 0);
-            
-            // Yearly Sales
-            if (invYear === currentYear) {
-                yearlyTotal += amount;
-                // Monthly Sales
-                if (invMonth === currentMonth) {
-                    monthlyTotal += amount;
-                }
-            }
-            
-            // Pending balances (Unpaid invoices)
-            if (inv.status.toLowerCase() !== 'paid') {
-                pendingTotal += amount;
-            }
-        });
-
-        // Update Dashboard UI
-        if (document.getElementById('stat_monthly_sales')) {
-            document.getElementById('stat_monthly_sales').textContent = `KES ${monthlyTotal.toLocaleString()}`;
-            document.getElementById('stat_pending_balances').textContent = `KES ${pendingTotal.toLocaleString()}`;
-            document.getElementById('stat_yearly_sales').textContent = `KES ${yearlyTotal.toLocaleString()}`;
-        }
+        _renderDashboardStats(invoices);
+        _renderActivityTable(invoices);
+        _renderDashboardCharts(invoices, orders, tickets);
     } catch (error) {
-        console.error('Stats Error:', error);
+        console.error('Dashboard load error:', error);
     }
 }
 
-async function updateActivityTable() {
+function _renderDashboardStats(invoices) {
+    if (!document.getElementById('stat_monthly_sales')) return;
+
+    const now = new Date();
+    const curMonth = now.getMonth();
+    const curYear = now.getFullYear();
+    const prevMonth = curMonth === 0 ? 11 : curMonth - 1;
+    const prevMonthYear = curMonth === 0 ? curYear - 1 : curYear;
+
+    let monthlyTotal = 0, prevMonthTotal = 0;
+    let yearlyTotal = 0, prevYearTotal = 0;
+    let pendingTotal = 0, paidCount = 0;
+
+    invoices.forEach(inv => {
+        const d = new Date(inv.created_at);
+        const m = d.getMonth(), y = d.getFullYear();
+        const amount = parseFloat(inv.amount || 0);
+        const isPaid = inv.status.toLowerCase() === 'paid';
+
+        if (y === curYear) {
+            yearlyTotal += amount;
+            if (m === curMonth) monthlyTotal += amount;
+        } else if (y === curYear - 1) {
+            prevYearTotal += amount;
+        }
+
+        if (y === prevMonthYear && m === prevMonth) prevMonthTotal += amount;
+
+        if (!isPaid) pendingTotal += amount;
+        else paidCount++;
+    });
+
+    const collectionRate = invoices.length > 0 ? Math.round((paidCount / invoices.length) * 100) : 0;
+
+    document.getElementById('stat_monthly_sales').textContent = `KES ${monthlyTotal.toLocaleString()}`;
+    document.getElementById('stat_pending_balances').textContent = `KES ${pendingTotal.toLocaleString()}`;
+    document.getElementById('stat_yearly_sales').textContent = `KES ${yearlyTotal.toLocaleString()}`;
+    document.getElementById('stat_collection_rate').textContent = `${collectionRate}%`;
+
+    function setTrend(id, value, label, higherIsBetter = true) {
+        const el = document.getElementById(id);
+        if (!el || value === null) return;
+        const isPositive = value >= 0;
+        const isGood = higherIsBetter ? isPositive : !isPositive;
+        el.innerHTML = `<i class="fas fa-arrow-${isPositive ? 'up' : 'down'}"></i> ${Math.abs(value).toFixed(1)}% ${label}`;
+        el.className = `stat-trend ${isGood ? 'text-success' : 'text-danger'}`;
+    }
+
+    const monthTrend = prevMonthTotal > 0 ? ((monthlyTotal - prevMonthTotal) / prevMonthTotal * 100) : null;
+    const yearTrend = prevYearTotal > 0 ? ((yearlyTotal - prevYearTotal) / prevYearTotal * 100) : null;
+    const pendingCount = invoices.length - paidCount;
+
+    setTrend('trend_monthly', monthTrend, 'vs last month');
+    setTrend('trend_yearly', yearTrend, 'vs last year');
+
+    const outstandingEl = document.getElementById('trend_outstanding');
+    if (outstandingEl) {
+        outstandingEl.textContent = `${pendingCount} unpaid invoice${pendingCount !== 1 ? 's' : ''}`;
+        outstandingEl.className = `stat-trend ${pendingCount === 0 ? 'text-success' : 'text-danger'}`;
+    }
+
+    const collEl = document.getElementById('trend_collection');
+    if (collEl) {
+        collEl.textContent = `${paidCount} of ${invoices.length} invoices paid`;
+        collEl.className = `stat-trend ${collectionRate >= 80 ? 'text-success' : collectionRate >= 50 ? 'text-low' : 'text-danger'}`;
+    }
+}
+
+function _renderActivityTable(invoices) {
     const activityBody = document.getElementById('dashboard_activity');
     if (!activityBody) return;
 
-    try {
-        const response = await fetch('api/invoices.php');
-        const data = await response.json();
-        
-        if (!data.success || !data.invoices || data.invoices.length === 0) {
-            activityBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No recent transactions</td></tr>';
-            return;
-        }
-
-        const recent = data.invoices.slice(0, 8); // Show up to 8
-        activityBody.innerHTML = recent.map(inv => {
-            const clientName = inv.user_id ? inv.reg_client_name : inv.guest_name;
-            const statusClass = inv.status.toLowerCase() === 'paid' ? 'badge-paid' : 'badge-pending';
-            return `
-                <tr>
-                    <td><span class="text-low" style="font-size:0.8rem;">#</span>${inv.reference}</td>
-                    <td><div style="font-weight:600;">${clientName}</div><div style="font-size:0.7rem; color:var(--text-low);">${inv.user_id ? 'Registered' : 'Guest'}</div></td>
-                    <td><strong>KES ${parseFloat(inv.amount).toLocaleString()}</strong></td>
-                    <td><span class="badge ${statusClass}">${inv.status.toUpperCase()}</span></td>
-                </tr>
-            `;
-        }).join('');
-    } catch (error) {
-        console.error('Activity Table Error:', error);
+    if (!invoices.length) {
+        activityBody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;">No recent transactions</td></tr>';
+        return;
     }
+
+    activityBody.innerHTML = invoices.slice(0, 8).map(inv => {
+        const clientName = inv.user_id ? inv.reg_client_name : inv.guest_name;
+        const statusClass = inv.status.toLowerCase() === 'paid' ? 'badge-paid' : 'badge-pending';
+        return `
+            <tr>
+                <td><span class="text-low" style="font-size:0.8rem;">#</span>${inv.reference}</td>
+                <td><div style="font-weight:600;">${clientName}</div><div style="font-size:0.7rem;color:var(--text-low);">${inv.user_id ? 'Registered' : 'Guest'}</div></td>
+                <td><strong>KES ${parseFloat(inv.amount).toLocaleString()}</strong></td>
+                <td><span class="badge ${statusClass}">${inv.status.toUpperCase()}</span></td>
+            </tr>
+        `;
+    }).join('');
 }
 
-async function initDashboardCharts() {
+function _renderDashboardCharts(invoices, orders, tickets) {
     const revenueCtx = document.getElementById('revenueChart');
     const statusCtx = document.getElementById('orderStatusChart');
-    if (!revenueCtx || !statusCtx) return;
+    const collectionCtx = document.getElementById('collectionChart');
+    const ticketCtx = document.getElementById('ticketSummaryChart');
 
-    try {
-        const [invRes, orderRes] = await Promise.all([
-            fetch('api/invoices.php'),
-            fetch('api/orders.php')
-        ]);
-        
-        const invData = await invRes.json();
-        const orderData = await orderRes.json();
+    const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-        // Process Revenue Data (Last 6 Months)
-        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    // --- Revenue trend chart (re-renderable) ---
+    let revenueChart = null;
+
+    function buildRevenueChart(numMonths) {
         const now = new Date();
-        const chartLabels = [];
-        const chartData = [];
-        
-        for (let i = 5; i >= 0; i--) {
+        const labels = [], data = [];
+        for (let i = numMonths - 1; i >= 0; i--) {
             const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            chartLabels.push(months[d.getMonth()]);
-            
-            const monthTotal = invData.invoices
+            labels.push(MONTH_NAMES[d.getMonth()]);
+            data.push(invoices
                 .filter(inv => {
-                    const invDate = new Date(inv.created_at);
-                    return invDate.getMonth() === d.getMonth() && invDate.getFullYear() === d.getFullYear();
+                    const id = new Date(inv.created_at);
+                    return id.getMonth() === d.getMonth() && id.getFullYear() === d.getFullYear();
                 })
-                .reduce((sum, inv) => sum + parseFloat(inv.amount), 0);
-            
-            chartData.push(monthTotal);
+                .reduce((sum, inv) => sum + parseFloat(inv.amount), 0)
+            );
         }
 
-        // Initialize Revenue Chart
-        new Chart(revenueCtx, {
+        if (revenueChart) revenueChart.destroy();
+        if (!revenueCtx) return;
+
+        revenueChart = new Chart(revenueCtx, {
             type: 'line',
             data: {
-                labels: chartLabels,
+                labels,
                 datasets: [{
-                    label: 'Revenue',
-                    data: chartData,
+                    label: 'Revenue (KES)',
+                    data,
                     borderColor: '#6366f1',
-                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    backgroundColor: 'rgba(99,102,241,0.1)',
                     fill: true,
                     tension: 0.4,
                     borderWidth: 3,
@@ -996,72 +1110,113 @@ async function initDashboardCharts() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => `KES ${ctx.parsed.y.toLocaleString()}` } }
+                },
                 scales: {
                     y: {
                         beginAtZero: true,
                         grid: { color: 'rgba(255,255,255,0.05)' },
-                        ticks: { color: '#94a3b8', font: { size: 10 } }
+                        ticks: {
+                            color: '#94a3b8', font: { size: 10 },
+                            callback: v => `KES ${v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v}`
+                        }
                     },
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: '#94a3b8', font: { size: 10 } }
-                    }
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } }
                 }
             }
         });
+    }
 
-        // Process Order Status Data
+    const rangeSelect = document.getElementById('revenueRange');
+    buildRevenueChart(parseInt(rangeSelect?.value || 6));
+    if (rangeSelect) {
+        rangeSelect.addEventListener('change', () => buildRevenueChart(parseInt(rangeSelect.value)));
+    }
+
+    // --- Order status doughnut ---
+    if (statusCtx) {
         const statuses = ['Pending', 'Processing', 'Ready', 'Delivered'];
-        const statusCounts = statuses.map(s => 
-            orderData.orders.filter(o => o.status === s).length
-        );
-
-        // Initialize Status Chart
+        const counts = statuses.map(s => orders.filter(o => o.status.toLowerCase() === s.toLowerCase()).length);
         new Chart(statusCtx, {
             type: 'doughnut',
             data: {
                 labels: statuses,
-                datasets: [{
-                    data: statusCounts,
-                    backgroundColor: [
-                        'rgba(245, 158, 11, 0.7)',
-                        'rgba(99, 102, 241, 0.7)',
-                        'rgba(16, 185, 129, 0.7)',
-                        'rgba(148, 163, 184, 0.7)'
-                    ],
-                    borderWidth: 0,
-                    hoverOffset: 10
-                }]
+                datasets: [{ data: counts, backgroundColor: ['rgba(245,158,11,0.7)','rgba(99,102,241,0.7)','rgba(16,185,129,0.7)','rgba(148,163,184,0.7)'], borderWidth: 0, hoverOffset: 10 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '75%',
+                responsive: true, maintainAspectRatio: false, cutout: '75%',
+                plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', usePointStyle: true, padding: 20, font: { size: 12 } } } }
+            }
+        });
+    }
+
+    // --- Collection by Month (stacked bar) ---
+    if (collectionCtx) {
+        const now = new Date();
+        const labels = [], paidData = [], pendingData = [];
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            labels.push(MONTH_NAMES[d.getMonth()]);
+            const monthInvs = invoices.filter(inv => {
+                const id = new Date(inv.created_at);
+                return id.getMonth() === d.getMonth() && id.getFullYear() === d.getFullYear();
+            });
+            paidData.push(monthInvs.filter(inv => inv.status.toLowerCase() === 'paid').reduce((s, inv) => s + parseFloat(inv.amount), 0));
+            pendingData.push(monthInvs.filter(inv => inv.status.toLowerCase() !== 'paid').reduce((s, inv) => s + parseFloat(inv.amount), 0));
+        }
+
+        new Chart(collectionCtx, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [
+                    { label: 'Collected', data: paidData, backgroundColor: 'rgba(16,185,129,0.7)', borderRadius: 4, borderSkipped: false },
+                    { label: 'Outstanding', data: pendingData, backgroundColor: 'rgba(245,158,11,0.5)', borderRadius: 4, borderSkipped: false }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            color: '#94a3b8',
-                            usePointStyle: true,
-                            padding: 20,
-                            font: { size: 12 }
-                        }
-                    }
+                    legend: { position: 'bottom', labels: { color: '#94a3b8', usePointStyle: true, padding: 15, font: { size: 11 } } },
+                    tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: KES ${ctx.parsed.y.toLocaleString()}` } }
+                },
+                scales: {
+                    y: {
+                        stacked: true, beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#94a3b8', font: { size: 10 }, callback: v => `KES ${v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v}` }
+                    },
+                    x: { stacked: true, grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } }
                 }
             }
         });
+    }
 
-    } catch (error) {
-        console.error('Chart Init Error:', error);
+    // --- Support Overview (open vs resolved donut) ---
+    if (ticketCtx) {
+        const open = tickets.filter(t => t.status.toLowerCase() === 'open').length;
+        const closed = tickets.filter(t => t.status.toLowerCase() !== 'open').length;
+        new Chart(ticketCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Open', 'Resolved'],
+                datasets: [{ data: [open, closed], backgroundColor: ['rgba(239,68,68,0.7)', 'rgba(16,185,129,0.7)'], borderWidth: 0, hoverOffset: 10 }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, cutout: '75%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#94a3b8', usePointStyle: true, padding: 20, font: { size: 12 } } }
+                }
+            }
+        });
     }
 }
 
 window.generateStatement = (type) => {
-    const stored = localStorage.getItem('admin_invoices');
-    const invoices = stored ? JSON.parse(stored) : [];
-    
-    // Ensure html2pdf is loaded
+    const invoices = _dashboardInvoices;
+
     if (typeof html2pdf === 'undefined') {
         alert('PDF library is loading. Please wait...');
         return;
@@ -1069,18 +1224,15 @@ window.generateStatement = (type) => {
 
     const year = parseInt(document.getElementById('statement_year').value);
     const month = type === 'month' ? parseInt(document.getElementById('statement_month').value) : null;
-    
-    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+    const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     const periodName = type === 'month' ? `${monthNames[month]} ${year}` : `Year ${year}`;
 
-    // Filter invoices
     const filtered = invoices.filter(inv => {
-        const d = helperParseInvDate(inv.date);
-        if (type === 'month') {
-            return d.getFullYear() === year && d.getMonth() === month;
-        } else {
-            return d.getFullYear() === year;
-        }
+        const d = new Date(inv.created_at);
+        return type === 'month'
+            ? d.getFullYear() === year && d.getMonth() === month
+            : d.getFullYear() === year;
     });
 
     if (filtered.length === 0) {
@@ -1088,49 +1240,43 @@ window.generateStatement = (type) => {
         return;
     }
 
-    // Populate statement template
     document.getElementById('st_title').textContent = `${type.toUpperCase()} FINANCIAL STATEMENT`;
     document.getElementById('st_period').textContent = periodName;
     document.getElementById('st_gen_date').textContent = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
     const itemsBody = document.getElementById('st_items_body');
     itemsBody.innerHTML = '';
-
-    let totalSales = 0;
-    let totalPaid = 0;
+    let totalSales = 0, totalPaid = 0;
 
     filtered.forEach(inv => {
         const amount = parseFloat(inv.amount || 0);
-        const paid = parseFloat(inv.paidAmount || (inv.status === 'Paid' ? amount : 0));
-        
+        const isPaid = inv.status.toLowerCase() === 'paid';
+        const clientName = inv.user_id ? inv.reg_client_name : inv.guest_name;
         totalSales += amount;
-        totalPaid += paid;
+        if (isPaid) totalPaid += amount;
 
         itemsBody.innerHTML += `
             <tr>
-                <td>${new Date(inv.date).toLocaleDateString()}</td>
-                <td>#${inv.id}</td>
-                <td>${inv.client} - ${inv.items ? inv.items[0].desc : (inv.item || 'Service')}</td>
+                <td>${new Date(inv.created_at).toLocaleDateString()}</td>
+                <td>#${inv.reference}</td>
+                <td>${clientName}</td>
                 <td>${inv.status}</td>
-                <td style="text-align: right;">${inv.amount.toLocaleString()}</td>
+                <td style="text-align:right;">KES ${amount.toLocaleString()}</td>
             </tr>
         `;
     });
 
-    const pendingBalance = totalSales - totalPaid;
-
     document.getElementById('st_total_sales').textContent = `KES ${totalSales.toLocaleString()}.00`;
     document.getElementById('st_total_paid').textContent = `KES ${totalPaid.toLocaleString()}.00`;
-    document.getElementById('st_pending_balance').textContent = `KES ${pendingBalance.toLocaleString()}.00`;
+    document.getElementById('st_pending_balance').textContent = `KES ${(totalSales - totalPaid).toLocaleString()}.00`;
 
-    // Generate PDF
     const element = document.getElementById('statementTemplate');
     const opt = {
-        margin:       0,
-        filename:     `Shanfix_Statement_${periodName.replace(' ', '_')}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        margin: 0,
+        filename: `Shanfix_Statement_${periodName.replace(/\s+/g, '_')}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     const container = document.getElementById('statementTemplateContainer');
@@ -1138,7 +1284,6 @@ window.generateStatement = (type) => {
 
     html2pdf().set(opt).from(element).save().then(() => {
         container.style.display = 'none';
-        alert(`${periodName} statement generated successfully.`);
     }).catch(err => {
         console.error('Statement Generation Error:', err);
         container.style.display = 'none';
@@ -1537,8 +1682,9 @@ function initBillingPage() {
                     <td><span class="status-badge ${statusClass}">${i.status.toUpperCase()}</span></td>
                     <td>
                         <div class="flex-align-center gap-10">
-                            <button class="icon-btn" onclick="previewInvoice(${JSON.stringify(i).replace(/"/g, '&quot;')})"><i class="fas fa-eye"></i></button>
-                            <button class="icon-btn" style="color: #22c55e;" onclick="downloadInvoice(${JSON.stringify(i).replace(/"/g, '&quot;')})"><i class="fas fa-download"></i></button>
+                            <button class="icon-btn" onclick="previewInvoice(${JSON.stringify(i).replace(/"/g, '&quot;')})" title="Preview"><i class="fas fa-eye"></i></button>
+                            <button class="icon-btn" style="color:#22c55e;" onclick="downloadInvoice(${JSON.stringify(i).replace(/"/g, '&quot;')})" title="Download PDF"><i class="fas fa-download"></i></button>
+                            <button class="icon-btn" style="color:var(--p);" onclick="emailInvoice(${JSON.stringify(i).replace(/"/g, '&quot;')})" title="Email to Client"><i class="fas fa-envelope"></i></button>
                         </div>
                     </td>
                 </tr>
@@ -1743,6 +1889,9 @@ function initBillingPage() {
         
         document.getElementById('previewModal').classList.add('active');
         document.getElementById('downloadPdfBtn').onclick = () => downloadInvoice(inv);
+
+        const emailBtn = document.getElementById('emailPdfBtn');
+        if (emailBtn) emailBtn.onclick = () => emailInvoice(inv);
     };
 
     window.closePreviewModal = () => document.getElementById('previewModal').classList.remove('active');
@@ -1757,6 +1906,63 @@ function initBillingPage() {
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
         html2pdf().set(opt).from(element).save();
+    };
+
+    window.emailInvoice = async (inv) => {
+        const clientName  = inv.user_id ? inv.reg_client_name  : inv.guest_name;
+        const clientEmail = inv.user_id ? inv.reg_client_email : inv.guest_email;
+
+        if (!clientEmail) {
+            alert('No email address on file for this invoice.');
+            return;
+        }
+
+        if (!confirm(`Send invoice #${inv.reference} to ${clientEmail}?`)) return;
+
+        // Ensure preview content is rendered in the DOM
+        if (!document.getElementById('pdfContent')) {
+            window.previewInvoice(inv);
+            document.getElementById('previewModal').classList.remove('active');
+        }
+
+        const emailBtn = document.getElementById('emailPdfBtn');
+        const rowBtns  = document.querySelectorAll(`[title="Email to Client"]`);
+        const origText = emailBtn ? emailBtn.innerHTML : '';
+        if (emailBtn) { emailBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...'; emailBtn.disabled = true; }
+        rowBtns.forEach(b => { b.disabled = true; });
+
+        try {
+            const element = document.getElementById('pdfContent');
+            const opt = {
+                margin: 10,
+                filename: `Invoice_${inv.reference}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            const dataUri = await html2pdf().set(opt).from(element).outputPdf('datauristring');
+            const base64  = dataUri.split(',')[1];
+
+            const res  = await fetch('api/send_invoice.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    invoice_ref:     inv.reference,
+                    recipient_email: clientEmail,
+                    recipient_name:  clientName,
+                    pdf_base64:      base64
+                })
+            });
+            const data = await res.json();
+            alert(data.message || (data.success ? 'Email sent!' : 'Failed to send.'));
+        } catch (err) {
+            console.error('Email invoice error:', err);
+            alert('Failed to generate or send the invoice PDF.');
+        } finally {
+            if (emailBtn) { emailBtn.innerHTML = origText; emailBtn.disabled = false; }
+            rowBtns.forEach(b => { b.disabled = false; });
+        }
     };
 
     loadInitialData();
@@ -1931,9 +2137,356 @@ function initReceiptsPage() {
     loadReceipts();
 }
 
-// ADVERTS MANAGEMENT
+// ── ADVERTS & BANNERS MANAGEMENT ───────────────────────────────────────────
+
 function initAdvertsPage() {
-    console.log('Adverts Page Initialized');
+    if (!document.getElementById('slidesTableBody')) return;
+    loadSlides();
+    loadBanners();
+
+    document.getElementById('slideForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        fd.set('action', document.getElementById('slide_id').value ? 'update' : 'create');
+        const btn = e.target.querySelector('[type=submit]');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        btn.disabled = true;
+        try {
+            const res = await fetch('api/adverts.php', { method: 'POST', body: fd });
+            const data = await res.json();
+            if (data.success) { closeSlideModal(); loadSlides(); alert(data.message); }
+            else alert(data.message);
+        } finally { btn.innerHTML = orig; btn.disabled = false; }
+    });
+
+    document.getElementById('bannerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        fd.set('action', document.getElementById('banner_id').value ? 'update' : 'create');
+        const btn = e.target.querySelector('[type=submit]');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        btn.disabled = true;
+        try {
+            const res = await fetch('api/adverts.php', { method: 'POST', body: fd });
+            const data = await res.json();
+            if (data.success) { closeBannerModal(); loadBanners(); alert(data.message); }
+            else alert(data.message);
+        } finally { btn.innerHTML = orig; btn.disabled = false; }
+    });
+}
+
+async function loadSlides() {
+    const tbody = document.getElementById('slidesTableBody');
+    if (!tbody) return;
+    try {
+        const res = await fetch('api/adverts.php?type=slide');
+        const data = await res.json();
+        if (!data.success || !data.items.length) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:2rem; color:var(--text-low);">No slides yet. Add your first hero slide.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = data.items.map(s => `
+            <tr>
+                <td style="text-align:center; font-weight:700;">${s.sort_order}</td>
+                <td style="max-width:200px;">
+                    <strong style="color:var(--text-main);">${s.headline}</strong>
+                </td>
+                <td style="max-width:200px; font-size:0.82rem; color:var(--text-low);">
+                    ${s.subtitle ? s.subtitle.substring(0, 80) + (s.subtitle.length > 80 ? '...' : '') : '<em>—</em>'}
+                </td>
+                <td style="font-size:0.8rem;">
+                    ${s.btn1_text ? `<span class="status-badge" style="margin-bottom:4px; display:inline-block;">${s.btn1_text}</span>` : ''}
+                    ${s.btn2_text ? `<span class="status-badge" style="display:inline-block;">${s.btn2_text}</span>` : ''}
+                </td>
+                <td>
+                    ${s.bg_image
+                        ? `<img src="../${s.bg_image}" style="width:80px; height:45px; object-fit:cover; border-radius:8px; border:1px solid var(--glass-border);">`
+                        : '<span class="text-low" style="font-size:0.8rem;">Default gradient</span>'}
+                </td>
+                <td><span class="status-badge ${s.is_active ? 'status-active' : 'status-inactive'}">${s.is_active ? 'Active' : 'Inactive'}</span></td>
+                <td style="text-align:right;">
+                    <div class="flex-end-gap-sm">
+                        <button class="icon-btn" onclick="editSlide(${JSON.stringify(s).replace(/"/g, '&quot;')})" title="Edit"><i class="fas fa-edit"></i></button>
+                        <button class="icon-btn" style="color:#ef4444;" onclick="deleteAdvert(${s.id}, 'slide')" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    } catch (e) { console.error('Load slides error:', e); }
+}
+
+async function loadBanners() {
+    const grid = document.getElementById('bannersGrid');
+    if (!grid) return;
+    try {
+        const res = await fetch('api/adverts.php?type=banner');
+        const data = await res.json();
+        if (!data.success || !data.items.length) {
+            grid.innerHTML = '<p class="text-low" style="grid-column:1/-1; text-align:center; padding:2rem;">No banners yet. Upload your first ad banner.</p>';
+            return;
+        }
+        grid.innerHTML = data.items.map(b => `
+            <div class="admin-card" style="padding:0; overflow:hidden; border-radius:16px;">
+                <div style="position:relative;">
+                    <img src="../${b.image_url}" style="width:100%; height:140px; object-fit:cover; display:block;"
+                         onerror="this.src='../assets/img/placeholder.png'">
+                    <span class="status-badge ${b.is_active ? 'status-active' : 'status-inactive'}"
+                          style="position:absolute; top:10px; right:10px;">${b.is_active ? 'Active' : 'Off'}</span>
+                </div>
+                <div style="padding:14px;">
+                    <div style="font-weight:700; color:var(--text-main); margin-bottom:4px;">${b.title || 'Untitled Banner'}</div>
+                    <div style="font-size:0.75rem; color:var(--text-low); margin-bottom:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${b.link_url || 'No link'}</div>
+                    <div class="flex-end-gap-sm">
+                        <button class="admin-btn-sm admin-btn-secondary" onclick="editBanner(${JSON.stringify(b).replace(/"/g, '&quot;')})">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="admin-btn-sm" style="border-color:#ef444455; color:#fca5a5;" onclick="deleteAdvert(${b.id}, 'banner')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } catch (e) { console.error('Load banners error:', e); }
+}
+
+window.openSlideModal = () => {
+    document.getElementById('slideForm').reset();
+    document.getElementById('slide_id').value = '';
+    document.getElementById('slide_existing_image').value = '';
+    document.getElementById('slideImgPreview').innerHTML = '';
+    document.getElementById('slideModalTitle').textContent = 'Add Hero Slide';
+    document.getElementById('slideModal').style.display = 'flex';
+};
+window.closeSlideModal = () => { document.getElementById('slideModal').style.display = 'none'; };
+
+window.editSlide = (s) => {
+    document.getElementById('slide_id').value = s.id;
+    document.getElementById('slide_headline').value = s.headline;
+    document.getElementById('slide_subtitle').value = s.subtitle || '';
+    document.getElementById('slide_btn1_text').value = s.btn1_text || '';
+    document.getElementById('slide_btn1_link').value = s.btn1_link || '';
+    document.getElementById('slide_btn2_text').value = s.btn2_text || '';
+    document.getElementById('slide_btn2_link').value = s.btn2_link || '';
+    document.getElementById('slide_sort_order').value = s.sort_order;
+    document.getElementById('slide_is_active').checked = !!parseInt(s.is_active);
+    document.getElementById('slide_existing_image').value = s.bg_image || '';
+    document.getElementById('slideImgPreview').innerHTML = s.bg_image
+        ? `<img src="../${s.bg_image}" style="max-width:100%; height:80px; object-fit:cover; border-radius:8px; margin-bottom:4px;">`
+        : '';
+    document.getElementById('slideModalTitle').textContent = 'Edit Hero Slide';
+    document.getElementById('slideModal').style.display = 'flex';
+};
+
+window.openBannerModal = () => {
+    document.getElementById('bannerForm').reset();
+    document.getElementById('banner_id').value = '';
+    document.getElementById('banner_existing_image').value = '';
+    document.getElementById('bannerImgPreview').innerHTML = '';
+    document.getElementById('bannerImgRequired').style.display = 'inline';
+    document.getElementById('bannerModalTitle').textContent = 'Upload Ad Banner';
+    document.getElementById('bannerModal').style.display = 'flex';
+};
+window.closeBannerModal = () => { document.getElementById('bannerModal').style.display = 'none'; };
+
+window.editBanner = (b) => {
+    document.getElementById('banner_id').value = b.id;
+    document.getElementById('banner_title').value = b.title || '';
+    document.getElementById('banner_link').value = b.link_url || '';
+    document.getElementById('banner_sort_order').value = b.sort_order;
+    document.getElementById('banner_is_active').checked = !!parseInt(b.is_active);
+    document.getElementById('banner_existing_image').value = b.image_url;
+    document.getElementById('bannerImgPreview').innerHTML = `<img src="../${b.image_url}" style="max-width:100%; height:80px; object-fit:cover; border-radius:8px; margin-bottom:4px;">`;
+    document.getElementById('bannerImgRequired').style.display = 'none';
+    document.getElementById('bannerModalTitle').textContent = 'Edit Ad Banner';
+    document.getElementById('bannerModal').style.display = 'flex';
+};
+
+window.deleteAdvert = async (id, type) => {
+    const label = type === 'banner' ? 'banner' : 'slide';
+    if (!confirm(`Delete this ${label}? This cannot be undone.`)) return;
+    try {
+        const res = await fetch('api/adverts.php', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, type })
+        });
+        const data = await res.json();
+        if (data.success) { type === 'banner' ? loadBanners() : loadSlides(); }
+        else alert(data.message);
+    } catch (e) { alert('Delete failed.'); }
+};
+
+window.previewImg = (input, containerId) => {
+    const container = document.getElementById(containerId);
+    if (!input.files[0]) { container.innerHTML = ''; return; }
+    const reader = new FileReader();
+    reader.onload = e => {
+        container.innerHTML = `<img src="${e.target.result}" style="max-width:100%; height:80px; object-fit:cover; border-radius:8px; margin-bottom:4px;">`;
+    };
+    reader.readAsDataURL(input.files[0]);
+};
+
+// ── GLOBAL: unread messages badge (loads on every admin page) ─────────────
+
+async function _loadUnreadBadge() {
+    try {
+        const res  = await fetch('api/messages.php?unread_count=1');
+        const data = await res.json();
+        const badge = document.getElementById('sidebarMsgBadge');
+        if (badge && data.success && data.count > 0) {
+            badge.textContent    = data.count;
+            badge.style.display  = 'inline-block';
+        }
+    } catch (e) { /* non-critical */ }
+}
+
+// ── MESSAGES / CONTACT INBOX ──────────────────────────────────────────────
+
+function initMessagesPage() {
+    if (!document.getElementById('messagesTableBody')) return;
+
+    let _allMessages = [];
+    let _activeId    = null;
+
+    async function loadMessages() {
+        try {
+            const res  = await fetch('api/messages.php');
+            const data = await res.json();
+            if (data.success) {
+                _allMessages = data.messages;
+                renderMessages(_allMessages);
+                updateStats(_allMessages);
+            }
+        } catch (e) { console.error('Messages load error:', e); }
+    }
+
+    function renderMessages(msgs) {
+        const tbody = document.getElementById('messagesTableBody');
+        if (!msgs.length) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:2.5rem; color:var(--text-low);">No messages yet.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = msgs.map(m => {
+            const isUnread  = m.status === 'unread';
+            const statusMap = { unread: 'badge-pending', read: '', replied: 'badge-paid' };
+            return `
+                <tr style="${isUnread ? 'font-weight:700;' : ''}">
+                    <td><span class="status-badge ${statusMap[m.status] || ''}">${m.status}</span></td>
+                    <td>
+                        <div style="font-weight:${isUnread ? '800' : '600'}; color:var(--text-main);">${m.name}</div>
+                        <div style="font-size:0.78rem; color:var(--text-low);">${m.email}</div>
+                    </td>
+                    <td style="max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${m.subject}</td>
+                    <td style="font-size:0.82rem; color:var(--text-low);">${new Date(m.created_at).toLocaleDateString('en-KE', {day:'numeric', month:'short', year:'numeric'})}</td>
+                    <td style="text-align:right;">
+                        <div class="flex-end-gap-sm">
+                            <button class="admin-btn admin-btn-primary admin-btn-sm" onclick="openMessage(${m.id})">
+                                <i class="fas fa-${m.status === 'replied' ? 'reply' : 'envelope-open'}"></i>
+                                ${m.status === 'replied' ? 'View Reply' : 'Open'}
+                            </button>
+                            <button class="icon-btn" style="color:#ef4444;" onclick="deleteMessage(${m.id})" title="Delete">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function updateStats(msgs) {
+        document.getElementById('stat_total').textContent   = `Total: ${msgs.length}`;
+        document.getElementById('stat_unread').textContent  = `Unread: ${msgs.filter(m => m.status === 'unread').length}`;
+        document.getElementById('stat_replied').textContent = `Replied: ${msgs.filter(m => m.status === 'replied').length}`;
+    }
+
+    window.filterMessages = (status) => {
+        const filtered = status === 'all' ? _allMessages : _allMessages.filter(m => m.status === status);
+        renderMessages(filtered);
+    };
+
+    window.openMessage = async (id) => {
+        const m = _allMessages.find(x => x.id == id);
+        if (!m) return;
+        _activeId = id;
+
+        document.getElementById('msgModalTitle').textContent = m.subject;
+        document.getElementById('msg_from').textContent      = m.name;
+        document.getElementById('msg_email_link').textContent = m.email;
+        document.getElementById('msg_email_link').href        = `mailto:${m.email}`;
+        document.getElementById('msg_date').textContent      = new Date(m.created_at).toLocaleString('en-KE');
+        document.getElementById('msg_body').textContent      = m.message;
+        document.getElementById('replyText').value           = '';
+
+        if (m.reply_message) {
+            document.getElementById('replyAlreadySent').style.display = 'block';
+            document.getElementById('msg_prev_reply').textContent      = m.reply_message;
+        } else {
+            document.getElementById('replyAlreadySent').style.display = 'none';
+        }
+
+        document.getElementById('msgModal').classList.add('active');
+
+        if (m.status === 'unread') {
+            await fetch('api/messages.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'mark_read', id })
+            });
+            m.status = 'read';
+            updateStats(_allMessages);
+            _loadUnreadBadge();
+        }
+    };
+
+    window.closeMsgModal = () => {
+        document.getElementById('msgModal').classList.remove('active');
+        loadMessages();
+    };
+
+    window.sendReply = async () => {
+        const reply = document.getElementById('replyText').value.trim();
+        if (!reply) { alert('Please enter a reply message.'); return; }
+
+        const btn  = document.getElementById('sendReplyBtn');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+        btn.disabled  = true;
+
+        try {
+            const res  = await fetch('api/messages.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'reply', id: _activeId, reply })
+            });
+            const data = await res.json();
+            alert(data.message || (data.success ? 'Reply sent.' : 'Failed.'));
+            if (data.success) closeMsgModal();
+        } catch (e) {
+            alert('Connection error.');
+        } finally {
+            btn.innerHTML = orig;
+            btn.disabled  = false;
+        }
+    };
+
+    window.deleteMessage = async (id) => {
+        if (!confirm('Delete this message permanently?')) return;
+        try {
+            const res  = await fetch('api/messages.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'delete', id })
+            });
+            const data = await res.json();
+            if (data.success) loadMessages();
+        } catch (e) { alert('Delete failed.'); }
+    };
+
+    loadMessages();
 }
 
 // SUPPORT TICKETS MANAGEMENT

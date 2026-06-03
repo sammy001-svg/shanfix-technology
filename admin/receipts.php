@@ -93,6 +93,7 @@
             <a href="invoices.php" class="admin-nav-item"><i class="fas fa-file-invoice-dollar"></i> <span>Billing</span></a>
             <a href="receipts.php" class="admin-nav-item active"><i class="fas fa-receipt"></i> <span>Receipts</span></a>
             <a href="tickets.php" class="admin-nav-item"><i class="fas fa-life-ring"></i> <span>Support</span></a>
+            <a href="messages.php" class="admin-nav-item"><i class="fas fa-inbox"></i> <span>Inbox</span><span id="sidebarMsgBadge" style="display:none; background:#ef4444; color:#fff; font-size:0.65rem; font-weight:800; padding:2px 6px; border-radius:20px; margin-left:auto;"></span></a>
             <div class="admin-nav-divider"></div>
             <a href="../index.php" class="admin-nav-item"><i class="fas fa-external-link-alt"></i> <span>Live Site</span></a>
         </nav>
