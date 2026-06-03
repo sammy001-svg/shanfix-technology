@@ -14,38 +14,22 @@
         <aside class="admin-sidebar">
             <div class="admin-logo">Shanfix <span>Admin</span></div>
             <nav class="admin-nav">
-                <a href="index.php" class="admin-nav-item">
-                    <i class="fas fa-chart-line"></i> <span>Insights</span>
-                </a>
-                <a href="clients.php" class="admin-nav-item active">
-                    <i class="fas fa-users"></i> <span>Clients</span>
-                </a>
-                <a href="products.php" class="admin-nav-item">
-                    <i class="fas fa-box"></i> <span>Catalog</span>
-                </a>
-                <a href="orders.php" class="admin-nav-item">
-                    <i class="fas fa-shopping-bag"></i> <span>Orders</span>
-                </a>
-                <a href="invoices.php" class="admin-nav-item">
-                    <i class="fas fa-file-invoice"></i> <span>Billing</span>
-                </a>
-                <a href="receipts.php" class="admin-nav-item">
-                    <i class="fas fa-receipt"></i> <span>Receipts</span>
-                </a>
-                <a href="adverts.php" class="admin-nav-item">
-                    <i class="fas fa-ad"></i> <span>Adverts</span>
-                </a>
-                <a href="tickets.php" class="admin-nav-item">
-                    <i class="fas fa-life-ring"></i> <span>Support</span>
-                </a>
+                <a href="index.php" class="admin-nav-item"><i class="fas fa-chart-line"></i> <span>Insights</span></a>
+                <a href="clients.php" class="admin-nav-item active"><i class="fas fa-users"></i> <span>Clients</span></a>
+                <a href="categories.php" class="admin-nav-item"><i class="fas fa-tags"></i> <span>Categories</span></a>
+                <a href="services.php" class="admin-nav-item"><i class="fas fa-concierge-bell"></i> <span>Services</span></a>
+                <a href="products.php" class="admin-nav-item"><i class="fas fa-box"></i> <span>Catalog</span></a>
+                <a href="orders.php" class="admin-nav-item"><i class="fas fa-shopping-bag"></i> <span>Orders</span></a>
+                <a href="invoices.php" class="admin-nav-item"><i class="fas fa-file-invoice"></i> <span>Billing</span></a>
+                <a href="receipts.php" class="admin-nav-item"><i class="fas fa-receipt"></i> <span>Receipts</span></a>
+                <a href="adverts.php" class="admin-nav-item"><i class="fas fa-ad"></i> <span>Adverts</span></a>
+                <a href="tickets.php" class="admin-nav-item"><i class="fas fa-life-ring"></i> <span>Support</span></a>
                 <a href="messages.php" class="admin-nav-item">
                     <i class="fas fa-inbox"></i> <span>Inbox</span>
                     <span id="sidebarMsgBadge" style="display:none; background:#ef4444; color:#fff; font-size:0.65rem; font-weight:800; padding:2px 6px; border-radius:20px; margin-left:auto;"></span>
                 </a>
                 <div class="admin-nav-divider"></div>
-                <a href="../index.php" class="admin-nav-item">
-                    <i class="fas fa-external-link-alt"></i> <span>Live Site</span>
-                </a>
+                <a href="../index.php" class="admin-nav-item"><i class="fas fa-external-link-alt"></i> <span>Live Site</span></a>
             </nav>
             <div class="admin-sidebar-footer">
                 <a href="login.php" class="admin-nav-item admin-footer-link" onclick="sessionStorage.clear()">
@@ -227,9 +211,104 @@
         </div>
     </div>
 
+    <!-- Onboarding Wizard Modal -->
+    <div id="onboardingModal" class="admin-modal">
+        <div class="admin-modal-content" style="max-width:680px;">
+            <div class="admin-modal-header" style="background:linear-gradient(135deg,rgba(99,102,241,0.1),rgba(16,185,129,0.05)); border-bottom:1px solid var(--glass-border);">
+                <div>
+                    <h3 class="admin-modal-title" style="color:#22c55e;">
+                        <i class="fas fa-check-circle"></i> Client Created — Complete Onboarding
+                    </h3>
+                    <p id="ob_client_headline" class="text-low" style="font-size:0.85rem; margin:4px 0 0;"></p>
+                </div>
+                <span class="admin-modal-close" onclick="skipOnboarding()">&times;</span>
+            </div>
+            <div class="admin-modal-body">
+
+                <!-- Service Assignment -->
+                <div style="border:1px solid var(--glass-border); border-radius:14px; padding:20px; margin-bottom:20px;">
+                    <label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom:0;">
+                        <input type="checkbox" id="ob_assign_service" style="width:16px;height:16px; accent-color:var(--p);" onchange="toggleObSection('ob_service_fields', this.checked)">
+                        <span style="font-weight:700; font-size:0.95rem;"><i class="fas fa-server" style="color:var(--p); margin-right:6px;"></i> Assign a Service</span>
+                    </label>
+                    <div id="ob_service_fields" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid var(--glass-border);">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                            <div class="form-group">
+                                <label class="form-label">Catalog Product <span class="text-low">(optional)</span></label>
+                                <select id="ob_product" class="form-control" onchange="obProductSelect()">
+                                    <option value="">— None / Custom —</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Billing Cycle</label>
+                                <select id="ob_cycle" class="form-control">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="yearly">Yearly</option>
+                                    <option value="one-time">One-time</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                            <div class="form-group">
+                                <label class="form-label">Service Name <span style="color:var(--red)">*</span></label>
+                                <input type="text" id="ob_service_name" class="form-control" placeholder="e.g. Business Hosting Plan">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Next Due Date</label>
+                                <input type="date" id="ob_due_date" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoice Generation -->
+                <div style="border:1px solid var(--glass-border); border-radius:14px; padding:20px; margin-bottom:20px;">
+                    <label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom:0;">
+                        <input type="checkbox" id="ob_gen_invoice" style="width:16px;height:16px; accent-color:var(--p);" onchange="toggleObSection('ob_invoice_fields', this.checked)">
+                        <span style="font-weight:700; font-size:0.95rem;"><i class="fas fa-file-invoice-dollar" style="color:var(--p); margin-right:6px;"></i> Generate Initial Invoice</span>
+                    </label>
+                    <div id="ob_invoice_fields" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid var(--glass-border);">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                            <div class="form-group">
+                                <label class="form-label">Amount (KES, excl. VAT)</label>
+                                <input type="number" id="ob_inv_amount" class="form-control" placeholder="0.00" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Invoice Description</label>
+                                <input type="text" id="ob_inv_desc" class="form-control" placeholder="Initial service setup">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Communications -->
+                <div style="border:1px solid var(--glass-border); border-radius:14px; padding:20px;">
+                    <p style="font-weight:700; font-size:0.9rem; margin-bottom:14px; color:var(--text-low); text-transform:uppercase; letter-spacing:0.5px;">
+                        <i class="fas fa-paper-plane" style="color:var(--p); margin-right:6px;"></i> Communications
+                    </p>
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <button class="admin-btn admin-btn-secondary" id="ob_email_btn" onclick="sendObWelcomeEmail()">
+                            <i class="fas fa-envelope"></i> Send Welcome Email
+                        </button>
+                        <button class="admin-btn admin-btn-secondary" onclick="downloadObPDF()">
+                            <i class="fas fa-file-pdf"></i> Download Onboarding PDF
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+            <div class="admin-modal-footer">
+                <button class="admin-btn admin-btn-secondary" onclick="skipOnboarding()">Skip</button>
+                <button class="admin-btn admin-btn-primary" id="ob_complete_btn" onclick="completeOnboarding()">
+                    <i class="fas fa-rocket"></i> Complete Setup
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-    <script src="../admin.js?v=13"></script>
+    <script src="../admin.js?v=15"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof initClientsPage === 'function') initClientsPage();

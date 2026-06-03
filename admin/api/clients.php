@@ -40,7 +40,8 @@ try {
             
             $stmt = $pdo->prepare("INSERT INTO users (full_name, email, password, role, phone, company, status) VALUES (?, ?, ?, 'client', ?, ?, ?)");
             $stmt->execute([$full_name, $email, $password, $phone, $company, $status]);
-            echo json_encode(['success' => true, 'message' => 'Client registered successfully. Password: ' . $raw_password]);
+            $newClientId = (int)$pdo->lastInsertId();
+            echo json_encode(['success' => true, 'message' => 'Client registered successfully. Password: ' . $raw_password, 'client_id' => $newClientId]);
         } 
         elseif ($action === 'update') {
             if (!$id) throw new Exception('Client ID is missing.');

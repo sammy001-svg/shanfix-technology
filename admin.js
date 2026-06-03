@@ -1458,16 +1458,14 @@ function initClientsPage() {
             if (data.success) {
                 closeClientModal();
                 loadClients();
-                
-                // Prompt to generate PDF if it was a new registration
-                if (action === 'create') {
-                    if (confirm(data.message + "\n\nWould you like to generate the Onboarding PDF for this client?")) {
-                        generateOnboardingPDF({
-                            full_name: payload.full_name,
-                            email: payload.email,
-                            password: payload.password || 'Client@123'
-                        });
-                    }
+
+                if (action === 'create' && data.client_id) {
+                    openOnboardingWizard({
+                        id:       data.client_id,
+                        name:     payload.full_name,
+                        email:    payload.email,
+                        password: payload.password || 'Client@123'
+                    });
                 } else {
                     alert(data.message);
                 }
@@ -1553,6 +1551,147 @@ function initClientsPage() {
             console.error('PDF Generation Error:', err);
             container.style.display = 'none';
         });
+    };
+
+    // ── Onboarding wizard ─────────────────────────────────────────────────
+
+    let _obClient = null; // { id, name, email, password }
+
+    window.openOnboardingWizard = async (client) => {
+        _obClient = client;
+        document.getElementById('ob_client_headline').textContent =
+            `Setting up ${client.name} (${client.email})`;
+
+        // Reset wizard state
+        document.getElementById('ob_assign_service').checked = false;
+        document.getElementById('ob_gen_invoice').checked    = false;
+        document.getElementById('ob_service_fields').style.display = 'none';
+        document.getElementById('ob_invoice_fields').style.display = 'none';
+        document.getElementById('ob_service_name').value    = '';
+        document.getElementById('ob_due_date').value        = '';
+        document.getElementById('ob_inv_amount').value      = '';
+        document.getElementById('ob_inv_desc').value        = '';
+        document.getElementById('ob_cycle').value           = 'monthly';
+
+        // Load products into dropdown
+        try {
+            const res  = await fetch('api/products.php');
+            const data = await res.json();
+            const sel  = document.getElementById('ob_product');
+            if (sel && data.success) {
+                sel.innerHTML = '<option value="">— None / Custom —</option>' +
+                    data.products.map(p =>
+                        `<option value="${p.id}" data-name="${p.name}" data-price="${p.price}">${p.name} — KES ${parseFloat(p.price).toLocaleString()}</option>`
+                    ).join('');
+            }
+        } catch (e) { /* non-critical */ }
+
+        document.getElementById('onboardingModal').classList.add('active');
+    };
+
+    window.toggleObSection = (id, show) => {
+        document.getElementById(id).style.display = show ? 'block' : 'none';
+    };
+
+    window.obProductSelect = () => {
+        const sel = document.getElementById('ob_product');
+        const opt = sel.options[sel.selectedIndex];
+        if (opt && opt.dataset.name) {
+            document.getElementById('ob_service_name').value = opt.dataset.name;
+        }
+        if (opt && opt.dataset.price) {
+            if (document.getElementById('ob_gen_invoice').checked) {
+                document.getElementById('ob_inv_amount').value = opt.dataset.price;
+            }
+        }
+    };
+
+    window.skipOnboarding = () => {
+        document.getElementById('onboardingModal').classList.remove('active');
+        _obClient = null;
+    };
+
+    window.sendObWelcomeEmail = async () => {
+        if (!_obClient) return;
+        const btn  = document.getElementById('ob_email_btn');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+        btn.disabled  = true;
+        try {
+            const res  = await fetch('api/onboard.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    client_id:    _obClient.id,
+                    client_name:  _obClient.name,
+                    client_email: _obClient.email,
+                    send_email:   true
+                })
+            });
+            const data = await res.json();
+            alert(data.message);
+        } catch (e) { alert('Email failed.'); }
+        finally { btn.innerHTML = orig; btn.disabled = false; }
+    };
+
+    window.downloadObPDF = () => {
+        if (!_obClient) return;
+        generateOnboardingPDF({
+            full_name: _obClient.name,
+            email:     _obClient.email,
+            password:  _obClient.password
+        });
+    };
+
+    window.completeOnboarding = async () => {
+        if (!_obClient) return;
+
+        const assignService = document.getElementById('ob_assign_service').checked;
+        const genInvoice    = document.getElementById('ob_gen_invoice').checked;
+
+        if (assignService && !document.getElementById('ob_service_name').value.trim()) {
+            alert('Please enter a service name, or uncheck "Assign a Service".');
+            return;
+        }
+        if (genInvoice && !(parseFloat(document.getElementById('ob_inv_amount').value) > 0)) {
+            alert('Please enter a valid invoice amount, or uncheck "Generate Initial Invoice".');
+            return;
+        }
+
+        const btn  = document.getElementById('ob_complete_btn');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Setting up...';
+        btn.disabled  = true;
+
+        try {
+            const payload = {
+                client_id:      _obClient.id,
+                client_name:    _obClient.name,
+                client_email:   _obClient.email,
+                assign_service: assignService,
+                service_name:   document.getElementById('ob_service_name').value.trim(),
+                product_id:     document.getElementById('ob_product').value || null,
+                billing_cycle:  document.getElementById('ob_cycle').value,
+                next_due_date:  document.getElementById('ob_due_date').value || null,
+                generate_invoice: genInvoice,
+                invoice_amount: parseFloat(document.getElementById('ob_inv_amount').value) || 0,
+                invoice_desc:   document.getElementById('ob_inv_desc').value.trim()
+            };
+
+            const res  = await fetch('api/onboard.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            alert(data.message || (data.success ? 'Onboarding complete.' : 'Onboarding failed.'));
+            if (data.success) skipOnboarding();
+        } catch (e) {
+            alert('Onboarding failed — connection error.');
+        } finally {
+            btn.innerHTML = orig;
+            btn.disabled  = false;
+        }
     };
 
     loadClients();
