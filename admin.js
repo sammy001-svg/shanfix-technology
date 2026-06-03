@@ -1909,31 +1909,46 @@ function initBillingPage() {
 
     invoiceForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
+        // Front-end validation
+        if (currentClientType === 'registered' && !document.getElementById('inv_client_id').value) {
+            return alert('Please select a registered client before generating the invoice.');
+        }
+        if (currentClientType === 'guest' && !document.getElementById('inv_guest_name').value.trim()) {
+            return alert('Please enter the guest client\'s name.');
+        }
+
         const items = [];
         document.querySelectorAll('#invoiceItemsBody tr').forEach(row => {
             items.push({
-                desc: row.querySelector('.item-desc').value,
-                qty: row.querySelector('.item-qty').value,
+                desc:  row.querySelector('.item-desc').value,
+                qty:   row.querySelector('.item-qty').value,
                 price: row.querySelector('.item-price').value
             });
         });
 
-        if (items.length === 0) return alert('Please add at least one item.');
+        if (items.length === 0) return alert('Please add at least one line item.');
 
         const totals = calculateTotals();
+
+        // Loading state
+        const submitBtn = document.querySelector('#invoiceModal button[type="submit"]') ||
+                          document.getElementById('clientSubmitBtn');
+        const origText  = submitBtn ? submitBtn.innerHTML : null;
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...'; }
+
         const payload = {
-            action: 'create',
-            user_id: currentClientType === 'registered' ? document.getElementById('inv_client_id').value : null,
-            guest_name: currentClientType === 'guest' ? document.getElementById('inv_guest_name').value : null,
-            guest_email: currentClientType === 'guest' ? document.getElementById('inv_guest_email').value : null,
-            guest_phone: currentClientType === 'guest' ? document.getElementById('inv_guest_phone').value : null,
-            items: items,
-            subtotal: totals.subtotal,
-            tax_amount: totals.tax,
+            action:       'create',
+            user_id:      currentClientType === 'registered' ? document.getElementById('inv_client_id').value : null,
+            guest_name:   currentClientType === 'guest' ? document.getElementById('inv_guest_name').value : null,
+            guest_email:  currentClientType === 'guest' ? document.getElementById('inv_guest_email').value : null,
+            guest_phone:  currentClientType === 'guest' ? document.getElementById('inv_guest_phone').value : null,
+            items:        items,
+            subtotal:     totals.subtotal,
+            tax_amount:   totals.tax,
             total_amount: totals.grandTotal,
-            terms: document.getElementById('inv_terms').value,
-            due_date: document.getElementById('inv_due_date').value
+            terms:        document.getElementById('inv_terms').value,
+            due_date:     document.getElementById('inv_due_date').value
         };
 
         try {
@@ -1947,8 +1962,14 @@ function initBillingPage() {
                 alert('Invoice generated successfully!');
                 closeInvoiceModal();
                 loadInvoices();
+            } else {
+                alert(data.message || 'Failed to generate invoice. Please check all fields.');
             }
-        } catch (e) { alert('Failed to generate invoice.'); }
+        } catch (err) {
+            alert('Connection error. Could not reach the server — please try again.');
+        } finally {
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = origText; }
+        }
     });
 
     window.openInvoiceModal = () => {
