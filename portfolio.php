@@ -10,6 +10,12 @@ try {
 
 $useDb = !empty($dbProjects);
 
+$pageSEO = [
+    'title'       => 'Portfolio | Our Work & Projects - Shanfix Technology',
+    'description' => 'Explore Shanfix Technology\'s portfolio of completed projects — web development, software solutions, branding, and digital marketing work across Kenya.',
+    'keywords'    => 'Shanfix Technology portfolio, IT projects Kenya, web development portfolio',
+    'canonical'   => 'https://shanfixtechnology.com/portfolio.php',
+];
 include 'includes/header.php';
 ?>
 <link rel="stylesheet" href="portfolio-modern.css">

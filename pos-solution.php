@@ -1,4 +1,11 @@
-<?php include 'includes/header.php'; ?>
+<?php
+$pageSEO = [
+    'title'       => 'Point of Sale System in Kenya | POS Software - Shanfix Technology',
+    'description' => 'Modern POS systems for retail and hospitality in Kenya. Track sales, inventory, and staff in real time with Shanfix Technology\'s POS software.',
+    'keywords'    => 'POS system Kenya, point of sale Nairobi, retail POS, restaurant POS',
+    'canonical'   => 'https://shanfixtechnology.com/pos-solution.php',
+];
+include 'includes/header.php'; ?>
 <link rel="stylesheet" href="pos-modern.css">
 
 <main class="pos-modern-page">

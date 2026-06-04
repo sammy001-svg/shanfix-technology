@@ -1,4 +1,11 @@
-<?php include 'includes/header.php'; ?>
+<?php
+$pageSEO = [
+    'title'       => 'Bulk SMS Services in Kenya | Mass Messaging - Shanfix Technology',
+    'description' => 'Send bulk SMS messages across Kenya at affordable rates. Reliable bulk SMS gateway for businesses, churches, schools, and organizations.',
+    'keywords'    => 'bulk SMS Kenya, mass messaging, SMS gateway Nairobi, affordable bulk SMS',
+    'canonical'   => 'https://shanfixtechnology.com/bulk-sms.php',
+];
+include 'includes/header.php'; ?>
 <link rel="stylesheet" href="sms-modern.css">
 
 <main>

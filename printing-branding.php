@@ -1,4 +1,11 @@
-<?php include 'includes/header.php'; ?>
+<?php
+$pageSEO = [
+    'title'       => 'Printing & Branding Services in Nairobi | Shanfix Technology',
+    'description' => 'High-quality printing and branding services in Nairobi — business cards, flyers, banners, branded merchandise, and corporate stationery.',
+    'keywords'    => 'printing services Nairobi, branding Kenya, business cards, flyers, banners printing',
+    'canonical'   => 'https://shanfixtechnology.com/printing-branding.php',
+];
+include 'includes/header.php'; ?>
     <!-- Hero Section with Carousel -->
     <section class="hero printing-hero" id="home">
       <div class="hero-carousel print-carousel">

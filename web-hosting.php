@@ -1,4 +1,11 @@
-<?php include 'includes/header.php'; ?>
+<?php
+$pageSEO = [
+    'title'       => 'Web Hosting Services in Kenya | Reliable & Affordable - Shanfix Technology',
+    'description' => 'Reliable and affordable web hosting in Kenya. Shared, VPS, and dedicated hosting with 99.9% uptime guarantee from Shanfix Technology Nairobi.',
+    'keywords'    => 'web hosting Kenya, domain registration, VPS hosting Nairobi, cloud hosting',
+    'canonical'   => 'https://shanfixtechnology.com/web-hosting.php',
+];
+include 'includes/header.php'; ?>
 
 <link rel="stylesheet" href="hosting-modern.css">
 

@@ -1,6 +1,20 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) session_start();
 $_isClientLoggedIn = isset($_SESSION['user_id']) && ($_SESSION['role'] ?? '') === 'client';
+
+// Per-page SEO defaults — pages override by setting $pageSEO before including this file
+$_seo = array_merge([
+    'title'       => 'Shanfix Technology | Premier IT Solutions & Digital Services in Nairobi',
+    'description' => 'Shanfix Technology is a leading IT solutions provider in Nairobi, Kenya, specializing in Web Development, Software Solutions, Bulk SMS, SEO, Networking, Printing & Branding, and Event Management.',
+    'keywords'    => 'web development, system development, bulk SMS, SEO, networking, printing, branding, event management, Nairobi, Kenya, Shanfix Technology',
+    'og_title'    => 'Shanfix Technology | Premier IT Solutions & Digital Services',
+    'og_desc'     => 'Innovating your digital future with expert Web Development, Software Solutions, and Branding services in Nairobi, Kenya.',
+    'og_image'    => 'https://shanfixtechnology.com/assets/og-image.png',
+    'og_type'     => 'website',
+    'canonical'   => 'https://shanfixtechnology.com/',
+], $pageSEO ?? []);
+$_seo['og_title'] = $pageSEO['og_title'] ?? $pageSEO['title'] ?? $_seo['og_title'];
+$_seo['og_desc']  = $pageSEO['og_desc']  ?? $pageSEO['description'] ?? $_seo['og_desc'];
 ?>
 <!doctype html>
 <html lang="en">
@@ -8,31 +22,66 @@ $_isClientLoggedIn = isset($_SESSION['user_id']) && ($_SESSION['role'] ?? '') ==
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Primary Meta Tags -->
-    <title>Shanfix Technology | Premier IT Solutions & Digital Services in Nairobi</title>
-    <meta name="title" content="Shanfix Technology | Premier IT Solutions & Digital Services in Nairobi" />
-    <meta
-      name="description"
-      content="Shanfix Technology is a leading IT solutions provider in Nairobi, Kenya, specializing in Web Development, Software Solutions, Bulk SMS, SEO, Networking, Printing & Branding, and Event Management."
-    />
-    <meta
-      name="keywords"
-      content="web development, system development, bulk SMS, SEO, networking, printing, branding, event management, Nairobi, Kenya, Shanfix Technology"
-    />
+    <title><?= htmlspecialchars($_seo['title']) ?></title>
+    <meta name="title" content="<?= htmlspecialchars($_seo['title']) ?>" />
+    <meta name="description" content="<?= htmlspecialchars($_seo['description']) ?>" />
+    <meta name="keywords" content="<?= htmlspecialchars($_seo['keywords']) ?>" />
     <meta name="author" content="Shanfix Technology" />
+    <link rel="canonical" href="<?= htmlspecialchars($_seo['canonical']) ?>" />
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://shanfixtechnology.com/" />
-    <meta property="og:title" content="Shanfix Technology | Premier IT Solutions & Digital Services" />
-    <meta property="og:description" content="Innovating your digital future with expert Web Development, Software Solutions, and Branding services in Nairobi, Kenya." />
-    <meta property="og:image" content="https://shanfixtechnology.com/assets/og-image.png" />
+    <meta property="og:type" content="<?= htmlspecialchars($_seo['og_type']) ?>" />
+    <meta property="og:url" content="<?= htmlspecialchars($_seo['canonical']) ?>" />
+    <meta property="og:title" content="<?= htmlspecialchars($_seo['og_title']) ?>" />
+    <meta property="og:description" content="<?= htmlspecialchars($_seo['og_desc']) ?>" />
+    <meta property="og:image" content="<?= htmlspecialchars($_seo['og_image']) ?>" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://shanfixtechnology.com/" />
-    <meta property="twitter:title" content="Shanfix Technology | Premier IT Solutions & Digital Services" />
-    <meta property="twitter:description" content="Innovating your digital future with expert Web Development, Software Solutions, and Branding services in Nairobi, Kenya." />
-    <meta property="twitter:image" content="https://shanfixtechnology.com/assets/og-image.png" />
+    <meta property="twitter:url" content="<?= htmlspecialchars($_seo['canonical']) ?>" />
+    <meta property="twitter:title" content="<?= htmlspecialchars($_seo['og_title']) ?>" />
+    <meta property="twitter:description" content="<?= htmlspecialchars($_seo['og_desc']) ?>" />
+    <meta property="twitter:image" content="<?= htmlspecialchars($_seo['og_image']) ?>" />
+
+    <!-- JSON-LD: Local Business -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Shanfix Technology",
+      "url": "https://shanfixtechnology.com/",
+      "logo": "https://shanfixtechnology.com/assets/shanfix-logo.png",
+      "image": "https://shanfixtechnology.com/assets/og-image.png",
+      "description": "Premier IT solutions provider in Nairobi, Kenya — web development, software, networking, digital marketing, printing, and event management.",
+      "telephone": "+254751869165",
+      "email": "info@shanfixtechnology.com",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Tana House, Karen",
+        "addressLocality": "Nairobi",
+        "addressCountry": "KE"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": -1.3224,
+        "longitude": 36.7092
+      },
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
+          "opens": "08:00",
+          "closes": "17:00"
+        }
+      ],
+      "sameAs": [
+        "https://sms.shanfixtechnology.com/",
+        "https://aicoder.shanfixtechnology.com/",
+        "https://automation.shanfixtechnology.com/"
+      ]
+    }
+    </script><?php if (!empty($pageSEO['json_ld'])): ?>
+    <script type="application/ld+json"><?= $pageSEO['json_ld'] ?></script><?php endif; ?>
     <link rel="stylesheet" href="./index.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

@@ -1,4 +1,11 @@
-<?php include 'includes/header.php'; ?>
+<?php
+$pageSEO = [
+    'title'       => 'School Management System in Kenya | Academic ERP - Shanfix Technology',
+    'description' => 'Complete school management system for Kenyan schools — student records, fees collection, timetables, exams, and parent portals by Shanfix Technology.',
+    'keywords'    => 'school management system Kenya, academic ERP, student management, school software',
+    'canonical'   => 'https://shanfixtechnology.com/school-management.php',
+];
+include 'includes/header.php'; ?>
 <link rel="stylesheet" href="school-modern.css">
 
 <main class="school-modern-page">

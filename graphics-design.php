@@ -1,4 +1,11 @@
-<?php include 'includes/header.php'; ?>
+<?php
+$pageSEO = [
+    'title'       => 'Graphics Design Services in Nairobi | Brand Identity - Shanfix Technology',
+    'description' => 'Creative graphics design services in Nairobi — logos, brand identity, social media graphics, and print design to make your business stand out.',
+    'keywords'    => 'graphics design Nairobi, logo design Kenya, brand identity, creative design',
+    'canonical'   => 'https://shanfixtechnology.com/graphics-design.php',
+];
+include 'includes/header.php'; ?>
 <link rel="stylesheet" href="graphics-modern.css">
 
 <main class="graphics-modern-page">

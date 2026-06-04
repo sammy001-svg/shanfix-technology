@@ -37,6 +37,12 @@ $milestones = [
     ['year' => '2026', 'title' => 'Growing Stronger',         'desc' => 'Over 1,000 projects completed. Expanding into West Africa and building the next generation of cloud-based enterprise tools.'],
 ];
 
+$pageSEO = [
+    'title'       => 'About Us | Shanfix Technology - IT Company in Nairobi, Kenya',
+    'description' => 'Learn about Shanfix Technology — a premier IT company in Nairobi, Kenya, dedicated to delivering innovative technology solutions and digital services.',
+    'keywords'    => 'about Shanfix Technology, IT company Nairobi, technology company Kenya',
+    'canonical'   => 'https://shanfixtechnology.com/who-we-are.php',
+];
 include 'includes/header.php';
 ?>
 <link rel="stylesheet" href="who-we-are-modern.css">

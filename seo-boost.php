@@ -1,4 +1,11 @@
-<?php include 'includes/header.php'; ?>
+<?php
+$pageSEO = [
+    'title'       => 'SEO Services in Nairobi | Search Engine Optimization - Shanfix Technology',
+    'description' => 'Boost your website\'s Google rankings with expert SEO services in Nairobi, Kenya. On-page, off-page, and technical SEO by Shanfix Technology.',
+    'keywords'    => 'SEO services Nairobi, search engine optimization Kenya, Google ranking, website SEO',
+    'canonical'   => 'https://shanfixtechnology.com/seo-boost.php',
+];
+include 'includes/header.php'; ?>
 
     <!-- Hero Section -->
     <section class="service-hero hero-seo">

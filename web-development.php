@@ -1,4 +1,11 @@
-<?php include 'includes/header.php'; ?>
+<?php
+$pageSEO = [
+    'title'       => 'Web Development Services in Nairobi | Shanfix Technology',
+    'description' => 'Professional web development services in Nairobi, Kenya. Custom websites, e-commerce, and web applications built to grow your business online.',
+    'keywords'    => 'web development Nairobi, website design Kenya, custom web applications, e-commerce development',
+    'canonical'   => 'https://shanfixtechnology.com/web-development.php',
+];
+include 'includes/header.php'; ?>
     <section class="service-hero hero-web-dev">
         <div class="service-hero-overlay"></div>
         <div class="container service-hero-content">

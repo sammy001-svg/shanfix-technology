@@ -1,4 +1,11 @@
-<?php include 'includes/header.php'; ?>
+<?php
+$pageSEO = [
+    'title'       => 'Event Management Services in Nairobi | Corporate Events - Shanfix Technology',
+    'description' => 'Professional event management and planning in Nairobi, Kenya. Corporate events, conferences, product launches, and exhibitions by Shanfix Technology.',
+    'keywords'    => 'event management Nairobi, corporate events Kenya, event planning, conferences',
+    'canonical'   => 'https://shanfixtechnology.com/event-management.php',
+];
+include 'includes/header.php'; ?>
 
     <!-- Hero Section -->
     <section class="service-hero hero-event-mgmt">

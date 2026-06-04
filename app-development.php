@@ -1,4 +1,12 @@
-<?php include 'includes/header.php'; ?>    <section class="service-hero hero-app-dev">
+<?php
+$pageSEO = [
+    'title'       => 'Mobile App Development in Nairobi | iOS & Android - Shanfix Technology',
+    'description' => 'Expert mobile app development in Nairobi, Kenya. We build iOS and Android apps tailored to your business needs with clean design and robust functionality.',
+    'keywords'    => 'app development Nairobi, mobile app Kenya, iOS app, Android app development',
+    'canonical'   => 'https://shanfixtechnology.com/app-development.php',
+];
+include 'includes/header.php'; ?>
+    <section class="service-hero hero-app-dev">
         <div class="service-hero-overlay"></div>
         <div class="container service-hero-content">
             <h1 data-aos="fade-up">App Development</h1>

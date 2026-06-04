@@ -1,4 +1,11 @@
-<?php include 'includes/header.php'; ?>
+<?php
+$pageSEO = [
+    'title'       => '3D & 2D Signage Solutions in Nairobi | Shanfix Technology',
+    'description' => 'Eye-catching 3D and 2D signage solutions in Nairobi. Shop signs, billboards, illuminated signs, and vehicle branding by Shanfix Technology Kenya.',
+    'keywords'    => 'signage Nairobi, 3D signs Kenya, billboard design, shop signage, vehicle branding',
+    'canonical'   => 'https://shanfixtechnology.com/signage-solution.php',
+];
+include 'includes/header.php'; ?>
 <link rel="stylesheet" href="signage-modern.css">
 
 <main class="signage-modern-page">

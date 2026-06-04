@@ -1,4 +1,11 @@
-<?php include 'includes/header.php'; ?>
+<?php
+$pageSEO = [
+    'title'       => 'Contact Us | Shanfix Technology - IT Company in Nairobi, Kenya',
+    'description' => 'Get in touch with Shanfix Technology in Nairobi, Kenya. Call, email, or visit us at Tana House, Karen. We respond within 24 hours.',
+    'keywords'    => 'contact Shanfix Technology, IT company Nairobi contact, Karen Nairobi',
+    'canonical'   => 'https://shanfixtechnology.com/contact.php',
+];
+include 'includes/header.php'; ?>
 <link rel="stylesheet" href="contact-modern-v2.css">
 <!-- Font Awesome for Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">

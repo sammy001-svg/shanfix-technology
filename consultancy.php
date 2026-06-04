@@ -1,4 +1,12 @@
-<?php include 'includes/header.php'; ?>    <section class="service-hero hero-consultancy">
+<?php
+$pageSEO = [
+    'title'       => 'IT Consultancy Services in Nairobi | Technology Advisory - Shanfix Technology',
+    'description' => 'Expert IT consultancy in Nairobi, Kenya. Technology strategy, digital transformation, and IT advisory for businesses by Shanfix Technology.',
+    'keywords'    => 'IT consultancy Nairobi, technology advisory Kenya, digital transformation, IT strategy',
+    'canonical'   => 'https://shanfixtechnology.com/consultancy.php',
+];
+include 'includes/header.php'; ?>
+    <section class="service-hero hero-consultancy">
         <div class="service-hero-overlay"></div>
         <div class="container service-hero-content">
             <h1 data-aos="fade-up">Consultancy</h1>

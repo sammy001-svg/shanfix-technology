@@ -33,6 +33,12 @@ try {
     $posts = []; $total = 0; $totalPages = 1; $categories = [];
 }
 
+$pageSEO = [
+    'title'       => 'Blog | Tech Insights & News - Shanfix Technology Nairobi',
+    'description' => 'Read the latest tech insights, industry news, and tips from Shanfix Technology. Covering web development, digital marketing, software, and IT in Kenya.',
+    'keywords'    => 'tech blog Kenya, IT news Nairobi, technology insights, Shanfix Technology blog',
+    'canonical'   => 'https://shanfixtechnology.com/blog.php',
+];
 include 'includes/header.php';
 ?>
 <link rel="stylesheet" href="blog.css">

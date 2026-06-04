@@ -1,4 +1,11 @@
-<?php include 'includes/header.php'; ?>
+<?php
+$pageSEO = [
+    'title'       => 'Digital Marketing Services in Nairobi | SEO & Social Media - Shanfix Technology',
+    'description' => 'Results-driven digital marketing in Nairobi — SEO, social media management, PPC advertising, and content marketing by Shanfix Technology.',
+    'keywords'    => 'digital marketing Nairobi, SEO Kenya, social media marketing, PPC advertising',
+    'canonical'   => 'https://shanfixtechnology.com/digital-marketing.php',
+];
+include 'includes/header.php'; ?>
 <link rel="stylesheet" href="marketing-modern.css">
 
 <main class="marketing-modern-page">
