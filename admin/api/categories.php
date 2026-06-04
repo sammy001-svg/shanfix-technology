@@ -9,7 +9,7 @@ require_once '../../includes/db_connect.php';
 
 session_start();
 
-if ($_SERVER['REQUEST_METHOD'] !== 'GET' && !isset($_SESSION['user_id'])) {
+if ($_SERVER['REQUEST_METHOD'] !== 'GET' && (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin')) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized.']);
     exit;
 }
@@ -45,14 +45,14 @@ try {
 
         // Image Handling
         $image_url = $existing_image;
-        $target_dir = "../../uploads/categories/";
+        $target_dir = "../../assets/uploads/categories/";
         if (!is_dir($target_dir)) mkdir($target_dir, 0755, true);
 
         if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
             $file_ext = pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION);
             $filename = uniqid('cat_') . '.' . $file_ext;
             if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_dir . $filename)) {
-                $image_url = 'uploads/categories/' . $filename;
+                $image_url = 'assets/uploads/categories/' . $filename;
             }
         }
 
@@ -71,7 +71,7 @@ try {
         exit;
     }
 
-    if ($method === 'DELETE' || (isset($_GET['action']) && $_GET['action'] === 'delete')) {
+    if ($method === 'DELETE' || isset($_GET['action']) && $_GET['action'] === 'delete') {
         $input = json_decode(file_get_contents('php://input'), true);
         $id = $input['id'] ?? ($_GET['id'] ?? null);
 

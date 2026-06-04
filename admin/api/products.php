@@ -9,7 +9,7 @@ require_once '../../includes/db_connect.php';
 
 session_start();
 
-if ($_SERVER['REQUEST_METHOD'] !== 'GET' && !isset($_SESSION['user_id'])) {
+if ($_SERVER['REQUEST_METHOD'] !== 'GET' && (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin')) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized.']);
     exit;
 }
@@ -56,7 +56,7 @@ try {
             exit;
         }
 
-        $target_dir = "../../uploads/products/";
+        $target_dir = "../../assets/uploads/products/";
         if (!is_dir($target_dir)) mkdir($target_dir, 0755, true);
 
         // Handle Primary Image
@@ -65,7 +65,7 @@ try {
             $file_ext = pathinfo($_FILES["primary_image"]["name"], PATHINFO_EXTENSION);
             $filename = uniqid('p_') . '.' . $file_ext;
             if (move_uploaded_file($_FILES["primary_image"]["tmp_name"], $target_dir . $filename)) {
-                $image_url = 'uploads/products/' . $filename;
+                $image_url = 'assets/uploads/products/' . $filename;
             }
         }
 
@@ -87,7 +87,7 @@ try {
                     $file_ext = pathinfo($_FILES["additional_images"]["name"][$key], PATHINFO_EXTENSION);
                     $filename = uniqid('p_sub_') . '.' . $file_ext;
                     if (move_uploaded_file($tmp_name, $target_dir . $filename)) {
-                        $img_path = 'uploads/products/' . $filename;
+                        $img_path = 'assets/uploads/products/' . $filename;
                         $pdo->prepare("INSERT INTO product_images (product_id, image_url) VALUES (?, ?)")->execute([$id, $img_path]);
                     }
                 }
@@ -99,7 +99,7 @@ try {
         exit;
     }
 
-    if ($method === 'DELETE' || (isset($_GET['action']) && $_GET['action'] === 'delete')) {
+    if ($method === 'DELETE' || isset($_GET['action']) && $_GET['action'] === 'delete') {
         $id = $_GET['id'] ?? null;
         if ($id) {
             $stmt = $pdo->prepare("DELETE FROM products WHERE id = ?");

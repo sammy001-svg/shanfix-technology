@@ -1,3 +1,9 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    header('Location: login.php'); exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -211,10 +217,12 @@
         </div>
     </div>
 
-    <script src="../admin.js?v=13"></script>
+    <script src="../admin.js?v=19"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            if (typeof initProductsPage === 'function') initProductsPage();
+            checkAuth();
+            _loadUnreadBadge();
+            // initProductsPage is called by initAdmin() via admin.js — no duplicate call needed
         });
     </script>
 </body>

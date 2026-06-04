@@ -232,11 +232,14 @@ function updateNavActive() {
 }
 
 // --- CATEGORIES MANAGEMENT ---
+let _categoriesInited = false;
 function initCategoriesPage() {
     const tableBody = document.getElementById('categoryTableBody');
     const categoryForm = document.getElementById('categoryForm');
     const categoryModal = document.getElementById('categoryModal');
     if (!tableBody || !categoryForm) return;
+    if (_categoriesInited) return; // prevent double-init from duplicate DOMContentLoaded calls
+    _categoriesInited = true;
 
     window.allCategories = [];
 
@@ -331,8 +334,13 @@ function initCategoriesPage() {
                 closeCategoryModal();
                 loadCategories();
                 alert(data.message);
+            } else {
+                alert('Error: ' + (data.message || 'Could not save category. Please try again.'));
             }
-        } catch (e) { alert('Failed to save category.'); }
+        } catch (e) {
+            console.error('Category save error:', e);
+            alert('Failed to save category. Check your connection and try again.');
+        }
     });
 
     window.deleteCategory = async (id) => {
@@ -352,11 +360,14 @@ function initCategoriesPage() {
 }
 
 // --- PRODUCTS MANAGEMENT ---
+let _productsInited = false;
 function initProductsPage() {
     const catalogContainer = document.getElementById('catalogContainer');
     const productForm = document.getElementById('productForm');
     const productModal = document.getElementById('productModal');
     if (!catalogContainer || !productForm) return;
+    if (_productsInited) return; // prevent double-init
+    _productsInited = true;
 
     window.allProducts = [];
 
@@ -508,8 +519,13 @@ function initProductsPage() {
                 closeProductModal();
                 loadCatalog();
                 alert(data.message);
+            } else {
+                alert('Error: ' + (data.message || 'Could not save product. Please try again.'));
             }
-        } catch (e) { alert('Failed to save product.'); }
+        } catch (e) {
+            console.error('Product save error:', e);
+            alert('Failed to save product. Check your connection and try again.');
+        }
     });
 
     window.deleteProduct = async (id) => {
