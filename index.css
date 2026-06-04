@@ -2223,17 +2223,21 @@ section {
 }
 
 .modal-product-image-side {
-  background: var(--color-gray-50);
+  background: #ffffff;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
 }
 
-.modal-product-image-side img {
+/* Fallback for pages that don't use the gallery widget */
+.modal-product-image-side > img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  max-height: 420px;
+  padding: 20px;
+  box-sizing: border-box;
+  display: block;
 }
 
 .modal-product-content-side {
