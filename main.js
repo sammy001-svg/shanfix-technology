@@ -592,8 +592,8 @@ async function renderCategorizedCatalog() {
                         <div class="product-carousel-track" data-total="${slides.length}">
                             ${slidesHtml}
                         </div>
-                        ${hasCarousel ? '<div class="cat-progress-bar"><div class="cat-progress-fill"></div></div>' : ''}
                     </div>
+                    ${hasCarousel ? '<div class="cat-progress-bar"><div class="cat-progress-fill"></div></div>' : ''}
                     ${dotsHtml}
                 </div>`;
         });
@@ -811,54 +811,54 @@ function _buildGallery(images, name) {
     }
 }
 
+// Opens the order/preview modal from any product card element
+function openProductModal(card) {
+    if (!card) return;
+    const name        = card.dataset.productName        || '';
+    const price       = card.dataset.productPrice       || '0';
+    const description = card.dataset.productDescription || '';
+    const orderModal  = document.getElementById('orderModal');
+    const qtyInput    = document.getElementById('qtyInput');
+
+    let images = [];
+    try {
+        images = JSON.parse(decodeURIComponent(card.dataset.productImages || '[]'));
+    } catch (e) {
+        const fallback = card.dataset.productImage;
+        images = fallback ? [fallback] : [];
+    }
+    if (!images.length && card.dataset.productImage) images = [card.dataset.productImage];
+
+    const el = id => document.getElementById(id);
+    if (el('modalTitle'))       el('modalTitle').textContent       = name;
+    if (el('modalPrice'))       el('modalPrice').innerHTML         = `<span>KES</span> ${parseFloat(price).toLocaleString()}`;
+    if (el('modalDescription')) el('modalDescription').textContent = description;
+    if (qtyInput)               qtyInput.value = 1;
+
+    _buildGallery(images, name);
+
+    const prevBtn = el('galleryPrev');
+    const nextBtn = el('galleryNext');
+    if (prevBtn) prevBtn.onclick = () => _setGalleryImage(_galleryIndex - 1);
+    if (nextBtn) nextBtn.onclick = () => _setGalleryImage(_galleryIndex + 1);
+
+    if (orderModal) {
+        orderModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
 function initOrderModalTriggers() {
-    const buyBtns = document.querySelectorAll('.open-order-modal');
-    buyBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const card        = this.closest('.product-card');
-            const name        = card.dataset.productName        || '';
-            const price       = card.dataset.productPrice       || '0';
-            const description = card.dataset.productDescription || '';
-            const orderModal  = document.getElementById('orderModal');
-            const qtyInput    = document.getElementById('qtyInput');
-
-            // Decode the images array
-            let images = [];
-            try {
-                images = JSON.parse(decodeURIComponent(card.dataset.productImages || '[]'));
-            } catch (e) {
-                const fallback = card.dataset.productImage;
-                images = fallback ? [fallback] : [];
-            }
-            if (!images.length && card.dataset.productImage) {
-                images = [card.dataset.productImage];
-            }
-
-            // Populate text fields
-            const el = id => document.getElementById(id);
-            if (el('modalTitle'))       el('modalTitle').textContent    = name;
-            if (el('modalPrice'))       el('modalPrice').innerHTML      = `<span>KES</span> ${parseFloat(price).toLocaleString()}`;
-            if (el('modalDescription')) el('modalDescription').textContent = description;
-            if (qtyInput)               qtyInput.value = 1;
-
-            // Build image gallery
-            _buildGallery(images, name);
-
-            // Wire prev/next
-            const prevBtn = el('galleryPrev');
-            const nextBtn = el('galleryNext');
-            if (prevBtn) { prevBtn.onclick = () => _setGalleryImage(_galleryIndex - 1); }
-            if (nextBtn) { nextBtn.onclick = () => _setGalleryImage(_galleryIndex + 1); }
-
-            // Open modal
-            if (orderModal) {
-                orderModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
+    // Clicking anywhere on the card (including the Order Now button) opens the modal
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Ignore clicks on the Order Now button itself — it bubbles up anyway,
+            // but prevent any other interactive element inside the card from double-firing
+            openProductModal(this);
         });
     });
 
-    // Keyboard navigation when modal is open
+    // Keyboard navigation for image gallery while modal is open
     document.addEventListener('keydown', (e) => {
         const modal = document.getElementById('orderModal');
         if (!modal || !modal.classList.contains('active') || _galleryImages.length < 2) return;
