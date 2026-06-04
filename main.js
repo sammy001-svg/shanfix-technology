@@ -510,65 +510,109 @@ async function renderCategorizedCatalog() {
             grouped[catName].push(p);
         });
 
-        // Generate HTML
-        let catalogHtml = '';
-        categories.forEach(cat => {
-            const catProducts = grouped[cat];
-            if (catProducts && catProducts.length > 0) {
-                catalogHtml += `
-                    <div class="catalog-category-section" data-aos="fade-up">
-                        <h2 class="category-heading">${cat}</h2>
-                        <div class="product-grid">
-                            ${catProducts.map(p => `
-                                <div class="product-card" data-aos="fade-up"
-                                     data-product-name="${p.name}"
-                                     data-product-price="${p.price}"
-                                     data-product-image="${p.image_url || ''}"
-                                     data-product-images="${encodeURIComponent(JSON.stringify([p.image_url, ...(p.additional_images || [])].filter(Boolean)))}"
-                                     data-product-description="${p.description}">
-                                    <div class="product-image-wrapper">
-                                        <img src="${p.image_url}" alt="${p.name}" class="product-image" onerror="this.src='assets/img/placeholder.png'">
-                                        <div class="product-overlay">
-                                            <div class="overlay-icon">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="product-content">
-                                        <span class="product-category">${cat}</span>
-                                        <h3 class="product-title">${p.name}</h3>
-                                        <p class="product-description">${(p.description || '').substring(0, 100)}${(p.description || '').length > 100 ? '...' : ''}</p>
-                                        <div class="product-footer">
-                                            <div class="product-price"><span>KES</span> ${p.price}</div>
-                                            <button class="btn btn-primary btn-buy open-order-modal">Order Now</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            `).join('')}
+        // Helper: split array into chunks of N
+        const chunk = (arr, n) => {
+            const out = [];
+            for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n));
+            return out;
+        };
+
+        // Build one product card HTML
+        const buildCard = (p, cat) => `
+            <div class="product-card"
+                 data-product-name="${p.name.replace(/"/g, '&quot;')}"
+                 data-product-price="${p.price}"
+                 data-product-image="${(p.image_url || '').replace(/"/g, '&quot;')}"
+                 data-product-images="${encodeURIComponent(JSON.stringify([p.image_url, ...(p.additional_images || [])].filter(Boolean)))}"
+                 data-product-description="${(p.description || '').replace(/"/g, '&quot;')}">
+                <div class="product-image-wrapper">
+                    <img src="${p.image_url || 'assets/service-placeholder.jpg'}"
+                         alt="${p.name.replace(/"/g, '&quot;')}"
+                         class="product-image"
+                         loading="lazy"
+                         onerror="this.src='assets/service-placeholder.jpg'">
+                    <div class="product-overlay">
+                        <div class="overlay-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                         </div>
                     </div>
-                `;
-            }
+                </div>
+                <div class="product-content">
+                    <span class="product-category">${cat}</span>
+                    <h3 class="product-title">${p.name}</h3>
+                    <p class="product-description">${(p.description || '').substring(0, 100)}${(p.description || '').length > 100 ? '…' : ''}</p>
+                    <div class="product-footer">
+                        <div class="product-price"><span>KES</span> ${Number(p.price).toLocaleString()}</div>
+                        <button class="btn btn-primary btn-buy open-order-modal">Order Now</button>
+                    </div>
+                </div>
+            </div>`;
+
+        // Build carousel HTML per category
+        const ITEMS_PER_SLIDE = 4;
+        let catalogHtml = '';
+
+        categories.forEach(cat => {
+            const catProducts = grouped[cat];
+            if (!catProducts || catProducts.length === 0) return;
+
+            const slides     = chunk(catProducts, ITEMS_PER_SLIDE);
+            const hasCarousel = slides.length > 1;
+
+            const slidesHtml = slides.map(slideProducts => `
+                <div class="carousel-slide">
+                    ${slideProducts.map(p => buildCard(p, cat)).join('')}
+                </div>`).join('');
+
+            const dotsHtml = hasCarousel
+                ? `<div class="cat-carousel-dots" role="tablist">
+                       ${slides.map((_, i) => `<button class="cat-dot${i === 0 ? ' active' : ''}" data-index="${i}" aria-label="Go to slide ${i + 1}"></button>`).join('')}
+                   </div>`
+                : '';
+
+            const controlsHtml = hasCarousel
+                ? `<div class="cat-carousel-controls">
+                       <span class="cat-slide-counter">1 / ${slides.length}</span>
+                       <button class="cat-nav-btn cat-prev-btn" aria-label="Previous slide">
+                           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                       </button>
+                       <button class="cat-nav-btn cat-next-btn" aria-label="Next slide">
+                           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                       </button>
+                   </div>`
+                : '';
+
+            catalogHtml += `
+                <div class="catalog-category-section" data-aos="fade-up">
+                    <div class="category-header-row">
+                        <h2 class="category-heading">${cat}</h2>
+                        ${controlsHtml}
+                    </div>
+                    <div class="product-carousel-wrapper">
+                        <div class="product-carousel-track" data-total="${slides.length}">
+                            ${slidesHtml}
+                        </div>
+                        ${hasCarousel ? '<div class="cat-progress-bar"><div class="cat-progress-fill"></div></div>' : ''}
+                    </div>
+                    ${dotsHtml}
+                </div>`;
         });
 
-        if (catalogHtml === '') {
-             catalogContainer.innerHTML = `
+        if (!catalogHtml) {
+            catalogContainer.innerHTML = `
                 <div class="empty-catalog" data-aos="fade-up">
                     <i class="fas fa-box-open"></i>
                     <p>No products available in the selected categories.</p>
-                </div>
-            `;
+                </div>`;
         } else {
             catalogContainer.innerHTML = catalogHtml;
         }
 
-        // Re-initialize Order Modal triggers for dynamic content
+        // Wire up Order Now buttons and carousels
         initOrderModalTriggers();
-        
-        // Re-initialize AOS for new elements
-        if (window.AOS) {
-            AOS.refresh();
-        }
+        initCategoryCarousels();
+
+        if (window.AOS) AOS.refresh();
 
     } catch (error) {
         console.error('Catalog loading error:', error);
@@ -579,6 +623,113 @@ async function renderCategorizedCatalog() {
             </div>
         `;
     }
+}
+
+// ── Category Carousels ────────────────────────────────────────────────────
+
+function initCategoryCarousels() {
+    const AUTOPLAY_MS = 4000; // ms between slides
+
+    document.querySelectorAll('.catalog-category-section').forEach(section => {
+        const track    = section.querySelector('.product-carousel-track');
+        const wrapper  = section.querySelector('.product-carousel-wrapper');
+        const prevBtn  = section.querySelector('.cat-prev-btn');
+        const nextBtn  = section.querySelector('.cat-next-btn');
+        const counter  = section.querySelector('.cat-slide-counter');
+        const dots     = section.querySelectorAll('.cat-dot');
+        const fill     = section.querySelector('.cat-progress-fill');
+        if (!track || !wrapper) return;
+
+        const total  = parseInt(track.dataset.total) || 1;
+        if (total <= 1) return;          // nothing to carousel
+
+        let current  = 0;
+        let timer    = null;
+        let progress = null;
+
+        /* ── Core navigation ──────────────────────────────────────── */
+        function goTo(index, resetProgress = true) {
+            current = (index + total) % total;
+
+            // Slide the track
+            track.style.transform = `translateX(calc(-${current} * 100%))`;
+
+            // Update counter
+            if (counter) counter.textContent = `${current + 1} / ${total}`;
+
+            // Update dots
+            dots.forEach((d, i) => d.classList.toggle('active', i === current));
+
+            // Restart progress bar
+            if (resetProgress && fill) {
+                fill.style.transition = 'none';
+                fill.style.width = '0%';
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    fill.style.transition = `width ${AUTOPLAY_MS}ms linear`;
+                    fill.style.width = '100%';
+                }));
+            }
+        }
+
+        /* ── Autoplay ─────────────────────────────────────────────── */
+        function startAutoplay() {
+            stopAutoplay();
+            // Kick off progress bar
+            if (fill) {
+                fill.style.transition = `width ${AUTOPLAY_MS}ms linear`;
+                fill.style.width = '100%';
+            }
+            timer = setInterval(() => goTo(current + 1), AUTOPLAY_MS);
+        }
+
+        function stopAutoplay() {
+            if (timer)    { clearInterval(timer);    timer    = null; }
+            if (progress) { clearTimeout(progress);  progress = null; }
+            // Freeze progress bar width wherever it is
+            if (fill) {
+                const computed = getComputedStyle(fill).width;
+                const parentW  = fill.parentElement.offsetWidth;
+                const pct      = parentW > 0 ? (parseFloat(computed) / parentW * 100).toFixed(1) : '0';
+                fill.style.transition = 'none';
+                fill.style.width = pct + '%';
+            }
+        }
+
+        /* ── Event listeners ──────────────────────────────────────── */
+        prevBtn.addEventListener('click', () => { goTo(current - 1); stopAutoplay(); startAutoplay(); });
+        nextBtn.addEventListener('click', () => { goTo(current + 1); stopAutoplay(); startAutoplay(); });
+
+        dots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                goTo(parseInt(dot.dataset.index));
+                stopAutoplay();
+                startAutoplay();
+            });
+        });
+
+        // Pause on hover — resume when mouse leaves the wrapper
+        wrapper.addEventListener('mouseenter', stopAutoplay);
+        wrapper.addEventListener('mouseleave', startAutoplay);
+
+        // Touch / swipe support
+        let touchX = 0;
+        wrapper.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; stopAutoplay(); }, { passive: true });
+        wrapper.addEventListener('touchend', e => {
+            const diff = touchX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 48) goTo(diff > 0 ? current + 1 : current - 1);
+            startAutoplay();
+        }, { passive: true });
+
+        // Keyboard left / right when focused inside
+        section.addEventListener('keydown', e => {
+            if (e.key === 'ArrowLeft')  { goTo(current - 1); stopAutoplay(); startAutoplay(); }
+            if (e.key === 'ArrowRight') { goTo(current + 1); stopAutoplay(); startAutoplay(); }
+        });
+
+        // Boot up
+        goTo(0, false);
+        startAutoplay();
+    });
 }
 
 // ── Gallery state ────────────────────────────────────────────────────────

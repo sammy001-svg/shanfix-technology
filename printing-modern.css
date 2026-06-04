@@ -6,13 +6,7 @@
     --brand-glow: rgba(89, 224, 10, 0.3);
 }
 
-/* Catalog Grid Refinement */
-.product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 2.5rem;
-    padding: 2rem 0;
-}
+/* .product-grid is no longer used — products live inside .carousel-slide grids */
 
 /* Modern Glass Card */
 .product-card {
@@ -116,20 +110,164 @@
     100% { transform: scale(1); }
 }
 
-/* Category Sections */
+/* ── Category Section & Carousel ─────────────────────────────────────── */
+
 .catalog-category-section {
-    margin-bottom: 60px;
+    margin-bottom: 72px;
+}
+
+/* Header row: heading left, controls right */
+.category-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
 .category-heading {
     font-size: 1.8rem;
     font-weight: 800;
     color: var(--brand-dark);
-    margin-bottom: 30px;
+    margin: 0;
     padding-left: 15px;
     border-left: 5px solid var(--brand-green);
     text-transform: uppercase;
     letter-spacing: 2px;
+    flex-shrink: 0;
+}
+
+/* Carousel controls group */
+.cat-carousel-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cat-slide-counter {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--brand-dark);
+    opacity: 0.55;
+    min-width: 42px;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+.cat-nav-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid rgba(8, 63, 12, 0.2);
+    background: #ffffff;
+    color: var(--brand-dark);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.22s, border-color 0.22s, transform 0.22s, box-shadow 0.22s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    flex-shrink: 0;
+}
+.cat-nav-btn:hover {
+    background: var(--brand-green);
+    border-color: var(--brand-green);
+    transform: scale(1.1);
+    box-shadow: 0 4px 16px var(--brand-glow);
+}
+.cat-nav-btn:active {
+    transform: scale(0.96);
+}
+
+/* Carousel viewport — clips the track */
+.product-carousel-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+/* Track — all slides in a row, slides via translateX */
+.product-carousel-track {
+    display: flex;
+    will-change: transform;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* One slide = 4 product cards side-by-side */
+.carousel-slide {
+    flex: 0 0 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+    /* Prevent internal cards from shrinking the slide width */
+    min-width: 0;
+}
+
+/* ── Progress bar ─────────────────────────────────────────────────────── */
+.cat-progress-bar {
+    height: 3px;
+    background: rgba(8, 63, 12, 0.1);
+    border-radius: 0 0 12px 12px;
+    overflow: hidden;
+    margin-top: 0;
+}
+.cat-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--brand-green), #22c55e);
+    border-radius: 0 0 12px 12px;
+}
+
+/* ── Dot indicators ───────────────────────────────────────────────────── */
+.cat-carousel-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.cat-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(8, 63, 12, 0.2);
+    cursor: pointer;
+    padding: 0;
+    transition: width 0.3s ease, background 0.3s ease, border-radius 0.3s ease;
+    flex-shrink: 0;
+}
+.cat-dot:hover {
+    background: rgba(8, 63, 12, 0.4);
+}
+.cat-dot.active {
+    width: 26px;
+    border-radius: 4px;
+    background: var(--brand-green);
+    box-shadow: 0 2px 8px var(--brand-glow);
+}
+
+/* ── Responsive breakpoints ───────────────────────────────────────────── */
+
+/* Tablet: 2 per row (products stack inside each slide) */
+@media (max-width: 1024px) {
+    .carousel-slide {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+}
+
+/* Mobile: 1 per row */
+@media (max-width: 600px) {
+    .carousel-slide {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    .cat-nav-btn { width: 36px; height: 36px; }
+    .category-heading { font-size: 1.4rem; letter-spacing: 1px; }
 }
 
 /* Empty Catalog State */
