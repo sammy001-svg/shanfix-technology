@@ -56,37 +56,29 @@ try {
             }
         }
 
-        // Check whether image_url column exists (handles databases migrated before the column was added)
-        $hasImageCol = (bool)$pdo->query(
-            "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
-             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'categories' AND COLUMN_NAME = 'image_url'"
-        )->fetchColumn();
-
-        if (!$hasImageCol) {
-            // Column missing — add it automatically
-            $pdo->exec("ALTER TABLE `categories` ADD COLUMN `image_url` varchar(255) DEFAULT NULL AFTER `description`");
-            $hasImageCol = true;
-        }
-
-        if ($action === 'create') {
-            if ($hasImageCol) {
+        $runCategoryQuery = function() use ($pdo, $action, $name, $slug, $description, $image_url, $id) {
+            if ($action === 'create') {
                 $stmt = $pdo->prepare("INSERT INTO categories (name, slug, description, image_url) VALUES (?, ?, ?, ?)");
                 $stmt->execute([$name, $slug, $description, $image_url]);
             } else {
-                $stmt = $pdo->prepare("INSERT INTO categories (name, slug, description) VALUES (?, ?, ?)");
-                $stmt->execute([$name, $slug, $description]);
-            }
-            $msg = 'Category added successfully.';
-        } else {
-            if ($hasImageCol) {
                 $stmt = $pdo->prepare("UPDATE categories SET name = ?, slug = ?, description = ?, image_url = ? WHERE id = ?");
                 $stmt->execute([$name, $slug, $description, $image_url, $id]);
-            } else {
-                $stmt = $pdo->prepare("UPDATE categories SET name = ?, slug = ?, description = ? WHERE id = ?");
-                $stmt->execute([$name, $slug, $description, $id]);
             }
-            $msg = 'Category updated successfully.';
+        };
+
+        try {
+            $runCategoryQuery();
+        } catch (PDOException $col_err) {
+            // If the column doesn't exist yet, add it and retry once
+            if ($col_err->getCode() === '42S22' || strpos($col_err->getMessage(), '1054') !== false) {
+                $pdo->exec("ALTER TABLE `categories` ADD COLUMN IF NOT EXISTS `image_url` varchar(255) DEFAULT NULL AFTER `description`");
+                $runCategoryQuery();
+            } else {
+                throw $col_err;
+            }
         }
+
+        $msg = $action === 'create' ? 'Category added successfully.' : 'Category updated successfully.';
 
         ob_clean();
         echo json_encode(['success' => true, 'message' => $msg]);

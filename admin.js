@@ -311,11 +311,17 @@ function initCategoriesPage() {
 
     categoryForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        // Disable save button immediately to prevent double-submit
+        const saveBtn = document.querySelector('[form="categoryForm"][type="submit"]');
+        const origLabel = saveBtn ? saveBtn.innerHTML : '';
+        if (saveBtn) { saveBtn.disabled = true; saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…'; }
+
         const formData = new FormData(categoryForm);
         formData.append('name', document.getElementById('cat_name').value);
         formData.append('description', document.getElementById('cat_desc').value);
         formData.append('existing_image', document.getElementById('cat_existing_image').value);
-        
+
         const id = document.getElementById('cat_id').value;
         if (id) {
             formData.append('id', id);
@@ -325,7 +331,7 @@ function initCategoriesPage() {
         }
 
         const imgInput = document.getElementById('cat_image');
-        if (imgInput.files[0]) formData.append('image', imgInput.files[0]);
+        if (imgInput && imgInput.files[0]) formData.append('image', imgInput.files[0]);
 
         try {
             const response = await fetch('api/categories.php', { method: 'POST', body: formData });
@@ -337,9 +343,11 @@ function initCategoriesPage() {
             } else {
                 alert('Error: ' + (data.message || 'Could not save category. Please try again.'));
             }
-        } catch (e) {
-            console.error('Category save error:', e);
+        } catch (err) {
+            console.error('Category save error:', err);
             alert('Failed to save category. Check your connection and try again.');
+        } finally {
+            if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = origLabel; }
         }
     });
 
@@ -482,6 +490,12 @@ function initProductsPage() {
 
     productForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        // Disable save button immediately to prevent double-submit
+        const saveBtn = document.querySelector('[form="productForm"][type="submit"]');
+        const origLabel = saveBtn ? saveBtn.innerHTML : '';
+        if (saveBtn) { saveBtn.disabled = true; saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…'; }
+
         const formData = new FormData(productForm);
         formData.append('name', document.getElementById('p_name').value);
         formData.append('price', document.getElementById('p_price').value);
@@ -490,10 +504,9 @@ function initProductsPage() {
         formData.append('status', document.getElementById('p_status').value);
         formData.append('is_featured', document.getElementById('p_featured').checked ? 1 : 0);
         formData.append('existing_image', document.getElementById('p_existing_image').value);
-        if (document.getElementById('p_features')) {
-            formData.append('features', document.getElementById('p_features').value);
-        }
-        
+        const featuresEl = document.getElementById('p_features');
+        if (featuresEl) formData.append('features', featuresEl.value);
+
         const id = document.getElementById('p_id').value;
         if (id) {
             formData.append('id', id);
@@ -503,10 +516,10 @@ function initProductsPage() {
         }
 
         const primaryImg = document.getElementById('p_primary_image');
-        if (primaryImg.files[0]) formData.append('primary_image', primaryImg.files[0]);
+        if (primaryImg && primaryImg.files[0]) formData.append('primary_image', primaryImg.files[0]);
 
         const galleryImgs = document.getElementById('p_gallery_images');
-        if (galleryImgs.files.length > 0) {
+        if (galleryImgs && galleryImgs.files.length > 0) {
             for (let i = 0; i < galleryImgs.files.length; i++) {
                 formData.append('additional_images[]', galleryImgs.files[i]);
             }
@@ -522,19 +535,26 @@ function initProductsPage() {
             } else {
                 alert('Error: ' + (data.message || 'Could not save product. Please try again.'));
             }
-        } catch (e) {
-            console.error('Product save error:', e);
+        } catch (err) {
+            console.error('Product save error:', err);
             alert('Failed to save product. Check your connection and try again.');
+        } finally {
+            if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = origLabel; }
         }
     });
 
     window.deleteProduct = async (id) => {
-        if (confirm('Are you sure you want to delete this product?')) {
-            try {
-                await fetch(`api/products.php?id=${id}&action=delete`);
-                loadCatalog();
-            } catch (e) {}
-        }
+        if (!confirm('Are you sure you want to delete this product?')) return;
+        try {
+            const res  = await fetch('api/products.php', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ action: 'delete', id })
+            });
+            const data = await res.json();
+            if (data.success) loadCatalog();
+            else alert(data.message || 'Delete failed.');
+        } catch (e) { alert('Delete failed. Please try again.'); }
     };
 
     loadCatalog();
