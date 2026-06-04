@@ -32,4 +32,6 @@
                 </p>
             </div>
         </div>
-    </section>    <?php include 'includes/footer.php'; ?>
+    </section>
+<?php $ctaService = 'IT Consultancy'; include 'includes/service_cta.php'; ?>
+<?php include 'includes/footer.php'; ?>

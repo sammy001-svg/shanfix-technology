@@ -35,6 +35,7 @@
                     <i class="fas fa-receipt"></i> <span>Receipts</span>
                 </a>
                 <a href="portfolio.php" class="admin-nav-item"><i class="fas fa-briefcase"></i> <span>Portfolio</span></a>
+            <a href="blog.php" class="admin-nav-item"><i class="fas fa-newspaper"></i> <span>Blog</span></a>
             <a href="adverts.php" class="admin-nav-item">
                     <i class="fas fa-ad"></i> <span>Adverts</span>
                 </a>

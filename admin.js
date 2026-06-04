@@ -34,6 +34,7 @@ function initAdmin() {
     if (document.getElementById('clientTableBody')) initClientsPage();
     if (document.getElementById('orderTableBody')) initOrdersPage();
     if (document.getElementById('portfolioGrid')) initPortfolioPage();
+    if (document.getElementById('blogTableBody'))  initBlogPage();
 }
 
 function initTicketsPage() {
@@ -3144,4 +3145,125 @@ function initPortfolioPage() {
     };
 
     loadProjects();
+}
+
+// ── BLOG / NEWS MANAGEMENT ────────────────────────────────────────────────
+
+let _allPosts = [];
+
+function initBlogPage() {
+    if (!document.getElementById('blogTableBody')) return;
+
+    window.loadPosts = async function() {
+        try {
+            const res  = await fetch('api/blog.php');
+            const data = await res.json();
+            if (!data.success) return;
+            _allPosts = data.posts;
+            renderPosts(_allPosts);
+            updateBlogStats(_allPosts);
+        } catch (e) { console.error('Blog load error:', e); }
+    };
+
+    function updateBlogStats(posts) {
+        const published = posts.filter(p => p.status === 'published').length;
+        const drafts    = posts.filter(p => p.status === 'draft').length;
+        const views     = posts.reduce((s, p) => s + parseInt(p.views || 0), 0);
+        const el = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v.toLocaleString(); };
+        el('blog_total', posts.length);
+        el('blog_published', published);
+        el('blog_drafts', drafts);
+        el('blog_views', views);
+    }
+
+    function renderPosts(posts) {
+        const tbody = document.getElementById('blogTableBody');
+        if (!posts.length) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:2.5rem; color:var(--text-low);">No posts yet. Click "New Post" to write your first article.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = posts.map(p => {
+            const isPub    = p.status === 'published';
+            const dateStr  = isPub && p.published_at
+                ? new Date(p.published_at).toLocaleDateString('en-KE', {day:'numeric', month:'short', year:'numeric'})
+                : new Date(p.created_at).toLocaleDateString('en-KE', {day:'numeric', month:'short', year:'numeric'});
+            return `
+            <tr>
+                <td style="max-width:280px;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        ${p.featured_image
+                            ? `<img src="../${p.featured_image}" style="width:52px; height:36px; object-fit:cover; border-radius:8px; flex-shrink:0;" onerror="this.style.display='none'">`
+                            : `<div style="width:52px; height:36px; background:rgba(99,102,241,0.1); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fas fa-newspaper" style="color:var(--p); font-size:0.85rem;"></i></div>`}
+                        <div>
+                            <strong style="display:block; line-height:1.3;">${p.title}</strong>
+                            <span style="font-size:0.72rem; color:var(--text-low);">/blog/${p.slug}</span>
+                        </div>
+                    </div>
+                </td>
+                <td><span class="status-badge" style="background:rgba(99,102,241,0.1); color:var(--p);">${p.category || 'News'}</span></td>
+                <td style="font-size:0.85rem; color:var(--text-low);">${p.author_name || '—'}</td>
+                <td style="font-size:0.85rem;">${parseInt(p.views || 0).toLocaleString()}</td>
+                <td><span class="status-badge ${isPub ? 'status-active' : ''}" style="${!isPub ? 'background:rgba(245,158,11,0.1); color:#d97706;' : ''}">${isPub ? 'Published' : 'Draft'}</span></td>
+                <td style="font-size:0.82rem; color:var(--text-low);">${dateStr}</td>
+                <td style="text-align:right;">
+                    <div class="flex-end-gap-sm">
+                        ${isPub ? `<a href="../post.php?slug=${p.slug}" target="_blank" class="icon-btn" title="View Live"><i class="fas fa-external-link-alt"></i></a>` : ''}
+                        <button class="icon-btn" onclick="editPost(${p.id})" title="Edit"><i class="fas fa-edit"></i></button>
+                        <button class="icon-btn" style="color:#ef4444;" onclick="deletePost(${p.id})" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    window.filterPosts = (status) => {
+        renderPosts(status === 'all' ? _allPosts : _allPosts.filter(p => p.status === status));
+    };
+
+    window.openPostEditor = () => {
+        document.getElementById('postForm').reset();
+        document.getElementById('post_id').value              = '';
+        document.getElementById('post_existing_image').value  = '';
+        document.getElementById('postImgPreview').innerHTML   = '';
+        document.getElementById('postContentEditor').innerHTML = '';
+        document.getElementById('editorTitle').textContent    = 'New Post';
+        document.getElementById('postEditorModal').style.display = 'flex';
+    };
+
+    window.closePostEditor = () => {
+        document.getElementById('postEditorModal').style.display = 'none';
+    };
+
+    window.editPost = async (id) => {
+        try {
+            const res  = await fetch(`api/blog.php?id=${id}`);
+            const data = await res.json();
+            if (!data.success) { alert('Could not load post.'); return; }
+            const p = data.post;
+            document.getElementById('post_id').value              = p.id;
+            document.getElementById('post_title').value           = p.title;
+            document.getElementById('post_category').value        = p.category || '';
+            document.getElementById('post_status').value          = p.status;
+            document.getElementById('post_excerpt').value         = p.excerpt || '';
+            document.getElementById('post_existing_image').value  = p.featured_image || '';
+            document.getElementById('postContentEditor').innerHTML = p.content;
+            document.getElementById('postImgPreview').innerHTML   = p.featured_image
+                ? `<img src="../${p.featured_image}" style="max-width:100%; height:80px; object-fit:cover; border-radius:8px; margin-bottom:4px;">`
+                : '';
+            document.getElementById('editorTitle').textContent    = 'Edit Post';
+            document.getElementById('postEditorModal').style.display = 'flex';
+        } catch (e) { alert('Failed to load post.'); }
+    };
+
+    window.deletePost = async (id) => {
+        if (!confirm('Permanently delete this post?')) return;
+        try {
+            const res  = await fetch('api/blog.php', { method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id }) });
+            const data = await res.json();
+            if (data.success) loadPosts();
+            else alert(data.message);
+        } catch (e) { alert('Delete failed.'); }
+    };
+
+    loadPosts();
 }

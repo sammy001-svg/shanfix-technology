@@ -423,6 +423,7 @@ $_isClientLoggedIn = isset($_SESSION['user_id']) && ($_SESSION['role'] ?? '') ==
           </li>
 
           <li><a href="portfolio.php" class="nav-link">Portfolio</a></li>
+          <li><a href="blog.php" class="nav-link">Blog</a></li>
           <li><a href="contact.php" class="nav-link">Contacts</a></li>
           <li><a href="https://aicoder.shanfixtechnology.com/" class="btn btn-primary nav-btn-small">AI Coder</a></li>
           <li><a href="https://automation.shanfixtechnology.com/" class="btn btn-secondary nav-btn-small">AI Automations</a></li>

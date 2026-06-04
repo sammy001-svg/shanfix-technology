@@ -378,6 +378,55 @@ if ($staticBanners) {
       </div>
     </section>
 
+    <!-- ── Latest Blog Posts ─────────────────────────────── -->
+    <?php
+    $latestPosts = [];
+    try {
+        $lp = $pdo->query("SELECT id, title, slug, excerpt, featured_image, category, author_name, published_at FROM blog_posts WHERE status='published' ORDER BY published_at DESC LIMIT 3");
+        $latestPosts = $lp->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {}
+    ?>
+    <?php if (!empty($latestPosts)): ?>
+    <section style="padding: 80px 0; background: #f8fafc;">
+        <div class="container">
+            <div style="text-align:center; margin-bottom:48px;">
+                <span style="display:inline-block; background:rgba(99,102,241,0.08); color:#6366f1; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:2px; padding:6px 16px; border-radius:20px; margin-bottom:16px;">Latest Insights</span>
+                <h2 style="font-size:clamp(1.8rem,3.5vw,2.8rem); font-weight:800; color:#1e293b; margin:0 0 12px;">From the <span style="color:#6366f1;">Shanfix Blog</span></h2>
+                <p style="color:#64748b; font-size:1rem; max-width:480px; margin:0 auto;">Technology tips, project stories, and industry news from our team.</p>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:28px; margin-bottom:48px;">
+                <?php foreach ($latestPosts as $lpost):
+                    $lDate = $lpost['published_at'] ? date('d M Y', strtotime($lpost['published_at'])) : '';
+                ?>
+                <a href="post.php?slug=<?= urlencode($lpost['slug']) ?>" style="background:white; border-radius:20px; overflow:hidden; border:1px solid #e2e8f0; text-decoration:none; display:flex; flex-direction:column; transition:transform 0.3s,box-shadow 0.3s;" onmouseover="this.style.transform='translateY(-6px)';this.style.boxShadow='0 20px 60px rgba(99,102,241,0.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+                    <?php if (!empty($lpost['featured_image'])): ?>
+                    <img src="<?= htmlspecialchars($lpost['featured_image']) ?>" alt="" style="width:100%; height:180px; object-fit:cover;" loading="lazy">
+                    <?php else: ?>
+                    <div style="width:100%; height:180px; background:linear-gradient(135deg,#e0e7ff,#ede9fe); display:flex; align-items:center; justify-content:center; color:#a5b4fc; font-size:2.5rem;"><i class="fas fa-newspaper"></i></div>
+                    <?php endif; ?>
+                    <div style="padding:24px; flex:1; display:flex; flex-direction:column;">
+                        <span style="display:inline-block; background:rgba(99,102,241,0.08); color:#6366f1; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; padding:3px 10px; border-radius:8px; margin-bottom:10px;"><?= htmlspecialchars($lpost['category'] ?? 'News') ?></span>
+                        <h3 style="font-size:1rem; font-weight:800; color:#1e293b; margin:0 0 8px; line-height:1.4;"><?= htmlspecialchars($lpost['title']) ?></h3>
+                        <?php if (!empty($lpost['excerpt'])): ?>
+                        <p style="color:#64748b; font-size:0.85rem; line-height:1.6; flex:1; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin:0 0 16px;"><?= htmlspecialchars($lpost['excerpt']) ?></p>
+                        <?php endif; ?>
+                        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:#94a3b8; border-top:1px solid #f1f5f9; padding-top:14px; margin-top:auto;">
+                            <span><?= htmlspecialchars($lpost['author_name'] ?? 'Shanfix Team') ?></span>
+                            <span style="display:flex; align-items:center; gap:5px; color:#6366f1; font-weight:700;"><?= $lDate ?> <i class="fas fa-arrow-right" style="font-size:0.6rem;"></i></span>
+                        </div>
+                    </div>
+                </a>
+                <?php endforeach; ?>
+            </div>
+            <div style="text-align:center;">
+                <a href="blog.php" style="display:inline-flex; align-items:center; gap:10px; background:linear-gradient(135deg,#6366f1,#4f46e5); color:white; text-decoration:none; font-weight:700; padding:14px 36px; border-radius:50px; box-shadow:0 8px 30px rgba(99,102,241,0.35); transition:all 0.3s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+                    View All Articles <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+    <?php endif; ?>
+
     <?php include 'includes/footer.php'; ?>
 
 

@@ -167,5 +167,5 @@
         </div>
     </section>
 </main>
-
+<?php $ctaService = 'Business ERP Solution'; include 'includes/service_cta.php'; ?>
 <?php include 'includes/footer.php'; ?>

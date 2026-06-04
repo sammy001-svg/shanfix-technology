@@ -141,5 +141,5 @@
         </div>
     </section>
 </main>
-
+<?php $ctaService = 'Bulk SMS Marketing'; include 'includes/service_cta.php'; ?>
 <?php include 'includes/footer.php'; ?>
