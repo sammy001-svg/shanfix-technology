@@ -279,6 +279,9 @@
                     <span>Secure Sign In</span> <i class="fas fa-shield-halved"></i>
                 </button>
 
+                <p class="login-footer-text" style="margin-bottom:0.5rem;">
+                    <a href="forgot.php" style="color:rgba(255,255,255,0.4); font-size:0.82rem; text-decoration:none;">Forgot your password?</a>
+                </p>
                 <p class="login-footer-text">
                     New technology partner? <br>
                     <a href="#" onclick="toggleForm('register'); return false;">Request Portal Access</a>

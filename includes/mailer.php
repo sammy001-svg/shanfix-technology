@@ -80,6 +80,117 @@ class Mailer {
         return self::send($email, $mail_subject, $html);
     }
 
+    public static function passwordReset(string $name, string $email, string $reset_url, string $role = 'client'): bool {
+        $subject = 'Reset Your Password — Shanfix Technology';
+        $panel   = $role === 'admin' ? 'Admin Panel' : 'Client Portal';
+        $html = self::layout('Password Reset Request', '
+            <p style="color:#475569; font-size:1rem; line-height:1.7;">
+                Hi <strong>' . htmlspecialchars($name) . '</strong>, we received a request to reset the password for your Shanfix ' . $panel . ' account.
+            </p>
+            <p style="color:#475569; font-size:0.95rem; line-height:1.7;">
+                Click the button below to set a new password. This link expires in <strong>30 minutes</strong>.
+            </p>
+            <div style="background:#fef3c7; border-radius:12px; padding:16px 20px; margin:24px 0; border-left:4px solid #f59e0b;">
+                <p style="margin:0; font-size:0.85rem; color:#92400e;">
+                    <strong>Did not request this?</strong> You can safely ignore this email. Your password will not change.
+                </p>
+            </div>
+        ', 'Reset My Password', $reset_url);
+        return self::send($email, $subject, $html);
+    }
+
+    public static function clientApproved(string $name, string $email): bool {
+        $subject = 'Your Shanfix Portal Account is Approved!';
+        $html = self::layout('Welcome — You\'re Approved!', '
+            <p style="color:#475569; font-size:1rem; line-height:1.7;">
+                Hi <strong>' . htmlspecialchars($name) . '</strong>, great news! Your Shanfix Technology client portal account has been reviewed and <strong style="color:#16a34a;">approved</strong>.
+            </p>
+            <p style="color:#475569; font-size:0.95rem; line-height:1.7;">
+                You can now log in to view your invoices, track your services, and contact our support team.
+            </p>
+            <div style="background:#f0fdf4; border-radius:12px; padding:16px 20px; margin:24px 0; border-left:4px solid #22c55e;">
+                <p style="margin:0; font-size:0.9rem; color:#166534;">
+                    <strong>Login Email:</strong> ' . htmlspecialchars($email) . '
+                </p>
+            </div>
+        ', 'Log In to My Portal', $_ENV['APP_URL'] . '/client/login.php');
+        return self::send($email, $subject, $html);
+    }
+
+    public static function clientRejected(string $name, string $email, string $reason = ''): bool {
+        $subject = 'Update on Your Shanfix Portal Access Request';
+        $reasonBlock = $reason ? '
+            <div style="background:#fef3c7; border-radius:12px; padding:16px 20px; margin:24px 0; border-left:4px solid #f59e0b;">
+                <p style="margin:0 0 4px; font-size:0.8rem; font-weight:700; color:#92400e; text-transform:uppercase;">Reason</p>
+                <p style="margin:0; color:#78350f; font-size:0.9rem;">' . htmlspecialchars($reason) . '</p>
+            </div>' : '';
+        $html = self::layout('Portal Access Request Update', '
+            <p style="color:#475569; font-size:1rem; line-height:1.7;">
+                Hi <strong>' . htmlspecialchars($name) . '</strong>, after reviewing your access request we are unable to approve your Shanfix Technology client portal account at this time.
+            </p>
+            ' . $reasonBlock . '
+            <p style="color:#475569; font-size:0.95rem; line-height:1.7;">
+                If you believe this is an error or would like to discuss further, please contact us directly at <a href="mailto:info@shanfixtechnology.com" style="color:#6366f1;">info@shanfixtechnology.com</a> or call <strong>+254 751 869 165</strong>.
+            </p>
+        ');
+        return self::send($email, $subject, $html);
+    }
+
+    public static function newClientRegistration(string $admin_email, string $client_name, string $client_email): bool {
+        $subject = 'New Client Registration Awaiting Approval';
+        $html = self::layout('New Registration Request', '
+            <p style="color:#475569; font-size:1rem; line-height:1.7;">
+                A new client has self-registered and is awaiting approval.
+            </p>
+            <div style="background:#f8fafc; border-radius:12px; padding:20px; margin:24px 0; border-left:4px solid #6366f1;">
+                <table style="width:100%; border-collapse:collapse;">
+                    <tr>
+                        <td style="padding:8px 0; color:#64748b; font-size:0.9rem; width:100px;">Name</td>
+                        <td style="padding:8px 0; font-weight:700;">' . htmlspecialchars($client_name) . '</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px 0; color:#64748b; font-size:0.9rem; border-top:1px solid #e2e8f0;">Email</td>
+                        <td style="padding:8px 0; border-top:1px solid #e2e8f0;">' . htmlspecialchars($client_email) . '</td>
+                    </tr>
+                </table>
+            </div>
+            <p style="color:#475569; font-size:0.9rem;">Log in to the admin panel to review and approve this request.</p>
+        ', 'Open Admin Clients', $_ENV['APP_URL'] . '/admin/clients.php');
+        return self::send($admin_email, $subject, $html);
+    }
+
+    public static function newTicket(string $admin_email, string $client_name, string $ticket_ref, string $subject, string $priority): bool {
+        $mail_subject = "[New Ticket] [{$ticket_ref}] " . $subject;
+        $priorityColor = match(strtolower($priority)) {
+            'high', 'critical' => '#ef4444',
+            'medium'           => '#f59e0b',
+            default            => '#64748b',
+        };
+        $html = self::layout('New Support Ticket Opened', '
+            <p style="color:#475569; font-size:1rem; line-height:1.7;">
+                A new support ticket has been submitted by <strong>' . htmlspecialchars($client_name) . '</strong>.
+            </p>
+            <div style="background:#f8fafc; border-radius:12px; padding:20px; margin:24px 0; border-left:4px solid ' . $priorityColor . ';">
+                <table style="width:100%; border-collapse:collapse;">
+                    <tr>
+                        <td style="padding:8px 0; color:#64748b; font-size:0.9rem; width:120px;">Reference</td>
+                        <td style="padding:8px 0; font-weight:700;">' . htmlspecialchars($ticket_ref) . '</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px 0; color:#64748b; font-size:0.9rem; border-top:1px solid #e2e8f0;">Subject</td>
+                        <td style="padding:8px 0; font-weight:700; border-top:1px solid #e2e8f0;">' . htmlspecialchars($subject) . '</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px 0; color:#64748b; font-size:0.9rem; border-top:1px solid #e2e8f0;">Priority</td>
+                        <td style="padding:8px 0; font-weight:800; color:' . $priorityColor . '; border-top:1px solid #e2e8f0;">' . strtoupper($priority) . '</td>
+                    </tr>
+                </table>
+            </div>
+            <p style="color:#475569; font-size:0.9rem;">Log in to the admin panel to view the full message and respond.</p>
+        ', 'Open Admin Panel', $_ENV['APP_URL'] . '/admin/tickets.php');
+        return self::send($admin_email, $mail_subject, $html);
+    }
+
     public static function clientReplied(string $admin_email, string $client_name, string $ticket_ref, string $subject): bool {
         $mail_subject = "[{$ticket_ref}] Client replied: " . $subject;
         $html = self::layout('Client Replied to a Ticket', '
@@ -122,6 +233,73 @@ class Mailer {
                 Pay via <strong>M-PESA Till No. 5698666</strong> or contact us for assistance.
             </p>
         ', 'Manage Services', $_ENV['APP_URL'] . '/client/index.php');
+        return self::send($email, $subject, $html);
+    }
+
+    public static function serviceStatusChanged(string $name, string $email, string $service_name, string $new_status): bool {
+        $subject = "Service Update: {$service_name}";
+        $accentColor = match(strtolower($new_status)) {
+            'active'     => '#22c55e',
+            'pending'    => '#f59e0b',
+            'suspended'  => '#ef4444',
+            'terminated' => '#94a3b8',
+            default      => '#6366f1',
+        };
+        $message = match(strtolower($new_status)) {
+            'active'     => 'Your service has been activated and is ready to use.',
+            'pending'    => 'Your service is pending activation. Our team will reach out shortly.',
+            'suspended'  => 'Your service has been suspended. Please contact us or settle any outstanding balance to restore access.',
+            'terminated' => 'Your service has been terminated. Please contact us if you believe this is an error.',
+            default      => 'Your service status has been updated.',
+        };
+        $html = self::layout("Service Status Update: {$service_name}", '
+            <p style="color:#475569; font-size:1rem; line-height:1.7;">
+                Hi <strong>' . htmlspecialchars($name) . '</strong>, there has been an update to one of your services.
+            </p>
+            <div style="background:#f8fafc; border-radius:12px; padding:24px; margin:24px 0; border-left:4px solid ' . $accentColor . ';">
+                <table style="width:100%; border-collapse:collapse;">
+                    <tr>
+                        <td style="padding:8px 0; color:#64748b; font-size:0.9rem; width:120px;">Service</td>
+                        <td style="padding:8px 0; font-weight:700;">' . htmlspecialchars($service_name) . '</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px 0; color:#64748b; font-size:0.9rem; border-top:1px solid #e2e8f0;">New Status</td>
+                        <td style="padding:8px 0; font-weight:800; color:' . $accentColor . '; text-transform:uppercase; border-top:1px solid #e2e8f0;">' . htmlspecialchars($new_status) . '</td>
+                    </tr>
+                </table>
+            </div>
+            <p style="color:#475569; font-size:0.95rem; line-height:1.7;">' . $message . '</p>
+        ', 'View My Portal', $_ENV['APP_URL'] . '/client/index.php');
+        return self::send($email, $subject, $html);
+    }
+
+    public static function paymentConfirmed(string $name, string $email, string $invoice_ref, float $amount, string $mpesa_receipt): bool {
+        $subject = "Payment Confirmed — {$invoice_ref}";
+        $formatted = 'KES ' . number_format($amount, 2);
+        $html = self::layout('Payment Received!', '
+            <p style="color:#475569; font-size:1rem; line-height:1.7;">
+                Hi <strong>' . htmlspecialchars($name) . '</strong>, we have received your payment. Thank you!
+            </p>
+            <div style="background:#f0fdf4; border-radius:12px; padding:24px; margin:24px 0; border-left:4px solid #22c55e;">
+                <table style="width:100%; border-collapse:collapse;">
+                    <tr>
+                        <td style="padding:8px 0; color:#64748b; font-size:0.9rem;">Invoice</td>
+                        <td style="padding:8px 0; font-weight:700; text-align:right;">' . htmlspecialchars($invoice_ref) . '</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px 0; color:#64748b; font-size:0.9rem; border-top:1px solid #bbf7d0;">Amount Paid</td>
+                        <td style="padding:8px 0; font-weight:800; font-size:1.2rem; color:#16a34a; text-align:right; border-top:1px solid #bbf7d0;">' . $formatted . '</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px 0; color:#64748b; font-size:0.9rem; border-top:1px solid #bbf7d0;">M-PESA Receipt</td>
+                        <td style="padding:8px 0; font-weight:700; color:#1e293b; text-align:right; border-top:1px solid #bbf7d0;">' . htmlspecialchars($mpesa_receipt) . '</td>
+                    </tr>
+                </table>
+            </div>
+            <p style="color:#475569; font-size:0.9rem;">
+                A receipt has been generated in your client portal. Log in to view your account history.
+            </p>
+        ', 'View My Portal', $_ENV['APP_URL'] . '/client/index.php');
         return self::send($email, $subject, $html);
     }
 

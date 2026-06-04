@@ -32,7 +32,8 @@
                 <a href="receipts.php" class="admin-nav-item">
                     <i class="fas fa-receipt"></i> <span>Receipts</span>
                 </a>
-                <a href="adverts.php" class="admin-nav-item">
+                <a href="portfolio.php" class="admin-nav-item"><i class="fas fa-briefcase"></i> <span>Portfolio</span></a>
+            <a href="adverts.php" class="admin-nav-item">
                     <i class="fas fa-ad"></i> <span>Adverts</span>
                 </a>
                 <a href="tickets.php" class="admin-nav-item">

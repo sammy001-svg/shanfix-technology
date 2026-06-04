@@ -158,4 +158,5 @@
         </div>
     </section>
 
+<?php $ctaService = 'Event Management'; include 'includes/service_cta.php'; ?>
 <?php include 'includes/footer.php'; ?>

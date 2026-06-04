@@ -1,3 +1,10 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    header('Location: login.php');
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,6 +30,7 @@
             <a href="orders.php" class="admin-nav-item"><i class="fas fa-shopping-bag"></i> <span>Orders</span></a>
             <a href="invoices.php" class="admin-nav-item"><i class="fas fa-file-invoice"></i> <span>Billing</span></a>
             <a href="receipts.php" class="admin-nav-item"><i class="fas fa-receipt"></i> <span>Receipts</span></a>
+            <a href="portfolio.php" class="admin-nav-item"><i class="fas fa-briefcase"></i> <span>Portfolio</span></a>
             <a href="adverts.php" class="admin-nav-item active"><i class="fas fa-ad"></i> <span>Adverts</span></a>
             <a href="tickets.php" class="admin-nav-item"><i class="fas fa-life-ring"></i> <span>Support</span></a>
             <a href="messages.php" class="admin-nav-item"><i class="fas fa-inbox"></i> <span>Inbox</span><span id="sidebarMsgBadge" style="display:none; background:#ef4444; color:#fff; font-size:0.65rem; font-weight:800; padding:2px 6px; border-radius:20px; margin-left:auto;"></span></a>
@@ -96,6 +104,36 @@
 
                 <div id="bannersGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:20px;">
                     <p class="text-low" style="grid-column:1/-1; text-align:center; padding:2rem;">Loading banners...</p>
+                </div>
+            </div>
+
+            <!-- ── Testimonials ────────────────────────────────────────── -->
+            <div class="admin-card glass-card mt-30">
+                <div class="flex-between mb-20">
+                    <div>
+                        <h3><i class="fas fa-quote-left" style="color:var(--p); margin-right:8px;"></i> Testimonials</h3>
+                        <p class="text-low" style="font-size:0.85rem; margin-top:4px;">Client quotes shown on the portfolio and homepage.</p>
+                    </div>
+                    <button class="admin-btn admin-btn-primary" onclick="openTestimonialModal()">
+                        <i class="fas fa-plus"></i> Add Testimonial
+                    </button>
+                </div>
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Author</th>
+                                <th>Company / Role</th>
+                                <th>Quote</th>
+                                <th>Rating</th>
+                                <th>Status</th>
+                                <th style="text-align:right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="testimonialsTableBody">
+                            <tr><td colspan="6" style="text-align:center; padding:2rem; color:var(--text-low);">Loading testimonials...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -226,11 +264,68 @@
     </div>
 </div>
 
-<script src="../admin.js?v=14"></script>
+<!-- Testimonial Modal -->
+<div id="testimonialModal" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
+    <div class="admin-card glass-card" style="width:540px; max-width:95vw; max-height:90vh; overflow-y:auto; border-radius:20px;">
+        <div class="flex-between mb-20">
+            <h3 id="testimonialModalTitle">Add Testimonial</h3>
+            <button class="icon-btn" onclick="closeTestimonialModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <form id="testimonialForm">
+            <input type="hidden" id="tm_id">
+            <div class="form-group mb-15">
+                <label class="form-label">Quote <span style="color:var(--red)">*</span></label>
+                <textarea id="tm_quote" class="form-control" rows="4" placeholder="What the client said..." required></textarea>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+                <div class="form-group">
+                    <label class="form-label">Author Name <span style="color:var(--red)">*</span></label>
+                    <input type="text" id="tm_author" class="form-control" placeholder="Sarah Jenkins" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Role / Title</label>
+                    <input type="text" id="tm_role" class="form-control" placeholder="CTO">
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+                <div class="form-group">
+                    <label class="form-label">Company</label>
+                    <input type="text" id="tm_company" class="form-control" placeholder="Global Retail Enterprises">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Rating (1–5)</label>
+                    <select id="tm_rating" class="form-control">
+                        <option value="5">★★★★★ (5)</option>
+                        <option value="4">★★★★☆ (4)</option>
+                        <option value="3">★★★☆☆ (3)</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px; align-items:end;">
+                <div class="form-group">
+                    <label class="form-label">Sort Order</label>
+                    <input type="number" id="tm_sort" class="form-control" value="0" min="0">
+                </div>
+                <div class="form-group" style="display:flex; align-items:center; gap:8px; padding-bottom:2px;">
+                    <input type="checkbox" id="tm_active" checked style="width:16px; height:16px; accent-color:var(--p);">
+                    <label for="tm_active" style="cursor:pointer; font-size:0.9rem; margin:0;">Active</label>
+                </div>
+            </div>
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button type="button" class="admin-btn admin-btn-secondary" onclick="closeTestimonialModal()">Cancel</button>
+                <button type="submit" class="admin-btn admin-btn-primary"><i class="fas fa-save"></i> Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="../admin.js?v=17"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         checkAuth();
+        _loadUnreadBadge();
         if (typeof initAdvertsPage === 'function') initAdvertsPage();
+        if (typeof initTestimonialsPage === 'function') initTestimonialsPage();
     });
 </script>
 </body>

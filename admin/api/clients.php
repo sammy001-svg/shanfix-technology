@@ -4,6 +4,7 @@
  */
 header('Content-Type: application/json');
 require_once '../../includes/db_connect.php';
+require_once '../../includes/mailer.php';
 
 session_start();
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
@@ -16,9 +17,16 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 try {
     if ($method === 'GET') {
-        $stmt = $pdo->query("SELECT id, full_name, email, phone, company, status, created_at FROM users WHERE role = 'client' ORDER BY created_at DESC");
+        // pending_count=1 is used by the sidebar badge
+        if (!empty($_GET['pending_count'])) {
+            $cnt = (int)$pdo->query("SELECT COUNT(*) FROM users WHERE role='client' AND status='inactive'")->fetchColumn();
+            echo json_encode(['success' => true, 'count' => $cnt]);
+            exit;
+        }
+        $stmt = $pdo->query("SELECT id, full_name, email, phone, company, status, created_at FROM users WHERE role = 'client' ORDER BY FIELD(status,'inactive','active','suspended') ASC, created_at DESC");
         $clients = $stmt->fetchAll();
-        echo json_encode(['success' => true, 'clients' => $clients]);
+        $pendingCount = count(array_filter($clients, fn($c) => $c['status'] === 'inactive'));
+        echo json_encode(['success' => true, 'clients' => $clients, 'pending_count' => $pendingCount]);
     } 
     elseif ($method === 'POST') {
         $action = $input['action'] ?? 'create';
@@ -48,6 +56,25 @@ try {
             $stmt = $pdo->prepare("UPDATE users SET full_name = ?, email = ?, phone = ?, company = ?, status = ? WHERE id = ? AND role = 'client'");
             $stmt->execute([$full_name, $email, $phone, $company, $status, $id]);
             echo json_encode(['success' => true, 'message' => 'Client updated successfully.']);
+        }
+        elseif ($action === 'approve') {
+            if (!$id) throw new Exception('Client ID is missing.');
+            $uStmt = $pdo->prepare("SELECT full_name, email FROM users WHERE id = ? AND role = 'client'");
+            $uStmt->execute([$id]);
+            $u = $uStmt->fetch();
+            $pdo->prepare("UPDATE users SET status = 'active' WHERE id = ? AND role = 'client'")->execute([$id]);
+            if ($u) Mailer::clientApproved($u['full_name'], $u['email']);
+            echo json_encode(['success' => true, 'message' => 'Client approved and notified.']);
+        }
+        elseif ($action === 'reject') {
+            if (!$id) throw new Exception('Client ID is missing.');
+            $reason = trim($input['reason'] ?? '');
+            $uStmt  = $pdo->prepare("SELECT full_name, email FROM users WHERE id = ? AND role = 'client'");
+            $uStmt->execute([$id]);
+            $u = $uStmt->fetch();
+            $pdo->prepare("DELETE FROM users WHERE id = ? AND role = 'client'")->execute([$id]);
+            if ($u) Mailer::clientRejected($u['full_name'], $u['email'], $reason);
+            echo json_encode(['success' => true, 'message' => 'Client rejected and removed.']);
         }
         elseif ($action === 'reset_password') {
             if (!$id) throw new Exception('Client ID is missing.');

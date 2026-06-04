@@ -1,3 +1,7 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) session_start();
+$_isClientLoggedIn = isset($_SESSION['user_id']) && ($_SESSION['role'] ?? '') === 'client';
+?>
 <!doctype html>
 <html lang="en">
   <head>
@@ -87,6 +91,14 @@
             </svg>
             <span>Computer Repair / Shop</span>
           </a>
+          <?php if ($_isClientLoggedIn): ?>
+          <a href="client/index.php" class="top-header-link" style="color:#22c55e; font-weight:600;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            <span>My Portal</span>
+          </a>
+          <?php else: ?>
           <a href="client/login.php" class="top-header-link">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -94,6 +106,7 @@
             </svg>
             <span>Client Login</span>
           </a>
+          <?php endif; ?>
           <a href="https://sms.shanfixtechnology.com/" target="_blank" rel="noopener noreferrer" class="top-header-link">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
@@ -413,6 +426,11 @@
           <li><a href="contact.php" class="nav-link">Contacts</a></li>
           <li><a href="https://aicoder.shanfixtechnology.com/" class="btn btn-primary nav-btn-small">AI Coder</a></li>
           <li><a href="https://automation.shanfixtechnology.com/" class="btn btn-secondary nav-btn-small">AI Automations</a></li>
+          <?php if ($_isClientLoggedIn): ?>
+          <li><a href="client/index.php" class="btn nav-btn-small" style="background:linear-gradient(135deg,#22c55e,#16a34a); color:#fff; border:none;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-right:4px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>My Portal
+          </a></li>
+          <?php endif; ?>
         </ul>
         <button
           class="mobile-menu-toggle"

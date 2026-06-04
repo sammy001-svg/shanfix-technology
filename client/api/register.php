@@ -46,14 +46,18 @@ try {
     // 2. Hash password
     $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
-    // 3. Insert new user (role defaults to 'client' as per schema)
-    $stmt = $pdo->prepare("INSERT INTO users (full_name, email, password, role, status) VALUES (?, ?, ?, 'client', 'active')");
+    // 3. Insert new user as 'inactive' pending admin approval
+    $stmt = $pdo->prepare("INSERT INTO users (full_name, email, password, role, status) VALUES (?, ?, ?, 'client', 'inactive')");
     $result = $stmt->execute([$name, $email, $hashedPassword]);
 
     if ($result) {
-        Mailer::welcome($name, $email);
+        // Notify admin to approve
+        $adminEmail = $_ENV['ADMIN_EMAIL'] ?? '';
+        if ($adminEmail) {
+            Mailer::newClientRegistration($adminEmail, $name, $email);
+        }
         ob_clean();
-        echo json_encode(['success' => true, 'message' => 'Portal account created successfully!']);
+        echo json_encode(['success' => true, 'message' => 'Request submitted! Our team will review and activate your account within 24 hours.']);
     } else {
         ob_clean();
         echo json_encode(['success' => false, 'message' => 'Failed to create account. Please try again.']);

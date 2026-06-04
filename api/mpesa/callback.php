@@ -7,6 +7,7 @@
  */
 
 require_once '../../includes/db_connect.php';
+require_once '../../includes/mailer.php';
 
 // Log every callback for debugging
 $raw = file_get_contents('php://input');
@@ -74,6 +75,23 @@ try {
             "INSERT IGNORE INTO receipts (invoice_id, receipt_ref, amount_paid, payment_method, transaction_ref)
              VALUES (?, ?, ?, 'M-PESA', ?)"
         )->execute([$txn['invoice_id'], $receiptRef, $amount, $receipt]);
+
+        // Send payment confirmation email to client
+        $clientStmt = $pdo->prepare("
+            SELECT i.reference, u.full_name, u.email, i.guest_name, i.guest_email
+            FROM invoices i
+            LEFT JOIN users u ON i.user_id = u.id
+            WHERE i.id = ?
+        ");
+        $clientStmt->execute([$txn['invoice_id']]);
+        $inv = $clientStmt->fetch(PDO::FETCH_ASSOC);
+        if ($inv) {
+            $clientName  = $inv['full_name']  ?: $inv['guest_name']  ?: 'Client';
+            $clientEmail = $inv['email']       ?: $inv['guest_email'] ?: '';
+            if ($clientEmail) {
+                Mailer::paymentConfirmed($clientName, $clientEmail, $inv['reference'], (float)$amount, $receipt);
+            }
+        }
 
         error_log("M-PESA: Payment confirmed — invoice #{$txn['invoice_id']}, receipt {$receipt}");
     } else {

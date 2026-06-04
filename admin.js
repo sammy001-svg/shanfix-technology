@@ -33,6 +33,7 @@ function initAdmin() {
     if (document.getElementById('adminTicketsBody')) initTicketsPage();
     if (document.getElementById('clientTableBody')) initClientsPage();
     if (document.getElementById('orderTableBody')) initOrdersPage();
+    if (document.getElementById('portfolioGrid')) initPortfolioPage();
 }
 
 function initTicketsPage() {
@@ -945,30 +946,33 @@ function initDashboard() {
 
 async function _loadDashboardData() {
     try {
-        const [invRes, orderRes, ticketRes] = await Promise.all([
+        const [invRes, orderRes, ticketRes, analyticsRes] = await Promise.all([
             fetch('api/invoices.php'),
             fetch('api/orders.php'),
-            fetch('api/tickets.php')
+            fetch('api/tickets.php'),
+            fetch('api/analytics.php')
         ]);
-        const invData = await invRes.json();
-        const orderData = await orderRes.json();
-        const ticketData = await ticketRes.json();
+        const invData       = await invRes.json();
+        const orderData     = await orderRes.json();
+        const ticketData    = await ticketRes.json();
+        const analyticsData = await analyticsRes.json();
 
         const invoices = invData.success ? invData.invoices : [];
-        const orders = orderData.success ? orderData.orders : [];
-        const tickets = ticketData.success ? ticketData.tickets : [];
+        const orders   = orderData.success ? orderData.orders : [];
+        const tickets  = ticketData.success ? ticketData.tickets : [];
 
         _dashboardInvoices = invoices;
 
-        _renderDashboardStats(invoices);
+        _renderDashboardStats(invoices, analyticsData);
         _renderActivityTable(invoices);
-        _renderDashboardCharts(invoices, orders, tickets);
+        _renderDashboardCharts(invoices, orders, tickets, analyticsData);
+        _renderExpiringServices(analyticsData);
     } catch (error) {
         console.error('Dashboard load error:', error);
     }
 }
 
-function _renderDashboardStats(invoices) {
+function _renderDashboardStats(invoices, analytics) {
     if (!document.getElementById('stat_monthly_sales')) return;
 
     const now = new Date();
@@ -1034,6 +1038,37 @@ function _renderDashboardStats(invoices) {
         collEl.textContent = `${paidCount} of ${invoices.length} invoices paid`;
         collEl.className = `stat-trend ${collectionRate >= 80 ? 'text-success' : collectionRate >= 50 ? 'text-low' : 'text-danger'}`;
     }
+
+    // New analytics cards
+    if (analytics && analytics.success) {
+        const clientEl = document.getElementById('stat_total_clients');
+        if (clientEl) clientEl.textContent = analytics.total_clients.toLocaleString();
+
+        const clientTrendEl = document.getElementById('trend_clients');
+        if (clientTrendEl) {
+            const n = analytics.new_this_month;
+            const prev = analytics.new_last_month;
+            const arrow = n >= prev ? 'up' : 'down';
+            const cls   = n >= prev ? 'text-success' : 'text-danger';
+            clientTrendEl.innerHTML = `<i class="fas fa-arrow-${arrow}"></i> ${n} new this month`;
+            clientTrendEl.className = `stat-trend ${cls}`;
+        }
+
+        const svcEl = document.getElementById('stat_active_services');
+        if (svcEl) svcEl.textContent = analytics.active_services.toLocaleString();
+
+        const expEl = document.getElementById('stat_expiring_soon');
+        if (expEl) {
+            const cnt = analytics.expiring_services.length;
+            expEl.innerHTML = cnt > 0
+                ? `<i class="fas fa-exclamation-triangle" style="color:#f59e0b;"></i> ${cnt} expiring in 7 days`
+                : `<i class="fas fa-check-circle" style="color:#10b981;"></i> None expiring soon`;
+            expEl.className = `stat-trend ${cnt > 0 ? 'text-danger' : 'text-success'}`;
+        }
+
+        const openTickEl = document.getElementById('stat_open_tickets_report');
+        if (openTickEl) openTickEl.textContent = analytics.open_tickets;
+    }
 }
 
 function _renderActivityTable(invoices) {
@@ -1059,7 +1094,34 @@ function _renderActivityTable(invoices) {
     }).join('');
 }
 
-function _renderDashboardCharts(invoices, orders, tickets) {
+function _renderExpiringServices(analytics) {
+    const list = document.getElementById('expiringServicesList');
+    if (!list) return;
+
+    if (!analytics || !analytics.success || analytics.expiring_services.length === 0) {
+        list.innerHTML = '<p style="text-align:center; color:var(--text-low); padding:20px;"><i class="fas fa-check-circle" style="color:#10b981; margin-right:6px;"></i>No services expiring in the next 7 days.</p>';
+        return;
+    }
+
+    list.innerHTML = analytics.expiring_services.map(svc => {
+        const due = new Date(svc.next_due_date).toLocaleDateString('en-KE', { day:'numeric', month:'short' });
+        const price = svc.price ? `KES ${parseFloat(svc.price).toLocaleString()}` : '';
+        return `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--glass-border);">
+                <div>
+                    <div style="font-weight:600; font-size:0.9rem;">${svc.service_name}</div>
+                    <div style="font-size:0.75rem; color:var(--text-low);">${svc.full_name}</div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:0.75rem; font-weight:700; color:#f59e0b;">${due}</div>
+                    ${price ? `<div style="font-size:0.7rem; color:var(--text-low);">${price}</div>` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function _renderDashboardCharts(invoices, orders, tickets, analytics) {
     const revenueCtx = document.getElementById('revenueChart');
     const statusCtx = document.getElementById('orderStatusChart');
     const collectionCtx = document.getElementById('collectionChart');
@@ -1208,6 +1270,45 @@ function _renderDashboardCharts(invoices, orders, tickets) {
                 responsive: true, maintainAspectRatio: false, cutout: '75%',
                 plugins: {
                     legend: { position: 'bottom', labels: { color: '#94a3b8', usePointStyle: true, padding: 20, font: { size: 12 } } }
+                }
+            }
+        });
+    }
+
+    // --- Client Growth Bar Chart ---
+    const clientGrowthCtx = document.getElementById('clientGrowthChart');
+    if (clientGrowthCtx && analytics && analytics.success) {
+        const growthLabels = analytics.client_growth.map(r => r.month);
+        const growthData   = analytics.client_growth.map(r => parseInt(r.count));
+
+        new Chart(clientGrowthCtx, {
+            type: 'bar',
+            data: {
+                labels: growthLabels,
+                datasets: [{
+                    label: 'New Clients',
+                    data: growthData,
+                    backgroundColor: 'rgba(6,182,212,0.6)',
+                    borderColor: 'rgba(6,182,212,1)',
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => `${ctx.parsed.y} new client${ctx.parsed.y !== 1 ? 's' : ''}` } }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { precision: 0, color: '#94a3b8', font: { size: 10 } },
+                        grid: { color: 'rgba(255,255,255,0.05)' }
+                    },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } }
                 }
             }
         });
@@ -1361,11 +1462,27 @@ function initClientsPage() {
     }
 
     function renderClients(clients) {
-        tableBody.innerHTML = clients.map(c => `
-            <tr>
+        if (!clients.length) {
+            tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:2.5rem; color:var(--text-low);">No clients found.</td></tr>';
+            return;
+        }
+        const pending = clients.filter(c => c.status === 'inactive');
+        const active  = clients.filter(c => c.status !== 'inactive');
+
+        // Show pending approval banner
+        const pendingBanner = pending.length > 0
+            ? `<tr><td colspan="5" style="background:rgba(245,158,11,0.08); border-left:3px solid #f59e0b; padding:12px 16px; font-size:0.85rem; color:#d97706; font-weight:600;">
+                   <i class="fas fa-clock" style="margin-right:8px;"></i>${pending.length} registration${pending.length > 1 ? 's' : ''} awaiting approval
+               </td></tr>`
+            : '';
+
+        tableBody.innerHTML = pendingBanner + [...pending, ...active].map(c => {
+            const isPending = c.status === 'inactive';
+            return `
+            <tr style="${isPending ? 'background:rgba(245,158,11,0.04);' : ''}">
                 <td>
                     <div class="flex-align-center gap-10">
-                        <div class="admin-avatar-sm">${c.full_name.charAt(0)}</div>
+                        <div class="admin-avatar-sm" style="${isPending ? 'background:rgba(245,158,11,0.2); color:#d97706;' : ''}">${c.full_name.charAt(0)}</div>
                         <div>
                             <strong>${c.full_name}</strong><br>
                             <small class="text-low">${c.email}</small>
@@ -1376,10 +1493,17 @@ function initClientsPage() {
                     <strong>${c.company || 'Private Individual'}</strong><br>
                     <small class="text-low">${c.phone || 'No Phone'}</small>
                 </td>
-                <td><span class="status-badge status-${c.status.toLowerCase()}">${c.status}</span></td>
+                <td><span class="status-badge ${isPending ? '' : 'status-' + c.status.toLowerCase()}" style="${isPending ? 'background:rgba(245,158,11,0.15); color:#d97706;' : ''}">${isPending ? 'Pending Approval' : c.status}</span></td>
                 <td>${new Date(c.created_at).toLocaleDateString()}</td>
                 <td style="text-align: right;">
                     <div class="flex-end-gap-sm">
+                        ${isPending ? `
+                        <button class="admin-btn-sm admin-btn-primary" onclick="approveClient(${c.id})" title="Approve">
+                            <i class="fas fa-check"></i> Approve
+                        </button>
+                        <button class="admin-btn-sm" style="border-color:#ef444455; color:#fca5a5;" onclick="rejectClient(${c.id}, '${c.full_name}')" title="Reject">
+                            <i class="fas fa-times"></i> Reject
+                        </button>` : `
                         <button class="icon-btn" onclick="editClient(${JSON.stringify(c).replace(/"/g, '&quot;')})" title="Edit Profile">
                             <i class="fas fa-user-edit"></i>
                         </button>
@@ -1388,12 +1512,38 @@ function initClientsPage() {
                         </button>
                         <button class="icon-btn" style="color: #ef4444;" onclick="deleteClient(${c.id}, '${c.full_name}')" title="Delete Client">
                             <i class="fas fa-trash-alt"></i>
-                        </button>
+                        </button>`}
                     </div>
                 </td>
-            </tr>
-        `).join('');
+            </tr>`;
+        }).join('');
     }
+
+    window.approveClient = async (id) => {
+        try {
+            const res  = await fetch('api/clients.php', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'approve', id })
+            });
+            const data = await res.json();
+            if (data.success) { loadClients(); alert(data.message); }
+            else alert(data.message);
+        } catch (e) { alert('Failed to approve client.'); }
+    };
+
+    window.rejectClient = async (id, name) => {
+        const reason = prompt(`Reason for rejecting "${name}" (optional):`);
+        if (reason === null) return; // cancelled
+        try {
+            const res  = await fetch('api/clients.php', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'reject', id, reason })
+            });
+            const data = await res.json();
+            if (data.success) { loadClients(); alert(data.message); }
+            else alert(data.message);
+        } catch (e) { alert('Failed to reject client.'); }
+    };
 
     // Modal Controls
     window.openClientModal = () => {
@@ -2493,12 +2643,23 @@ window.previewImg = (input, containerId) => {
 
 async function _loadUnreadBadge() {
     try {
-        const res  = await fetch('api/messages.php?unread_count=1');
-        const data = await res.json();
-        const badge = document.getElementById('sidebarMsgBadge');
-        if (badge && data.success && data.count > 0) {
-            badge.textContent    = data.count;
-            badge.style.display  = 'inline-block';
+        const [msgRes, clientRes] = await Promise.all([
+            fetch('api/messages.php?unread_count=1'),
+            fetch('api/clients.php?pending_count=1')
+        ]);
+        const msgData    = await msgRes.json();
+        const clientData = await clientRes.json();
+
+        const msgBadge    = document.getElementById('sidebarMsgBadge');
+        const clientBadge = document.getElementById('sidebarClientBadge');
+
+        if (msgBadge && msgData.success && msgData.count > 0) {
+            msgBadge.textContent   = msgData.count;
+            msgBadge.style.display = 'inline-block';
+        }
+        if (clientBadge && clientData.success && clientData.count > 0) {
+            clientBadge.textContent   = clientData.count;
+            clientBadge.style.display = 'inline-block';
         }
     } catch (e) { /* non-critical */ }
 }
@@ -2782,4 +2943,205 @@ function initTicketsPage() {
 
     statusFilter.addEventListener('change', filterAndRender);
     loadTickets();
+}
+
+// ── TESTIMONIALS MANAGEMENT ───────────────────────────────────────────────
+
+function initTestimonialsPage() {
+    const tbody = document.getElementById('testimonialsTableBody');
+    if (!tbody) return;
+
+    async function loadTestimonials() {
+        try {
+            const res  = await fetch('api/testimonials.php');
+            const data = await res.json();
+            if (!data.success || !data.testimonials.length) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2rem; color:var(--text-low);">No testimonials yet.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.testimonials.map(t => `
+                <tr>
+                    <td><strong>${t.author}</strong></td>
+                    <td><span style="font-size:0.82rem;">${[t.role, t.company].filter(Boolean).join(', ') || '—'}</span></td>
+                    <td style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-low); font-size:0.85rem;">"${t.quote}"</td>
+                    <td>${'★'.repeat(parseInt(t.rating))}${'☆'.repeat(5 - parseInt(t.rating))}</td>
+                    <td><span class="status-badge ${t.is_active ? 'status-active' : 'status-inactive'}">${t.is_active ? 'Active' : 'Hidden'}</span></td>
+                    <td style="text-align:right;">
+                        <div class="flex-end-gap-sm">
+                            <button class="icon-btn" onclick="editTestimonial(${JSON.stringify(t).replace(/"/g, '&quot;')})"><i class="fas fa-edit"></i></button>
+                            <button class="icon-btn" style="color:#ef4444;" onclick="deleteTestimonial(${t.id})"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (e) { console.error('Testimonials load error:', e); }
+    }
+
+    document.getElementById('testimonialForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id     = document.getElementById('tm_id').value;
+        const action = id ? 'update' : 'create';
+        const btn    = e.target.querySelector('[type=submit]');
+        const orig   = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        btn.disabled  = true;
+        try {
+            const res  = await fetch('api/testimonials.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action,
+                    id: id || undefined,
+                    quote:      document.getElementById('tm_quote').value,
+                    author:     document.getElementById('tm_author').value,
+                    role:       document.getElementById('tm_role').value,
+                    company:    document.getElementById('tm_company').value,
+                    rating:     document.getElementById('tm_rating').value,
+                    sort_order: document.getElementById('tm_sort').value,
+                    is_active:  document.getElementById('tm_active').checked ? 1 : 0,
+                })
+            });
+            const data = await res.json();
+            if (data.success) { closeTestimonialModal(); loadTestimonials(); alert(data.message); }
+            else alert(data.message);
+        } finally { btn.innerHTML = orig; btn.disabled = false; }
+    });
+
+    window.openTestimonialModal = () => {
+        document.getElementById('testimonialForm').reset();
+        document.getElementById('tm_id').value = '';
+        document.getElementById('tm_active').checked = true;
+        document.getElementById('testimonialModalTitle').textContent = 'Add Testimonial';
+        document.getElementById('testimonialModal').style.display = 'flex';
+    };
+    window.closeTestimonialModal = () => { document.getElementById('testimonialModal').style.display = 'none'; };
+
+    window.editTestimonial = (t) => {
+        document.getElementById('tm_id').value     = t.id;
+        document.getElementById('tm_quote').value  = t.quote;
+        document.getElementById('tm_author').value = t.author;
+        document.getElementById('tm_role').value   = t.role   || '';
+        document.getElementById('tm_company').value= t.company|| '';
+        document.getElementById('tm_rating').value = t.rating;
+        document.getElementById('tm_sort').value   = t.sort_order;
+        document.getElementById('tm_active').checked = !!parseInt(t.is_active);
+        document.getElementById('testimonialModalTitle').textContent = 'Edit Testimonial';
+        document.getElementById('testimonialModal').style.display = 'flex';
+    };
+
+    window.deleteTestimonial = async (id) => {
+        if (!confirm('Delete this testimonial?')) return;
+        try {
+            const res  = await fetch('api/testimonials.php', { method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id }) });
+            const data = await res.json();
+            if (data.success) loadTestimonials();
+        } catch (e) { alert('Delete failed.'); }
+    };
+
+    loadTestimonials();
+}
+
+// ── PORTFOLIO MANAGEMENT ──────────────────────────────────────────────────
+
+function initPortfolioPage() {
+    const grid = document.getElementById('portfolioGrid');
+    if (!grid) return;
+
+    async function loadProjects() {
+        try {
+            const res  = await fetch('api/portfolio.php');
+            const data = await res.json();
+            if (!data.success || !data.projects.length) {
+                grid.innerHTML = '<p class="text-low" style="grid-column:1/-1; text-align:center; padding:2rem;">No portfolio projects yet. Add your first case study.</p>';
+                return;
+            }
+            grid.innerHTML = data.projects.map(p => `
+                <div class="admin-card" style="padding:0; overflow:hidden; border-radius:16px; border:1px solid var(--glass-border);">
+                    <div style="position:relative; background:#1e293b; height:160px; overflow:hidden;">
+                        ${p.image_url
+                            ? `<img src="../${p.image_url}" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.style.display='none'">`
+                            : `<div style="height:100%; display:flex; align-items:center; justify-content:center; color:var(--text-low);"><i class="fas fa-image" style="font-size:2rem;"></i></div>`}
+                        <div style="position:absolute; top:10px; left:10px; display:flex; gap:6px;">
+                            <span class="status-badge ${p.is_active ? 'status-active' : 'status-inactive'}">${p.is_active ? 'Active' : 'Off'}</span>
+                            ${p.is_featured ? '<span class="status-badge" style="background:rgba(245,158,11,0.2); color:#d97706;"><i class="fas fa-star"></i> Featured</span>' : ''}
+                        </div>
+                    </div>
+                    <div style="padding:16px;">
+                        ${p.badge ? `<span style="font-size:0.7rem; font-weight:700; color:var(--p); text-transform:uppercase; letter-spacing:1px;">${p.badge}</span>` : ''}
+                        <div style="font-weight:700; font-size:1rem; color:var(--text-main); margin:6px 0;">${p.title}</div>
+                        <div style="font-size:0.78rem; color:var(--text-low); margin-bottom:12px; height:2.4em; overflow:hidden;">${p.description || ''}</div>
+                        ${(p.stat1_val || p.stat2_val) ? `
+                        <div style="display:flex; gap:12px; margin-bottom:12px;">
+                            ${p.stat1_val ? `<div style="font-size:0.75rem;"><strong style="color:var(--p);">${p.stat1_val}</strong><br><span class="text-low">${p.stat1_label}</span></div>` : ''}
+                            ${p.stat2_val ? `<div style="font-size:0.75rem;"><strong style="color:var(--p);">${p.stat2_val}</strong><br><span class="text-low">${p.stat2_label}</span></div>` : ''}
+                        </div>` : ''}
+                        <div class="flex-end-gap-sm">
+                            ${p.live_url ? `<a href="${p.live_url}" target="_blank" class="admin-btn-sm admin-btn-secondary" style="text-decoration:none;"><i class="fas fa-external-link-alt"></i></a>` : ''}
+                            <button class="admin-btn-sm admin-btn-secondary" onclick="editProject(${JSON.stringify(p).replace(/"/g, '&quot;')})"><i class="fas fa-edit"></i> Edit</button>
+                            <button class="admin-btn-sm" style="border-color:#ef444455; color:#fca5a5;" onclick="deleteProject(${p.id})"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        } catch (e) { console.error('Portfolio load error:', e); }
+    }
+
+    document.getElementById('projectForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd  = new FormData(e.target);
+        fd.set('action', document.getElementById('pf_id').value ? 'update' : 'create');
+        const btn  = e.target.querySelector('[type=submit]');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        btn.disabled  = true;
+        try {
+            const res  = await fetch('api/portfolio.php', { method: 'POST', body: fd });
+            const data = await res.json();
+            if (data.success) { closeProjectModal(); loadProjects(); alert(data.message); }
+            else alert(data.message);
+        } finally { btn.innerHTML = orig; btn.disabled = false; }
+    });
+
+    window.openProjectModal = () => {
+        document.getElementById('projectForm').reset();
+        document.getElementById('pf_id').value = '';
+        document.getElementById('pf_existing_image').value = '';
+        document.getElementById('pfImgPreview').innerHTML = '';
+        document.getElementById('projectModalTitle').textContent = 'Add Portfolio Project';
+        document.getElementById('projectModal').style.display = 'flex';
+    };
+    window.closeProjectModal = () => { document.getElementById('projectModal').style.display = 'none'; };
+
+    window.editProject = (p) => {
+        document.getElementById('pf_id').value         = p.id;
+        document.getElementById('pf_title').value       = p.title;
+        document.getElementById('pf_badge').value       = p.badge      || '';
+        document.getElementById('pf_desc').value        = p.description || '';
+        document.getElementById('pf_live_url').value    = p.live_url   || '';
+        document.getElementById('pf_stat1_val').value   = p.stat1_val  || '';
+        document.getElementById('pf_stat1_label').value = p.stat1_label || '';
+        document.getElementById('pf_stat2_val').value   = p.stat2_val  || '';
+        document.getElementById('pf_stat2_label').value = p.stat2_label || '';
+        document.getElementById('pf_sort').value        = p.sort_order;
+        document.getElementById('pf_active').checked   = !!parseInt(p.is_active);
+        document.getElementById('pf_featured').checked = !!parseInt(p.is_featured);
+        document.getElementById('pf_existing_image').value = p.image_url || '';
+        document.getElementById('pfImgPreview').innerHTML = p.image_url
+            ? `<img src="../${p.image_url}" style="max-width:100%; height:80px; object-fit:cover; border-radius:8px; margin-bottom:4px;">`
+            : '';
+        document.getElementById('projectModalTitle').textContent = 'Edit Portfolio Project';
+        document.getElementById('projectModal').style.display = 'flex';
+    };
+
+    window.deleteProject = async (id) => {
+        if (!confirm('Delete this portfolio project?')) return;
+        try {
+            const res  = await fetch('api/portfolio.php', { method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id }) });
+            const data = await res.json();
+            if (data.success) loadProjects();
+            else alert(data.message);
+        } catch (e) { alert('Delete failed.'); }
+    };
+
+    loadProjects();
 }

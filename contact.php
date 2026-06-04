@@ -108,6 +108,16 @@
                 </form>
 
                 <script>
+                // Pre-fill subject from ?service= URL param (from service CTA links)
+                (function() {
+                    const params  = new URLSearchParams(window.location.search);
+                    const service = params.get('service');
+                    if (service) {
+                        const subjectEl = document.getElementById('c_subject');
+                        if (subjectEl && !subjectEl.value) subjectEl.value = 'Request: ' + service;
+                    }
+                })();
+
                 document.getElementById('contactFormV2').addEventListener('submit', async function(e) {
                     e.preventDefault();
                     const btn      = document.getElementById('contactSubmitBtn');

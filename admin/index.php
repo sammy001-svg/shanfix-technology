@@ -34,7 +34,8 @@
                 <a href="receipts.php" class="admin-nav-item">
                     <i class="fas fa-receipt"></i> <span>Receipts</span>
                 </a>
-                <a href="adverts.php" class="admin-nav-item">
+                <a href="portfolio.php" class="admin-nav-item"><i class="fas fa-briefcase"></i> <span>Portfolio</span></a>
+            <a href="adverts.php" class="admin-nav-item">
                     <i class="fas fa-ad"></i> <span>Adverts</span>
                 </a>
                 <a href="tickets.php" class="admin-nav-item">
@@ -74,7 +75,7 @@
 
             <section class="admin-content">
                 <!-- Analytics Cards -->
-                <div class="admin-stats-grid">
+                <div class="admin-stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
                     <div class="admin-stat-card glass-card">
                         <div class="stat-main">
                             <div class="stat-icon-box bg-indigo">
@@ -126,6 +127,32 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="admin-stat-card glass-card">
+                        <div class="stat-main">
+                            <div class="stat-icon-box" style="background: rgba(6,182,212,0.15);">
+                                <i class="fas fa-users" style="color: #06b6d4;"></i>
+                            </div>
+                            <div class="stat-details">
+                                <span class="stat-label">Total Clients</span>
+                                <h2 id="stat_total_clients" class="stat-value">0</h2>
+                                <span id="trend_clients" class="stat-trend text-low"><i class="fas fa-minus"></i> new this month</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-stat-card glass-card">
+                        <div class="stat-main">
+                            <div class="stat-icon-box" style="background: rgba(16,185,129,0.15);">
+                                <i class="fas fa-server" style="color: #10b981;"></i>
+                            </div>
+                            <div class="stat-details">
+                                <span class="stat-label">Active Services</span>
+                                <h2 id="stat_active_services" class="stat-value">0</h2>
+                                <span id="stat_expiring_soon" class="stat-trend text-low"><i class="fas fa-minus"></i> expiring in 7 days</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Main Charts Area -->
@@ -174,6 +201,34 @@
                         </div>
                         <div class="chart-container doughnut-container">
                             <canvas id="ticketSummaryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Client Growth + Expiring Services -->
+                <div class="dashboard-grid">
+                    <div class="admin-card chart-main-card glass-card">
+                        <div class="card-header">
+                            <h3>Client Growth</h3>
+                            <span class="text-low" style="font-size:0.8rem;">New signups — last 6 months</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="clientGrowthChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="admin-card chart-side-card glass-card">
+                        <div class="flex-between mb-20">
+                            <h3>Expiring Services</h3>
+                            <span class="text-low" style="font-size:0.8rem;">Due within 7 days</span>
+                        </div>
+                        <div id="expiringServicesList" style="max-height:280px; overflow-y:auto;">
+                            <p class="text-low" style="text-align:center; padding:20px;">Loading...</p>
+                        </div>
+                        <div style="margin-top:16px; border-top:1px solid var(--glass-border); padding-top:16px;">
+                            <button class="admin-btn admin-btn-secondary" style="width:100%;" onclick="sendRenewalReminders()">
+                                <i class="fas fa-bell"></i> Send Renewal Reminders
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -243,11 +298,11 @@
                         </div>
 
                         <div class="report-box mt-20" style="border-top: 1px solid var(--glass-border); padding-top: 20px;">
-                            <label>Renewal Reminders</label>
-                            <p class="text-low mt-5" style="font-size:0.8rem;">Send emails for services due in 7 days</p>
-                            <button id="sendRenewalsBtn" class="admin-btn admin-btn-secondary mt-10" style="width:100%;" onclick="sendRenewalReminders()">
-                                <i class="fas fa-bell"></i> Send Reminders
-                            </button>
+                            <label>Open Tickets</label>
+                            <p class="text-low mt-5" style="font-size:0.8rem;"><span id="stat_open_tickets_report">0</span> support tickets require attention</p>
+                            <a href="tickets.php" class="admin-btn admin-btn-secondary mt-10" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px; text-decoration:none;">
+                                <i class="fas fa-life-ring"></i> View Support Queue
+                            </a>
                         </div>
                     </div>
                 </div>

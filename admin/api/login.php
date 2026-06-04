@@ -32,9 +32,10 @@ try {
         session_unset();
         
         // Set secure session
-        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['user_id']   = $user['id'];
         $_SESSION['user_name'] = $user['full_name'];
-        $_SESSION['role'] = 'admin';
+        $_SESSION['admin_name'] = $user['full_name'];
+        $_SESSION['role']      = 'admin';
         
         ob_clean();
         echo json_encode([

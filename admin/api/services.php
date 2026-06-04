@@ -7,6 +7,7 @@
 
 header('Content-Type: application/json');
 require_once '../../includes/db_connect.php';
+require_once '../../includes/mailer.php';
 
 session_start();
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
@@ -94,9 +95,26 @@ if ($method === 'POST') {
         if (!$id) { echo json_encode(['success' => false, 'message' => 'ID required.']); exit; }
 
         try {
+            // Fetch previous status to detect a status change
+            $prevStmt = $pdo->prepare("SELECT s.status, s.service_name, u.full_name, u.email
+                                       FROM services s JOIN users u ON s.user_id = u.id WHERE s.id = ?");
+            $prevStmt->execute([$id]);
+            $prev = $prevStmt->fetch(PDO::FETCH_ASSOC);
+
             $pdo->prepare(
                 "UPDATE services SET service_name=?, billing_cycle=?, next_due_date=?, status=? WHERE id=?"
             )->execute([$service_name, $billing_cycle, $next_due_date ?: null, $status, $id]);
+
+            // Notify client if status changed
+            if ($prev && $prev['status'] !== $status) {
+                Mailer::serviceStatusChanged(
+                    $prev['full_name'],
+                    $prev['email'],
+                    $service_name ?: $prev['service_name'],
+                    $status
+                );
+            }
+
             echo json_encode(['success' => true, 'message' => 'Subscription updated.']);
         } catch (PDOException $e) {
             echo json_encode(['success' => false, 'message' => 'Update failed.']);

@@ -344,4 +344,6 @@
             <a href="contact.php" class="btn btn-primary">Request Custom Quote</a>
         </div>
       </div>
-    </section>    <?php include 'includes/footer.php'; ?>
+    </section>
+<?php $ctaService = 'Web Development'; include 'includes/service_cta.php'; ?>
+    <?php include 'includes/footer.php'; ?>

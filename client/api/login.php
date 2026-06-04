@@ -46,10 +46,11 @@ try {
         // 3. Verify password
         if (password_verify($password, $user['password'])) {
             // Success! Set session variables
-            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_id']    = $user['id'];
             $_SESSION['user_email'] = $user['email'];
-            $_SESSION['user_name'] = $user['full_name'];
-            $_SESSION['is_client'] = true;
+            $_SESSION['user_name']  = $user['full_name'];
+            $_SESSION['role']       = 'client';
+            $_SESSION['is_client']  = true;
 
             ob_clean();
             echo json_encode([

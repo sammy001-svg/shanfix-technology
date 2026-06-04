@@ -68,13 +68,13 @@
                 <!-- Modern Search Bar -->
                 <div style="position: relative; display: flex; align-items: center;">
                     <i class="fas fa-search" style="position: absolute; left: 1.2rem; color: var(--text-low); font-size: 0.9rem;"></i>
-                    <input type="text" placeholder="Search services..." style="padding: 0.8rem 1.2rem 0.8rem 2.8rem; border-radius: 50px; border: 1px solid var(--border); background: white; width: 260px; font-size: 0.9rem; transition: all 0.3s;" onfocus="this.style.width='320px'; this.style.borderColor='var(--s)'" onblur="this.style.width='260px'; this.style.borderColor='var(--border)'">
+                    <input id="serviceSearchInput" type="text" placeholder="Search services..." style="padding: 0.8rem 1.2rem 0.8rem 2.8rem; border-radius: 50px; border: 1px solid var(--border); background: white; width: 260px; font-size: 0.9rem; transition: all 0.3s;" onfocus="this.style.width='320px'; this.style.borderColor='var(--s)'" onblur="this.style.width='260px'; this.style.borderColor='var(--border)'">
                 </div>
 
                 <!-- Notifications -->
-                <div style="position: relative; cursor: pointer; width: 44px; height: 44px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
+                <div id="notificationBell" style="position: relative; cursor: pointer; width: 44px; height: 44px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); border: 1px solid var(--border);" title="Notifications">
                     <i class="fas fa-bell" style="color: var(--text-mid);"></i>
-                    <span style="position: absolute; top: 0; right: 0; width: 12px; height: 12px; background: var(--red); border-radius: 50%; border: 2px solid white;"></span>
+                    <span id="notificationBadge" style="display:none; position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; background: var(--red); color: white; font-size: 0.6rem; font-weight: 800; border-radius: 9px; border: 2px solid white; align-items: center; justify-content: center; padding: 0 3px;"></span>
                 </div>
 
                 <div class="user-profile">
@@ -182,8 +182,8 @@
                 <div class="data-card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
                         <h3 class="outfit" style="color: var(--p); margin: 0;">Service Infrastructure</h3>
-                        <button class="portal-btn-primary">
-                            <i class="fas fa-plus"></i> New Subscription
+                        <button class="portal-btn-primary" onclick="switchTab('support'); document.getElementById('ticketSubject').value='New Service Request'; document.getElementById('ticketPriority').value='Medium';">
+                            <i class="fas fa-plus"></i> Request Service
                         </button>
                     </div>
                     <div class="stats-grid" id="servicesGrid">

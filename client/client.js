@@ -55,6 +55,28 @@ document.addEventListener('DOMContentLoaded', () => {
     loadInvoices();
     loadTickets();
     loadServices();
+    loadNotifications();
+
+    // Notification bell click — jump to support tab
+    const bellBtn = document.getElementById('notificationBell');
+    if (bellBtn) {
+        bellBtn.addEventListener('click', () => {
+            switchTab('support');
+            loadNotifications();
+        });
+    }
+
+    // Service search bar
+    const serviceSearch = document.getElementById('serviceSearchInput');
+    if (serviceSearch) {
+        serviceSearch.addEventListener('input', () => {
+            const q = serviceSearch.value.toLowerCase();
+            document.querySelectorAll('#servicesGrid .stat-card').forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(q) ? '' : 'none';
+            });
+        });
+    }
 
     // 6. Profile Update Handler
     const profileForm = document.getElementById('profileForm');
@@ -669,4 +691,27 @@ function _startMpesaPolling() {
             // status === 'pending' → keep polling
         } catch (e) { /* network hiccup — keep polling */ }
     }, 3000);
+}
+
+/**
+ * Notification Bell — loads unread counts and updates the badge
+ */
+async function loadNotifications() {
+    try {
+        const res  = await fetch('api/notifications.php');
+        const data = await res.json();
+        if (!data.success) return;
+
+        const badge = document.getElementById('notificationBadge');
+        const count = data.total;
+
+        if (badge) {
+            if (count > 0) {
+                badge.style.display = 'flex';
+                badge.textContent   = count > 9 ? '9+' : count;
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+    } catch (e) { /* silently fail */ }
 }

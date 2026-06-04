@@ -6,6 +6,7 @@
 
 header('Content-Type: application/json');
 require_once '../../includes/db_connect.php';
+require_once '../../includes/mailer.php';
 
 session_start();
 
@@ -56,6 +57,15 @@ if ($method === 'GET') {
         $result = $stmt->execute([$user_id, $ticket_ref, $subject, $priority, $message]);
 
         if ($result) {
+            // Notify admin of new ticket
+            $adminEmail = $_ENV['ADMIN_EMAIL'] ?? '';
+            if ($adminEmail) {
+                $uStmt = $pdo->prepare("SELECT full_name FROM users WHERE id = ?");
+                $uStmt->execute([$user_id]);
+                $clientName = $uStmt->fetchColumn() ?: 'Client';
+                Mailer::newTicket($adminEmail, $clientName, $ticket_ref, $subject, $priority);
+            }
+
             ob_clean();
             echo json_encode(['success' => true, 'message' => 'Ticket created successfully!', 'ticket_ref' => $ticket_ref]);
         } else {

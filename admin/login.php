@@ -256,6 +256,9 @@
                 <div class="login-footer">
                     <p><i class="fas fa-circle-info"></i> Protected by Shanfix Security Layer</p>
                     <p style="margin-top: 0.5rem; opacity: 0.5;">Access is restricted to authorized personnel only.</p>
+                    <p style="margin-top:1rem;">
+                        <a href="forgot.php" style="color:rgba(255,255,255,0.3); font-size:0.82rem; text-decoration:none;">Forgot password?</a>
+                    </p>
                 </div>
             </form>
 

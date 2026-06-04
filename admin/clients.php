@@ -1,3 +1,9 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    header('Location: login.php'); exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,14 +21,18 @@
             <div class="admin-logo">Shanfix <span>Admin</span></div>
             <nav class="admin-nav">
                 <a href="index.php" class="admin-nav-item"><i class="fas fa-chart-line"></i> <span>Insights</span></a>
-                <a href="clients.php" class="admin-nav-item active"><i class="fas fa-users"></i> <span>Clients</span></a>
+                <a href="clients.php" class="admin-nav-item active">
+                    <i class="fas fa-users"></i> <span>Clients</span>
+                    <span id="sidebarClientBadge" style="display:none; background:#f59e0b; color:#fff; font-size:0.65rem; font-weight:800; padding:2px 6px; border-radius:20px; margin-left:auto;"></span>
+                </a>
                 <a href="categories.php" class="admin-nav-item"><i class="fas fa-tags"></i> <span>Categories</span></a>
                 <a href="services.php" class="admin-nav-item"><i class="fas fa-concierge-bell"></i> <span>Services</span></a>
                 <a href="products.php" class="admin-nav-item"><i class="fas fa-box"></i> <span>Catalog</span></a>
                 <a href="orders.php" class="admin-nav-item"><i class="fas fa-shopping-bag"></i> <span>Orders</span></a>
                 <a href="invoices.php" class="admin-nav-item"><i class="fas fa-file-invoice"></i> <span>Billing</span></a>
                 <a href="receipts.php" class="admin-nav-item"><i class="fas fa-receipt"></i> <span>Receipts</span></a>
-                <a href="adverts.php" class="admin-nav-item"><i class="fas fa-ad"></i> <span>Adverts</span></a>
+                <a href="portfolio.php" class="admin-nav-item"><i class="fas fa-briefcase"></i> <span>Portfolio</span></a>
+            <a href="adverts.php" class="admin-nav-item"><i class="fas fa-ad"></i> <span>Adverts</span></a>
                 <a href="tickets.php" class="admin-nav-item"><i class="fas fa-life-ring"></i> <span>Support</span></a>
                 <a href="messages.php" class="admin-nav-item">
                     <i class="fas fa-inbox"></i> <span>Inbox</span>

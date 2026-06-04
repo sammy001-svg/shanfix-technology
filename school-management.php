@@ -201,4 +201,5 @@
     </section>
 </main>
 
+<?php $ctaService = 'School Management System'; include 'includes/service_cta.php'; ?>
 <?php include 'includes/footer.php'; ?>
