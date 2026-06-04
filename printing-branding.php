@@ -110,7 +110,19 @@
             
             <div class="modal-product-layout">
                 <div class="modal-product-image-side">
-                    <img src="" alt="" id="modalImage">
+                    <!-- Main image display -->
+                    <div class="modal-gallery-main">
+                        <img src="" alt="" id="modalImage">
+                        <button class="gallery-nav-btn gallery-prev" id="galleryPrev" aria-label="Previous image" style="display:none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                        <button class="gallery-nav-btn gallery-next" id="galleryNext" aria-label="Next image" style="display:none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                        </button>
+                        <div class="gallery-counter" id="galleryCounter" style="display:none;"></div>
+                    </div>
+                    <!-- Thumbnail strip -->
+                    <div class="modal-thumbnails" id="modalThumbnails"></div>
                 </div>
                 <div class="modal-product-content-side">
                     <h2 class="modal-product-title" id="modalTitle">Product Name</h2>

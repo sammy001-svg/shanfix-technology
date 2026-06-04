@@ -521,9 +521,10 @@ async function renderCategorizedCatalog() {
                         <div class="product-grid">
                             ${catProducts.map(p => `
                                 <div class="product-card" data-aos="fade-up"
-                                     data-product-name="${p.name}" 
-                                     data-product-price="${p.price}" 
-                                     data-product-image="${p.image_url}"
+                                     data-product-name="${p.name}"
+                                     data-product-price="${p.price}"
+                                     data-product-image="${p.image_url || ''}"
+                                     data-product-images="${encodeURIComponent(JSON.stringify([p.image_url, ...(p.additional_images || [])].filter(Boolean)))}"
                                      data-product-description="${p.description}">
                                     <div class="product-image-wrapper">
                                         <img src="${p.image_url}" alt="${p.name}" class="product-image" onerror="this.src='assets/img/placeholder.png'">
@@ -580,37 +581,138 @@ async function renderCategorizedCatalog() {
     }
 }
 
+// ── Gallery state ────────────────────────────────────────────────────────
+let _galleryImages  = [];
+let _galleryIndex   = 0;
+
+function _setGalleryImage(index) {
+    const modalImage    = document.getElementById('modalImage');
+    const counter       = document.getElementById('galleryCounter');
+    const thumbnails    = document.getElementById('modalThumbnails');
+    if (!modalImage || !_galleryImages.length) return;
+
+    _galleryIndex = (index + _galleryImages.length) % _galleryImages.length;
+    const src = _galleryImages[_galleryIndex];
+
+    // Fade transition
+    modalImage.style.opacity = '0';
+    setTimeout(() => {
+        modalImage.src = src || 'assets/service-placeholder.jpg';
+        modalImage.style.opacity = '1';
+    }, 150);
+
+    // Counter
+    if (counter) {
+        counter.textContent = `${_galleryIndex + 1} / ${_galleryImages.length}`;
+    }
+
+    // Highlight active thumbnail
+    if (thumbnails) {
+        thumbnails.querySelectorAll('.gallery-thumb').forEach((th, i) => {
+            th.classList.toggle('active', i === _galleryIndex);
+        });
+    }
+}
+
+function _buildGallery(images, name) {
+    const modalImage  = document.getElementById('modalImage');
+    const thumbStrip  = document.getElementById('modalThumbnails');
+    const prevBtn     = document.getElementById('galleryPrev');
+    const nextBtn     = document.getElementById('galleryNext');
+    const counter     = document.getElementById('galleryCounter');
+
+    _galleryImages = images.filter(Boolean);
+    _galleryIndex  = 0;
+
+    // Main image
+    if (modalImage) {
+        modalImage.style.transition = 'opacity 0.15s ease';
+        modalImage.src = _galleryImages[0] || 'assets/service-placeholder.jpg';
+        modalImage.alt = name;
+    }
+
+    const hasMultiple = _galleryImages.length > 1;
+
+    // Nav arrows
+    if (prevBtn) prevBtn.style.display = hasMultiple ? 'flex' : 'none';
+    if (nextBtn) nextBtn.style.display = hasMultiple ? 'flex' : 'none';
+    if (counter) {
+        counter.style.display = hasMultiple ? 'block' : 'none';
+        counter.textContent   = `1 / ${_galleryImages.length}`;
+    }
+
+    // Thumbnails
+    if (thumbStrip) {
+        if (hasMultiple) {
+            thumbStrip.innerHTML = _galleryImages.map((src, i) => `
+                <button class="gallery-thumb${i === 0 ? ' active' : ''}"
+                        style="background-image:url('${src || 'assets/service-placeholder.jpg'}')"
+                        data-index="${i}"
+                        aria-label="View image ${i + 1}">
+                </button>
+            `).join('');
+            thumbStrip.querySelectorAll('.gallery-thumb').forEach(th => {
+                th.addEventListener('click', () => _setGalleryImage(parseInt(th.dataset.index)));
+            });
+        } else {
+            thumbStrip.innerHTML = '';
+        }
+    }
+}
+
 function initOrderModalTriggers() {
     const buyBtns = document.querySelectorAll('.open-order-modal');
     buyBtns.forEach(btn => {
         btn.addEventListener('click', function() {
-            const card = this.closest('.product-card');
-            const name = card.dataset.productName;
-            const price = card.dataset.productPrice;
-            const image = card.dataset.productImage;
-            const description = card.dataset.productDescription;
+            const card        = this.closest('.product-card');
+            const name        = card.dataset.productName        || '';
+            const price       = card.dataset.productPrice       || '0';
+            const description = card.dataset.productDescription || '';
+            const orderModal  = document.getElementById('orderModal');
+            const qtyInput    = document.getElementById('qtyInput');
 
-            const modalTitle = document.getElementById('modalTitle');
-            const modalPrice = document.getElementById('modalPrice');
-            const modalImage = document.getElementById('modalImage');
-            const modalDescription = document.getElementById('modalDescription');
-            const orderModal = document.getElementById('orderModal');
-            const qtyInput = document.getElementById('qtyInput');
-
-            if (modalTitle) modalTitle.textContent = name;
-            if (modalPrice) modalPrice.innerHTML = `<span>KES</span> ${price}`;
-            if (modalImage) {
-                modalImage.src = image;
-                modalImage.alt = name;
+            // Decode the images array
+            let images = [];
+            try {
+                images = JSON.parse(decodeURIComponent(card.dataset.productImages || '[]'));
+            } catch (e) {
+                const fallback = card.dataset.productImage;
+                images = fallback ? [fallback] : [];
             }
-            if (modalDescription) modalDescription.textContent = description;
-            
-            if (qtyInput) qtyInput.value = 1;
+            if (!images.length && card.dataset.productImage) {
+                images = [card.dataset.productImage];
+            }
+
+            // Populate text fields
+            const el = id => document.getElementById(id);
+            if (el('modalTitle'))       el('modalTitle').textContent    = name;
+            if (el('modalPrice'))       el('modalPrice').innerHTML      = `<span>KES</span> ${parseFloat(price).toLocaleString()}`;
+            if (el('modalDescription')) el('modalDescription').textContent = description;
+            if (qtyInput)               qtyInput.value = 1;
+
+            // Build image gallery
+            _buildGallery(images, name);
+
+            // Wire prev/next
+            const prevBtn = el('galleryPrev');
+            const nextBtn = el('galleryNext');
+            if (prevBtn) { prevBtn.onclick = () => _setGalleryImage(_galleryIndex - 1); }
+            if (nextBtn) { nextBtn.onclick = () => _setGalleryImage(_galleryIndex + 1); }
+
+            // Open modal
             if (orderModal) {
                 orderModal.classList.add('active');
                 document.body.style.overflow = 'hidden';
             }
         });
+    });
+
+    // Keyboard navigation when modal is open
+    document.addEventListener('keydown', (e) => {
+        const modal = document.getElementById('orderModal');
+        if (!modal || !modal.classList.contains('active') || _galleryImages.length < 2) return;
+        if (e.key === 'ArrowLeft')  _setGalleryImage(_galleryIndex - 1);
+        if (e.key === 'ArrowRight') _setGalleryImage(_galleryIndex + 1);
     });
 }
 

@@ -269,3 +269,110 @@
 .dark-mode .product-price {
     color: var(--brand-green);
 }
+
+/* ── Order Modal Gallery ──────────────────────────────────────────────── */
+
+/* Gallery wrapper keeps the image area as a column: main image → thumbnails */
+.modal-gallery-main {
+    position: relative;
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #f1f5f9;
+    aspect-ratio: 4 / 3;
+}
+
+.modal-gallery-main #modalImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: opacity 0.15s ease;
+}
+
+/* Prev / Next arrow buttons */
+.gallery-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--brand-dark);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+    transition: background 0.2s, transform 0.2s;
+    z-index: 10;
+}
+.gallery-nav-btn:hover {
+    background: var(--brand-green);
+    transform: translateY(-50%) scale(1.1);
+}
+.gallery-prev { left: 10px; }
+.gallery-next { right: 10px; }
+
+/* Image counter pill */
+.gallery-counter {
+    position: absolute;
+    bottom: 10px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    pointer-events: none;
+    letter-spacing: 0.5px;
+}
+
+/* Thumbnail strip */
+.modal-thumbnails {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+.modal-thumbnails::-webkit-scrollbar { height: 4px; }
+.modal-thumbnails::-webkit-scrollbar-track { background: transparent; }
+.modal-thumbnails::-webkit-scrollbar-thumb { background: var(--brand-green); border-radius: 4px; }
+
+.gallery-thumb {
+    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    padding: 0;
+    outline: none;
+}
+.gallery-thumb:hover {
+    border-color: var(--brand-green);
+    transform: scale(1.06);
+}
+.gallery-thumb.active {
+    border-color: var(--brand-green);
+    box-shadow: 0 0 0 3px rgba(89, 224, 10, 0.25);
+    transform: scale(1.06);
+}
+
+/* Keep the modal image side layout consistent */
+.modal-product-image-side {
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 640px) {
+    .gallery-thumb { width: 52px; height: 52px; }
+    .gallery-nav-btn { width: 32px; height: 32px; }
+}
