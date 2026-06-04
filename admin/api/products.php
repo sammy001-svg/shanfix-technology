@@ -69,14 +69,50 @@ try {
             }
         }
 
+        // Auto-add any missing optional columns (handles older databases)
+        $colCheck = $pdo->query(
+            "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'products'
+             AND COLUMN_NAME IN ('image_url', 'features', 'is_featured')"
+        )->fetchAll(PDO::FETCH_COLUMN);
+
+        if (!in_array('image_url', $colCheck)) {
+            $pdo->exec("ALTER TABLE `products` ADD COLUMN `image_url` varchar(255) DEFAULT NULL AFTER `price`");
+            $colCheck[] = 'image_url';
+        }
+        if (!in_array('features', $colCheck)) {
+            $pdo->exec("ALTER TABLE `products` ADD COLUMN `features` text DEFAULT NULL AFTER `description`");
+            $colCheck[] = 'features';
+        }
+        if (!in_array('is_featured', $colCheck)) {
+            $pdo->exec("ALTER TABLE `products` ADD COLUMN `is_featured` tinyint(1) DEFAULT 0 AFTER `image_url`");
+            $colCheck[] = 'is_featured';
+        }
+
+        $hasImg      = in_array('image_url',   $colCheck);
+        $hasFeatures = in_array('features',    $colCheck);
+        $hasFeatured = in_array('is_featured', $colCheck);
+
+        // Build column/value lists dynamically
+        $cols   = ['category_id', 'name', 'description', 'price', 'status'];
+        $vals   = [$category_id,   $name,  $description,  $price,  $status];
+        if ($hasFeatures) { $cols[] = 'features';    $vals[] = $features; }
+        if ($hasImg)      { $cols[] = 'image_url';   $vals[] = $image_url; }
+        if ($hasFeatured) { $cols[] = 'is_featured'; $vals[] = $is_featured; }
+
         if ($action === 'create') {
-            $stmt = $pdo->prepare("INSERT INTO products (category_id, name, description, features, price, image_url, is_featured, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$category_id, $name, $description, $features, $price, $image_url, $is_featured, $status]);
-            $id = $pdo->lastInsertId();
+            $placeholders = implode(', ', array_fill(0, count($cols), '?'));
+            $colList      = implode(', ', $cols);
+            $stmt = $pdo->prepare("INSERT INTO products ($colList) VALUES ($placeholders)");
+            $stmt->execute($vals);
+            $id  = $pdo->lastInsertId();
             $msg = 'Product created successfully.';
         } else {
-            $stmt = $pdo->prepare("UPDATE products SET category_id = ?, name = ?, description = ?, features = ?, price = ?, image_url = ?, is_featured = ?, status = ? WHERE id = ?");
-            $stmt->execute([$category_id, $name, $description, $features, $price, $image_url, $is_featured, $status, $id]);
+            $setParts = array_map(fn($c) => "$c = ?", $cols);
+            $setClause = implode(', ', $setParts);
+            $vals[] = $id;
+            $stmt = $pdo->prepare("UPDATE products SET $setClause WHERE id = ?");
+            $stmt->execute($vals);
             $msg = 'Product updated successfully.';
         }
 

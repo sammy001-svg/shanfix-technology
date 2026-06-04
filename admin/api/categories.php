@@ -56,13 +56,35 @@ try {
             }
         }
 
+        // Check whether image_url column exists (handles databases migrated before the column was added)
+        $hasImageCol = (bool)$pdo->query(
+            "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'categories' AND COLUMN_NAME = 'image_url'"
+        )->fetchColumn();
+
+        if (!$hasImageCol) {
+            // Column missing — add it automatically
+            $pdo->exec("ALTER TABLE `categories` ADD COLUMN `image_url` varchar(255) DEFAULT NULL AFTER `description`");
+            $hasImageCol = true;
+        }
+
         if ($action === 'create') {
-            $stmt = $pdo->prepare("INSERT INTO categories (name, slug, description, image_url) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$name, $slug, $description, $image_url]);
+            if ($hasImageCol) {
+                $stmt = $pdo->prepare("INSERT INTO categories (name, slug, description, image_url) VALUES (?, ?, ?, ?)");
+                $stmt->execute([$name, $slug, $description, $image_url]);
+            } else {
+                $stmt = $pdo->prepare("INSERT INTO categories (name, slug, description) VALUES (?, ?, ?)");
+                $stmt->execute([$name, $slug, $description]);
+            }
             $msg = 'Category added successfully.';
         } else {
-            $stmt = $pdo->prepare("UPDATE categories SET name = ?, slug = ?, description = ?, image_url = ? WHERE id = ?");
-            $stmt->execute([$name, $slug, $description, $image_url, $id]);
+            if ($hasImageCol) {
+                $stmt = $pdo->prepare("UPDATE categories SET name = ?, slug = ?, description = ?, image_url = ? WHERE id = ?");
+                $stmt->execute([$name, $slug, $description, $image_url, $id]);
+            } else {
+                $stmt = $pdo->prepare("UPDATE categories SET name = ?, slug = ?, description = ? WHERE id = ?");
+                $stmt->execute([$name, $slug, $description, $id]);
+            }
             $msg = 'Category updated successfully.';
         }
 
