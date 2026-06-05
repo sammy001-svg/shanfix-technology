@@ -30,7 +30,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
             <a href="receipts.php" class="admin-nav-item"><i class="fas fa-receipt"></i> <span>Receipts</span></a>
             <a href="portfolio.php" class="admin-nav-item"><i class="fas fa-briefcase"></i> <span>Portfolio</span></a>
             <a href="blog.php" class="admin-nav-item active"><i class="fas fa-newspaper"></i> <span>Blog</span></a>
-            <a href="adverts.php" class="admin-nav-item"><i class="fas fa-ad"></i> <span>Adverts</span></a>
+                        <a href="events.php" class="admin-nav-item"><i class="fas fa-ticket-alt"></i> <span>Events</span></a>
+            <a href="testimonials.php" class="admin-nav-item"><i class="fas fa-quote-right"></i> <span>Testimonials</span></a>
+<a href="adverts.php" class="admin-nav-item"><i class="fas fa-ad"></i> <span>Adverts</span></a>
             <a href="tickets.php" class="admin-nav-item"><i class="fas fa-life-ring"></i> <span>Support</span></a>
             <a href="messages.php" class="admin-nav-item">
                 <i class="fas fa-inbox"></i> <span>Inbox</span>

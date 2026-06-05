@@ -365,6 +365,37 @@ class Mailer {
     // Core send + SMTP
     // -------------------------------------------------------------------------
 
+    public static function buildEventConfirmation(string $name, string $eventTitle, string $eventDate, string $venue, string $tickets, string $ref, float $total): string {
+        $totalFmt = $total > 0 ? 'KES ' . number_format($total, 2) : 'FREE';
+        return self::layout("🎟 Booking Confirmed — {$eventTitle}", '
+            <p style="color:#475569; font-size:1rem; line-height:1.7;">
+                Hi <strong>' . htmlspecialchars($name) . '</strong>, your tickets have been confirmed! See you at the event.
+            </p>
+            <div style="background:#f0fdf4; border-radius:12px; padding:24px; margin:24px 0; border-left:4px solid #22c55e;">
+                <table style="width:100%; border-collapse:collapse;">
+                    <tr><td style="padding:8px 0; color:#64748b; font-size:0.9rem; width:130px;">Booking Ref</td>
+                        <td style="padding:8px 0; font-weight:800; color:#166534; font-size:1.1rem;">' . htmlspecialchars($ref) . '</td></tr>
+                    <tr><td style="padding:8px 0; color:#64748b; font-size:0.9rem; border-top:1px solid #bbf7d0;">Event</td>
+                        <td style="padding:8px 0; font-weight:700; border-top:1px solid #bbf7d0;">' . htmlspecialchars($eventTitle) . '</td></tr>
+                    <tr><td style="padding:8px 0; color:#64748b; font-size:0.9rem; border-top:1px solid #bbf7d0;">Date</td>
+                        <td style="padding:8px 0; font-weight:600; border-top:1px solid #bbf7d0;">' . htmlspecialchars($eventDate) . '</td></tr>
+                    ' . ($venue ? '<tr><td style="padding:8px 0; color:#64748b; font-size:0.9rem; border-top:1px solid #bbf7d0;">Venue</td>
+                        <td style="padding:8px 0; border-top:1px solid #bbf7d0;">' . htmlspecialchars($venue) . '</td></tr>' : '') . '
+                    <tr><td style="padding:8px 0; color:#64748b; font-size:0.9rem; border-top:1px solid #bbf7d0;">Tickets</td>
+                        <td style="padding:8px 0; border-top:1px solid #bbf7d0;">' . htmlspecialchars($tickets) . '</td></tr>
+                    <tr><td style="padding:8px 0; color:#64748b; font-size:0.9rem; border-top:1px solid #bbf7d0;">Total Paid</td>
+                        <td style="padding:8px 0; font-weight:800; color:#16a34a; font-size:1.1rem; border-top:1px solid #bbf7d0;">' . $totalFmt . '</td></tr>
+                </table>
+            </div>
+            <div style="background:#fef3c7; border-radius:10px; padding:14px 18px; margin:0 0 20px; border-left:4px solid #f59e0b;">
+                <p style="margin:0; color:#92400e; font-size:0.875rem;">
+                    <strong>Your entry code is: ' . htmlspecialchars($ref) . '</strong><br>
+                    Present this code at the entrance for verification.
+                </p>
+            </div>
+        ', 'View Event Details', ($_ENV['APP_URL'] ?? 'https://shanfixtechnology.com') . '/event-ticketing.php');
+    }
+
     public static function send(string $to, string $subject, string $html): bool {
         $cfg = self::cfg();
         if (!empty($cfg['host']) && !empty($cfg['user']) && !empty($cfg['pass'])) {

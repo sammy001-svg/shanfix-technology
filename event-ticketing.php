@@ -229,5 +229,57 @@ include 'includes/header.php'; ?>
         </div>
       </div>
     </section>
+    <!-- Live Events Section -->
+    <section id="events" style="padding:80px 0; background:#f8fafc;">
+        <div class="container">
+            <div class="section-header text-center mb-12" data-aos="fade-up">
+                <h2 class="section-title">Upcoming Events</h2>
+                <p class="section-subtitle">Browse and purchase tickets for events powered by Shanfix Technology</p>
+            </div>
+            <div id="eventsGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:28px;">
+                <div style="grid-column:1/-1; text-align:center; padding:40px; color:#94a3b8;">
+                    <i class="fas fa-circle-notch fa-spin fa-2x" style="margin-bottom:12px; display:block;"></i>
+                    Loading events…
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+    (function(){
+        fetch('api/events.php')
+            .then(function(r){return r.json();})
+            .then(function(data){
+                var grid = document.getElementById('eventsGrid');
+                if (!data.success || !data.events || data.events.length === 0) {
+                    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:60px 20px;"><i class="fas fa-calendar-times" style="font-size:3rem; color:#d1d5db; margin-bottom:16px; display:block;"></i><h3 style="color:#6b7280; font-weight:600;">No upcoming events right now</h3><p style="color:#9ca3af;">Check back soon or contact us to host your event.</p><a href="contact.php" class="btn btn-primary" style="margin-top:16px;">Plan an Event with Us</a></div>';
+                    return;
+                }
+                grid.innerHTML = data.events.map(function(ev){
+                    var date = new Date(ev.event_date);
+                    var dateStr = date.toLocaleDateString('en-KE', {day:'numeric', month:'short', year:'numeric'});
+                    var timeStr = date.toLocaleTimeString('en-KE', {hour:'2-digit', minute:'2-digit'});
+                    var priceStr = ev.min_price == 0 ? 'Free' : 'From KES ' + parseFloat(ev.min_price).toLocaleString();
+                    var img = ev.image_url ? '<img src="'+ev.image_url+'" alt="'+ev.title+'" style="width:100%;height:100%;object-fit:cover;">' : '<div style="height:100%;background:linear-gradient(135deg,#0f172a,#1e293b);display:flex;align-items:center;justify-content:center;"><i class="fas fa-calendar-star" style="font-size:3rem;color:rgba(255,255,255,0.2);"></i></div>';
+                    var featBadge = ev.is_featured ? '<span style="position:absolute;top:12px;left:12px;background:#f59e0b;color:#fff;font-size:0.7rem;font-weight:800;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:1px;">Featured</span>' : '';
+                    return '<div class="feature-card" style="padding:0;overflow:hidden;border-radius:20px;border:1px solid #e9ecef;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,0.06);">'
+                        + '<div style="height:180px;position:relative;overflow:hidden;">'+img+featBadge+'</div>'
+                        + '<div style="padding:20px;">'
+                        + '<h3 style="font-size:1.05rem;font-weight:800;color:#1e293b;margin:0 0 10px;">'+ev.title+'</h3>'
+                        + '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">'
+                        + '<span style="font-size:0.82rem;color:#64748b;"><i class="fas fa-calendar-alt" style="color:#22c55e;margin-right:6px;"></i>'+dateStr+' · '+timeStr+'</span>'
+                        + (ev.venue ? '<span style="font-size:0.82rem;color:#64748b;"><i class="fas fa-map-marker-alt" style="color:#22c55e;margin-right:6px;"></i>'+ev.venue+'</span>' : '')
+                        + '</div>'
+                        + '<div style="display:flex;align-items:center;justify-content:space-between;">'
+                        + '<span style="font-weight:800;color:#16a34a;font-size:1rem;">'+priceStr+'</span>'
+                        + '<a href="event-book.php?id='+ev.id+'" class="btn btn-primary" style="padding:10px 20px;font-size:0.85rem;">Buy Tickets</a>'
+                        + '</div>'
+                        + '</div></div>';
+                }).join('');
+            })
+            .catch(function(){ document.getElementById('eventsGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#94a3b8;padding:40px;">Could not load events. Please refresh the page.</div>'; });
+    })();
+    </script>
+
 <?php $ctaService = 'Event Ticketing'; include 'includes/service_cta.php'; ?>
 <?php include 'includes/footer.php'; ?>

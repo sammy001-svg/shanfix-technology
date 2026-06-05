@@ -434,6 +434,66 @@ include 'includes/header.php'; ?>
     </section>
     <?php endif; ?>
 
+    <?php if (!empty($testimonials)): ?>
+    <!-- Testimonials Section -->
+    <section class="testimonials-section" style="padding:80px 0; background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%); overflow:hidden;">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up" style="margin-bottom:48px;">
+                <h2 class="section-title" style="color:#fff;">What Our <span class="highlight">Clients Say</span></h2>
+                <p class="section-subtitle" style="color:rgba(255,255,255,0.65);">Trusted by businesses and organisations across Kenya</p>
+            </div>
+            <div class="testimonials-track-wrapper" style="position:relative; overflow:hidden;">
+                <div class="testimonials-track" id="testimonialsTrack" style="display:flex; gap:28px; transition:transform 0.5s cubic-bezier(0.4,0,0.2,1); will-change:transform;">
+                    <?php foreach ($testimonials as $t): ?>
+                    <div class="testimonial-card" style="flex:0 0 calc(33.333% - 19px); min-width:0; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:32px; backdrop-filter:blur(12px); display:flex; flex-direction:column; gap:16px;">
+                        <!-- Stars -->
+                        <div style="display:flex; gap:4px;">
+                            <?php for ($s = 1; $s <= 5; $s++): ?>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="<?= $s <= (int)($t['rating'] ?? 5) ? '#f59e0b' : 'rgba(255,255,255,0.2)' ?>"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <?php endfor; ?>
+                        </div>
+                        <!-- Quote -->
+                        <p style="color:rgba(255,255,255,0.85); line-height:1.75; font-size:0.95rem; flex:1; margin:0;">"<?= htmlspecialchars($t['quote']) ?>"</p>
+                        <!-- Author -->
+                        <div style="display:flex; align-items:center; gap:14px; border-top:1px solid rgba(255,255,255,0.08); padding-top:16px;">
+                            <div style="width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,#22c55e,#16a34a); display:flex; align-items:center; justify-content:center; font-weight:800; color:#fff; font-size:1rem; flex-shrink:0;">
+                                <?= strtoupper(substr($t['author'], 0, 1)) ?>
+                            </div>
+                            <div>
+                                <div style="font-weight:700; color:#fff; font-size:0.9rem;"><?= htmlspecialchars($t['author']) ?></div>
+                                <div style="font-size:0.78rem; color:rgba(255,255,255,0.5);"><?= htmlspecialchars(trim(($t['role'] ?? '') . ($t['company'] ? ' · ' . $t['company'] : ''), ' ·')) ?></div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php if (count($testimonials) > 3): ?>
+            <div style="display:flex; justify-content:center; gap:12px; margin-top:32px;" id="testimDots">
+                <?php $pages = ceil(count($testimonials) / 3); for ($p = 0; $p < $pages; $p++): ?>
+                <button onclick="testimGoTo(<?= $p ?>)" style="width:<?= $p === 0 ? '28px' : '8px' ?>; height:8px; border-radius:4px; border:none; background:<?= $p === 0 ? '#22c55e' : 'rgba(255,255,255,0.2)' ?>; cursor:pointer; transition:all 0.3s; padding:0;" id="testimDot<?= $p ?>"></button>
+                <?php endfor; ?>
+            </div>
+            <script>
+            var _tIdx=0, _tCards=<?= count($testimonials) ?>, _tPerPage=window.innerWidth<768?1:window.innerWidth<1024?2:3;
+            function testimGoTo(i){
+                _tIdx=i;
+                var w=document.querySelector('.testimonial-card')?.offsetWidth||300;
+                var gap=28;
+                document.getElementById('testimonialsTrack').style.transform='translateX(-'+(i*_tPerPage*(w+gap))+'px)';
+                document.querySelectorAll('[id^=testimDot]').forEach(function(d,j){
+                    d.style.width=j===i?'28px':'8px';
+                    d.style.background=j===i?'#22c55e':'rgba(255,255,255,0.2)';
+                });
+            }
+            setInterval(function(){testimGoTo((_tIdx+1)%Math.ceil(_tCards/_tPerPage));},5000);
+            window.addEventListener('resize',function(){_tPerPage=window.innerWidth<768?1:window.innerWidth<1024?2:3;});
+            </script>
+            <?php endif; ?>
+        </div>
+    </section>
+    <?php endif; ?>
+
     <?php include 'includes/footer.php'; ?>
 
 

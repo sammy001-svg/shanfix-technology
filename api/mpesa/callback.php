@@ -45,6 +45,49 @@ if (!$txn) {
 }
 
 try {
+    // ── Check event booking ───────────────────────────────────────────────────
+    if (!$txn) {
+        try {
+            $evStmt = $pdo->prepare("
+                SELECT eb.id, eb.buyer_name, eb.buyer_email, eb.buyer_phone, eb.total_amount, eb.reference,
+                       e.title as event_title, e.event_date, e.venue
+                FROM event_bookings eb
+                JOIN events e ON eb.event_id = e.id
+                WHERE eb.checkout_request_id = ?
+            ");
+            $evStmt->execute([$checkoutRequestId]);
+            $evBooking = $evStmt->fetch(PDO::FETCH_ASSOC);
+        } catch (Exception $e) { $evBooking = null; }
+
+        if ($evBooking) {
+            if ($resultCode === 0) {
+                $meta    = $callback['CallbackMetadata']['Item'] ?? [];
+                $receipt = '';
+                foreach ($meta as $item) {
+                    if (($item['Name'] ?? '') === 'MpesaReceiptNumber') $receipt = $item['Value'] ?? '';
+                }
+                $pdo->prepare("UPDATE event_bookings SET payment_status='paid', mpesa_receipt=? WHERE id=?")
+                    ->execute([$receipt, $evBooking['id']]);
+
+                // Send confirmation email
+                $lineItems = $pdo->prepare("SELECT ticket_type_name as name, quantity as qty FROM event_booking_tickets WHERE booking_id=?");
+                $lineItems->execute([$evBooking['id']]);
+                $items = $lineItems->fetchAll(PDO::FETCH_ASSOC);
+                $ticketStr = implode(', ', array_map(fn($l) => "{$l['name']} ×{$l['qty']}", $items));
+                $eventDate = date('d M Y, H:i', strtotime($evBooking['event_date']));
+                Mailer::send($evBooking['buyer_email'],
+                    "Tickets Confirmed — {$evBooking['event_title']}",
+                    Mailer::buildEventConfirmation($evBooking['buyer_name'], $evBooking['event_title'], $eventDate, $evBooking['venue'] ?? '', $ticketStr, $evBooking['reference'], (float)$evBooking['total_amount'])
+                );
+            } else {
+                $pdo->prepare("UPDATE event_bookings SET payment_status='failed' WHERE id=?")->execute([$evBooking['id']]);
+            }
+            http_response_code(200);
+            echo json_encode(['ResultCode' => 0, 'ResultDesc' => 'Accepted']);
+            exit;
+        }
+    }
+
     if ($resultCode === 0) {
         // ── Payment successful ────────────────────────────────────────────
         $meta    = $callback['CallbackMetadata']['Item'] ?? [];
