@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header('Location: login.php');
@@ -36,6 +36,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
             <a href="tickets.php" class="admin-nav-item"><i class="fas fa-life-ring"></i> <span>Support</span></a>
             <a href="messages.php" class="admin-nav-item"><i class="fas fa-inbox"></i> <span>Inbox</span><span id="sidebarMsgBadge" style="display:none; background:#ef4444; color:#fff; font-size:0.65rem; font-weight:800; padding:2px 6px; border-radius:20px; margin-left:auto;"></span></a>
             <div class="admin-nav-divider"></div>
+            <a href="settings.php" class="admin-nav-item"><i class="fas fa-cog"></i> <span>Settings</span></a>
             <a href="../index.php" class="admin-nav-item"><i class="fas fa-external-link-alt"></i> <span>Live Site</span></a>
         </nav>
         <div class="admin-sidebar-footer">

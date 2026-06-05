@@ -263,14 +263,154 @@
     </div>
 
     <script src="./main.js"></script>
-    <!-- PWA Service Worker -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .catch(() => {});
-        });
+
+    <!-- PWA Install Banner -->
+    <div id="pwaInstallBanner" style="display:none;" role="dialog" aria-label="Install Shanfix app">
+      <div class="pwa-banner-icon">
+        <img src="/assets/icons/icon-192x192.png" alt="Shanfix" width="48" height="48">
+      </div>
+      <div class="pwa-banner-text">
+        <strong>Install Shanfix App</strong>
+        <span>Add to home screen for quick access, even offline.</span>
+      </div>
+      <div class="pwa-banner-actions">
+        <button id="pwaInstallBtn" class="pwa-btn-install">Install</button>
+        <button id="pwaDismissBtn" class="pwa-btn-dismiss" aria-label="Dismiss">&#x2715;</button>
+      </div>
+    </div>
+
+    <style>
+      #pwaInstallBanner {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(120px);
+        z-index: 99999;
+        background: #1e293b;
+        border: 1px solid rgba(34,197,94,0.35);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(34,197,94,0.12);
+        padding: 14px 18px;
+        display: flex !important;
+        align-items: center;
+        gap: 14px;
+        max-width: 420px;
+        width: calc(100vw - 32px);
+        transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s ease;
+        opacity: 0;
       }
+      #pwaInstallBanner.pwa-visible {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+      }
+      .pwa-banner-icon img { border-radius: 10px; flex-shrink: 0; }
+      .pwa-banner-text { flex: 1; min-width: 0; }
+      .pwa-banner-text strong { display: block; color: #f1f5f9; font-size: 0.95rem; font-weight: 700; font-family: 'Outfit', sans-serif; }
+      .pwa-banner-text span { display: block; color: #94a3b8; font-size: 0.8rem; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .pwa-banner-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+      .pwa-btn-install {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 18px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: opacity 0.2s;
+        white-space: nowrap;
+      }
+      .pwa-btn-install:hover { opacity: 0.88; }
+      .pwa-btn-dismiss {
+        background: none;
+        border: none;
+        color: #64748b;
+        font-size: 1.1rem;
+        cursor: pointer;
+        padding: 4px 6px;
+        border-radius: 6px;
+        transition: color 0.2s;
+        line-height: 1;
+      }
+      .pwa-btn-dismiss:hover { color: #f1f5f9; }
+      @media (max-width: 480px) {
+        #pwaInstallBanner { bottom: 16px; padding: 12px 14px; gap: 10px; }
+        .pwa-banner-text span { display: none; }
+      }
+    </style>
+
+    <!-- PWA Service Worker + Install Prompt -->
+    <script>
+      (function () {
+        var DISMISS_KEY = 'pwa_banner_dismissed';
+        var DISMISS_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
+        var deferredPrompt = null;
+        var banner = document.getElementById('pwaInstallBanner');
+        var installBtn = document.getElementById('pwaInstallBtn');
+        var dismissBtn = document.getElementById('pwaDismissBtn');
+
+        function isDismissed() {
+          var ts = localStorage.getItem(DISMISS_KEY);
+          return ts && (Date.now() - parseInt(ts, 10)) < DISMISS_TTL;
+        }
+        function showBanner() {
+          if (!banner || isDismissed()) return;
+          banner.style.display = 'flex';
+          setTimeout(function () { banner.classList.add('pwa-visible'); }, 50);
+        }
+        function hideBanner() {
+          banner.classList.remove('pwa-visible');
+          setTimeout(function () { banner.style.display = 'none'; }, 400);
+        }
+
+        // Capture the install prompt
+        window.addEventListener('beforeinstallprompt', function (e) {
+          e.preventDefault();
+          deferredPrompt = e;
+          setTimeout(showBanner, 4000); // show after 4 s
+        });
+
+        // iOS Safari fallback: show banner if standalone not already
+        if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !window.navigator.standalone) {
+          setTimeout(showBanner, 4000);
+          if (installBtn) {
+            installBtn.textContent = 'How to Install';
+            installBtn.addEventListener('click', function () {
+              alert('To install: tap the Share button 📤 in Safari, then tap “Add to Home Screen”.');
+              localStorage.setItem(DISMISS_KEY, Date.now());
+              hideBanner();
+            });
+          }
+        }
+
+        if (installBtn) {
+          installBtn.addEventListener('click', function () {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(function (choice) {
+              deferredPrompt = null;
+              localStorage.setItem(DISMISS_KEY, Date.now());
+              hideBanner();
+            });
+          });
+        }
+        if (dismissBtn) {
+          dismissBtn.addEventListener('click', function () {
+            localStorage.setItem(DISMISS_KEY, Date.now());
+            hideBanner();
+          });
+        }
+
+        // Hide once already installed
+        window.addEventListener('appinstalled', function () { hideBanner(); });
+
+        // Service Worker
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', function () {
+            navigator.serviceWorker.register('/sw.js').catch(function () {});
+          });
+        }
+      })();
     </script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
