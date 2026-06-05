@@ -691,4 +691,11 @@
 @media (max-width: 480px) {
     .mv-grid { grid-template-columns: 1fr; }
     .who-hero-actions { flex-direction: column; align-items: center; }
+
+    /* Timeline — ensure no overflow on smallest screens */
+    .timeline-item { padding: 0 10px; }
+    .timeline-card { padding: 16px 14px; }
+
+    /* Team grid avatar/text scaling */
+    .team-grid { gap: 16px; }
 }

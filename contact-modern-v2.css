@@ -279,3 +279,10 @@
     .v2-form-title { font-size: 2rem; }
     .contact-master-container { margin-top: -50px; }
 }
+
+@media (max-width: 480px) {
+    .contact-v2-info { padding: 24px 16px; }
+    .contact-v2-form-area { padding: 24px 16px; }
+    .v2-form-title { font-size: 1.6rem; }
+    .contact-master-container { margin-top: -20px; }
+}

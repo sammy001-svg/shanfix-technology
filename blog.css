@@ -320,3 +320,12 @@
     .blog-grid { grid-template-columns: 1fr; }
     .blog-card.featured { grid-column: auto; }
 }
+
+@media (max-width: 480px) {
+    .blog-hero { padding: 60px 0 40px; }
+    .blog-container { padding: 30px 1rem; }
+    .blog-card.featured .blog-card-body { padding: 20px; }
+    .blog-card.featured .blog-card-title { font-size: 1.2rem; }
+    .related-posts { padding: 0 1rem 40px; }
+    .blog-hero h1 { font-size: 1.8rem; }
+}
