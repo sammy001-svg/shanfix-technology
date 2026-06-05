@@ -228,7 +228,7 @@
                             <p class="text-low" style="text-align:center; padding:20px;">Loading...</p>
                         </div>
                         <div style="margin-top:16px; border-top:1px solid var(--glass-border); padding-top:16px;">
-                            <button class="admin-btn admin-btn-secondary" style="width:100%;" onclick="sendRenewalReminders()">
+                            <button id="sendRenewalsBtn" class="admin-btn admin-btn-secondary" style="width:100%;" onclick="sendRenewalReminders()">
                                 <i class="fas fa-bell"></i> Send Renewal Reminders
                             </button>
                         </div>

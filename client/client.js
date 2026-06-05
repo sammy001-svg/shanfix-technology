@@ -633,7 +633,7 @@ window.initiateMpesa = async function() {
     errBox.style.display = 'none';
 
     try {
-        const res  = await fetch('api/mpesa/initiate.php', {
+        const res  = await fetch('../api/mpesa/initiate.php', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
             body:    JSON.stringify({ invoice_ref: invoiceRef, phone })
@@ -672,7 +672,7 @@ function _startMpesaPolling() {
         }
 
         try {
-            const res  = await fetch(`api/mpesa/status.php?id=${_mpesaTransactionId}`);
+            const res  = await fetch(`../api/mpesa/status.php?id=${_mpesaTransactionId}`);
             const data = await res.json();
             if (!data.success) return; // keep polling
 
@@ -713,5 +713,68 @@ async function loadNotifications() {
                 badge.style.display = 'none';
             }
         }
+
+        // Show expiring service banners in the services tab
+        _renderExpiringServiceBanners(data.expiring_services || []);
+
+        // Show unpaid invoice alert banner on dashboard
+        if (data.unpaid_invoices > 0) {
+            const dashTab = document.getElementById('tab-dashboard');
+            const existing = document.getElementById('unpaidAlertBanner');
+            if (dashTab && !existing) {
+                const banner = document.createElement('div');
+                banner.id = 'unpaidAlertBanner';
+                banner.style.cssText = 'background:linear-gradient(135deg,#fef3c7,#fde68a);border:1px solid #f59e0b;border-radius:12px;padding:12px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px;';
+                banner.innerHTML = `
+                    <i class="fas fa-exclamation-circle" style="color:#d97706; font-size:1.2rem; flex-shrink:0;"></i>
+                    <span style="color:#92400e; font-size:0.875rem; font-weight:600;">
+                        You have <strong>${data.unpaid_invoices}</strong> unpaid invoice${data.unpaid_invoices > 1 ? 's' : ''}.
+                    </span>
+                    <button onclick="switchTab('billing')" style="margin-left:auto; background:#f59e0b; color:#fff; border:none; border-radius:8px; padding:6px 14px; font-size:0.8rem; font-weight:700; cursor:pointer;">
+                        Pay Now
+                    </button>`;
+                dashTab.insertBefore(banner, dashTab.firstChild);
+            }
+        }
     } catch (e) { /* silently fail */ }
+}
+
+function _renderExpiringServiceBanners(expiring) {
+    const svcTab = document.getElementById('tab-services');
+    if (!svcTab) return;
+    const existing = document.getElementById('expiringBannerContainer');
+    if (existing) existing.remove();
+    if (!expiring || expiring.length === 0) return;
+
+    const container = document.createElement('div');
+    container.id = 'expiringBannerContainer';
+    container.style.cssText = 'margin-bottom:20px;';
+
+    expiring.forEach(svc => {
+        const due = new Date(svc.next_due_date);
+        const daysLeft = Math.ceil((due - new Date()) / 86400000);
+        const isUrgent = daysLeft <= 3;
+        const price = svc.price ? `KES ${parseFloat(svc.price).toLocaleString()}` : '';
+        const banner = document.createElement('div');
+        banner.style.cssText = `background:${isUrgent ? 'linear-gradient(135deg,#fef2f2,#fee2e2)' : 'linear-gradient(135deg,#fff7ed,#fde68a22)'};
+            border:1px solid ${isUrgent ? '#ef4444' : '#f59e0b'};border-radius:12px;padding:12px 18px;
+            margin-bottom:10px;display:flex;align-items:center;gap:12px;`;
+        banner.innerHTML = `
+            <i class="fas fa-clock" style="color:${isUrgent ? '#dc2626' : '#d97706'}; font-size:1.1rem; flex-shrink:0;"></i>
+            <div style="flex:1; min-width:0;">
+                <div style="font-weight:700; font-size:0.875rem; color:${isUrgent ? '#991b1b' : '#92400e'};">
+                    ${svc.service_name}
+                </div>
+                <div style="font-size:0.78rem; color:${isUrgent ? '#b91c1c' : '#a16207'};">
+                    Expires in <strong>${daysLeft} day${daysLeft !== 1 ? 's' : ''}</strong> — ${due.toLocaleDateString('en-KE', {day:'numeric',month:'short',year:'numeric'})}
+                    ${price ? ` &bull; Renewal: ${price}` : ''}
+                </div>
+            </div>
+            <button onclick="switchTab('billing')" style="background:${isUrgent ? '#dc2626' : '#f59e0b'};color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:0.78rem;font-weight:700;cursor:pointer;flex-shrink:0;">
+                Renew
+            </button>`;
+        container.appendChild(banner);
+    });
+
+    svcTab.insertBefore(container, svcTab.firstChild);
 }

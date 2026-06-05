@@ -14,6 +14,7 @@ Disallow: /migrate.php
 Disallow: /migrate_users.php
 Disallow: /scratch/
 Disallow: /python/
+Disallow: /api/cron-renewals.php
 
 # Link to sitemap
 Sitemap: https://shanfixtechnology.com/sitemap.php

@@ -1076,6 +1076,38 @@ function _renderDashboardStats(invoices, analytics) {
         collEl.className = `stat-trend ${collectionRate >= 80 ? 'text-success' : collectionRate >= 50 ? 'text-low' : 'text-danger'}`;
     }
 
+    // Supplement with server-side revenue stats when available
+    if (analytics && analytics.success) {
+        if (analytics.total_revenue !== undefined) {
+            const yrEl = document.getElementById('stat_yearly_sales');
+            if (yrEl) yrEl.textContent = `KES ${analytics.total_revenue.toLocaleString()}`;
+        }
+        if (analytics.month_revenue !== undefined) {
+            const moEl = document.getElementById('stat_monthly_sales');
+            if (moEl) moEl.textContent = `KES ${analytics.month_revenue.toLocaleString()}`;
+            const moTrend = document.getElementById('trend_monthly');
+            if (moTrend && analytics.prev_month_revenue > 0) {
+                const pct = ((analytics.month_revenue - analytics.prev_month_revenue) / analytics.prev_month_revenue * 100).toFixed(1);
+                const up  = pct >= 0;
+                moTrend.innerHTML = `<i class="fas fa-arrow-${up ? 'up' : 'down'}"></i> ${Math.abs(pct)}% vs last month`;
+                moTrend.className = `stat-trend ${up ? 'text-success' : 'text-danger'}`;
+            }
+        }
+        if (analytics.outstanding !== undefined) {
+            const outEl = document.getElementById('stat_pending_balances');
+            if (outEl) outEl.textContent = `KES ${analytics.outstanding.toLocaleString()}`;
+        }
+        if (analytics.collection_rate !== undefined) {
+            const crEl = document.getElementById('stat_collection_rate');
+            if (crEl) crEl.textContent = `${analytics.collection_rate}%`;
+            const crTrend = document.getElementById('trend_collection');
+            if (crTrend) {
+                crTrend.textContent = `${analytics.paid_invoices} of ${analytics.total_invoices} invoices paid`;
+                crTrend.className   = `stat-trend ${analytics.collection_rate >= 80 ? 'text-success' : analytics.collection_rate >= 50 ? 'text-low' : 'text-danger'}`;
+            }
+        }
+    }
+
     // New analytics cards
     if (analytics && analytics.success) {
         const clientEl = document.getElementById('stat_total_clients');
@@ -1166,6 +1198,12 @@ function _renderDashboardCharts(invoices, orders, tickets, analytics) {
 
     const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
+    // Server-side revenue map (period → revenue) — preferred over client-side computation
+    const serverRevenueMap = {};
+    if (analytics && analytics.success && analytics.revenue_by_month) {
+        analytics.revenue_by_month.forEach(r => { serverRevenueMap[r.period] = parseFloat(r.revenue); });
+    }
+
     // --- Revenue trend chart (re-renderable) ---
     let revenueChart = null;
 
@@ -1175,13 +1213,17 @@ function _renderDashboardCharts(invoices, orders, tickets, analytics) {
         for (let i = numMonths - 1; i >= 0; i--) {
             const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
             labels.push(MONTH_NAMES[d.getMonth()]);
-            data.push(invoices
+            const periodKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            // Prefer server-side data; fall back to client-side computation from invoices
+            const serverVal = serverRevenueMap[periodKey];
+            const val = serverVal !== undefined ? serverVal : invoices
                 .filter(inv => {
                     const id = new Date(inv.created_at);
-                    return id.getMonth() === d.getMonth() && id.getFullYear() === d.getFullYear();
+                    return id.getMonth() === d.getMonth() && id.getFullYear() === d.getFullYear()
+                           && inv.status && inv.status.toLowerCase() === 'paid';
                 })
-                .reduce((sum, inv) => sum + parseFloat(inv.amount), 0)
-            );
+                .reduce((sum, inv) => sum + parseFloat(inv.amount || 0), 0);
+            data.push(val);
         }
 
         if (revenueChart) revenueChart.destroy();

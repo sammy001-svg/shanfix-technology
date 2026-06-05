@@ -17,10 +17,12 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 try {
     if ($method === 'GET') {
-        $stmt = $pdo->query("SELECT i.*, u.full_name as reg_client_name, u.email as reg_client_email 
-                             FROM invoices i 
-                             LEFT JOIN users u ON i.user_id = u.id 
-                             ORDER BY i.created_at DESC");
+        $stmt = $pdo->query("SELECT i.*,
+                                    COALESCE(i.created_at, i.issue_date, NOW()) as created_at,
+                                    u.full_name as reg_client_name, u.email as reg_client_email
+                             FROM invoices i
+                             LEFT JOIN users u ON i.user_id = u.id
+                             ORDER BY COALESCE(i.created_at, i.issue_date) DESC");
         $invoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         // Fetch items for each invoice
