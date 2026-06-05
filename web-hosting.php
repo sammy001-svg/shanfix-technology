@@ -4,6 +4,7 @@ $pageSEO = [
     'description' => 'Reliable and affordable web hosting in Kenya. Shared, VPS, and dedicated hosting with 99.9% uptime guarantee from Shanfix Technology Nairobi.',
     'keywords'    => 'web hosting Kenya, domain registration, VPS hosting Nairobi, cloud hosting',
     'canonical'   => 'https://shanfixtechnology.com/web-hosting.php',
+    'json_ld'     => '{"@context":"https://schema.org","@type":"Service","name":"Web Hosting","description":"Reliable and affordable web hosting in Kenya. Shared, VPS, and dedicated servers with 99.9% uptime.","provider":{"@type":"LocalBusiness","name":"Shanfix Technology","url":"https://shanfixtechnology.com/"},"areaServed":{"@type":"Country","name":"Kenya"},"url":"https://shanfixtechnology.com/web-hosting.php"}',
 ];
 include 'includes/header.php'; ?>
 

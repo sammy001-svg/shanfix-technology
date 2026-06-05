@@ -4,6 +4,7 @@ $pageSEO = [
     'description' => 'Comprehensive business ERP in Kenya. Manage finance, inventory, HR, procurement, and operations in one integrated system by Shanfix Technology.',
     'keywords'    => 'ERP solutions Kenya, business ERP Nairobi, enterprise software, inventory management',
     'canonical'   => 'https://shanfixtechnology.com/erp-solution.php',
+    'json_ld'     => '{"@context":"https://schema.org","@type":"Service","name":"Business ERP","description":"Comprehensive ERP system in Kenya — finance, inventory, HR, and procurement in one platform.","provider":{"@type":"LocalBusiness","name":"Shanfix Technology","url":"https://shanfixtechnology.com/"},"areaServed":{"@type":"Country","name":"Kenya"},"url":"https://shanfixtechnology.com/erp-solution.php"}',
 ];
 include 'includes/header.php'; ?>
 <link rel="stylesheet" href="erp-modern.css">

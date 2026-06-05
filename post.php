@@ -39,8 +39,39 @@ $dateStr   = $post['published_at'] ? date('d F Y', strtotime($post['published_at
 $readTime  = max(1, (int)ceil(str_word_count(strip_tags($post['content'])) / 200));
 $initial   = strtoupper(substr($post['author_name'] ?? 'S', 0, 1));
 
-// Dynamic page title for SEO
-$pageTitle = htmlspecialchars($post['title']) . ' — Shanfix Technology';
+$_postUrl    = 'https://shanfixtechnology.com/post.php?slug=' . urlencode($post['slug']);
+$_postImage  = !empty($post['featured_image']) ? $post['featured_image'] : 'https://shanfixtechnology.com/assets/og-image.png';
+$_postExcerpt = !empty($post['excerpt']) ? $post['excerpt'] : strip_tags(mb_substr($post['content'], 0, 160));
+$_published  = $post['published_at'] ? date('c', strtotime($post['published_at'])) : '';
+
+$pageSEO = [
+    'title'       => $post['title'] . ' | Shanfix Technology Blog',
+    'description' => $_postExcerpt,
+    'keywords'    => ($post['category'] ?? '') . ', tech blog Kenya, IT insights Nairobi, Shanfix Technology',
+    'canonical'   => $_postUrl,
+    'og_type'     => 'article',
+    'og_image'    => $_postImage,
+    'json_ld'     => json_encode([
+        '@context'         => 'https://schema.org',
+        '@type'            => 'BlogPosting',
+        'headline'         => $post['title'],
+        'description'      => $_postExcerpt,
+        'image'            => $_postImage,
+        'url'              => $_postUrl,
+        'datePublished'    => $_published,
+        'dateModified'     => $_published,
+        'author'           => [
+            '@type' => 'Person',
+            'name'  => $post['author_name'] ?? 'Shanfix Technology',
+        ],
+        'publisher'        => [
+            '@type' => 'Organization',
+            'name'  => 'Shanfix Technology',
+            'logo'  => ['@type' => 'ImageObject', 'url' => 'https://shanfixtechnology.com/assets/shanfix-logo.png'],
+        ],
+        'mainEntityOfPage' => ['@type' => 'WebPage', '@id' => $_postUrl],
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+];
 include 'includes/header.php';
 ?>
 <link rel="stylesheet" href="blog.css">

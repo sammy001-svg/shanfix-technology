@@ -4,6 +4,7 @@ $pageSEO = [
     'description' => 'Results-driven digital marketing in Nairobi — SEO, social media management, PPC advertising, and content marketing by Shanfix Technology.',
     'keywords'    => 'digital marketing Nairobi, SEO Kenya, social media marketing, PPC advertising',
     'canonical'   => 'https://shanfixtechnology.com/digital-marketing.php',
+    'json_ld'     => '{"@context":"https://schema.org","@type":"Service","name":"Digital Marketing","description":"Results-driven digital marketing in Nairobi — SEO, social media, PPC, and content marketing.","provider":{"@type":"LocalBusiness","name":"Shanfix Technology","url":"https://shanfixtechnology.com/"},"areaServed":{"@type":"City","name":"Nairobi"},"url":"https://shanfixtechnology.com/digital-marketing.php"}',
 ];
 include 'includes/header.php'; ?>
 <link rel="stylesheet" href="marketing-modern.css">

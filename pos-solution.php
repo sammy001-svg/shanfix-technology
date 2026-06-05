@@ -4,6 +4,7 @@ $pageSEO = [
     'description' => 'Modern POS systems for retail and hospitality in Kenya. Track sales, inventory, and staff in real time with Shanfix Technology\'s POS software.',
     'keywords'    => 'POS system Kenya, point of sale Nairobi, retail POS, restaurant POS',
     'canonical'   => 'https://shanfixtechnology.com/pos-solution.php',
+    'json_ld'     => '{"@context":"https://schema.org","@type":"Service","name":"Point of Sale System","description":"Modern POS software for retail and hospitality in Kenya — real-time sales, inventory, and staff tracking.","provider":{"@type":"LocalBusiness","name":"Shanfix Technology","url":"https://shanfixtechnology.com/"},"areaServed":{"@type":"Country","name":"Kenya"},"url":"https://shanfixtechnology.com/pos-solution.php"}',
 ];
 include 'includes/header.php'; ?>
 <link rel="stylesheet" href="pos-modern.css">

@@ -4,6 +4,7 @@ $pageSEO = [
     'description' => 'Send bulk SMS messages across Kenya at affordable rates. Reliable bulk SMS gateway for businesses, churches, schools, and organizations.',
     'keywords'    => 'bulk SMS Kenya, mass messaging, SMS gateway Nairobi, affordable bulk SMS',
     'canonical'   => 'https://shanfixtechnology.com/bulk-sms.php',
+    'json_ld'     => '{"@context":"https://schema.org","@type":"Service","name":"Bulk SMS","description":"Reliable bulk SMS gateway for businesses, churches, schools, and organizations across Kenya.","provider":{"@type":"LocalBusiness","name":"Shanfix Technology","url":"https://shanfixtechnology.com/"},"areaServed":{"@type":"Country","name":"Kenya"},"url":"https://shanfixtechnology.com/bulk-sms.php"}',
 ];
 include 'includes/header.php'; ?>
 <link rel="stylesheet" href="sms-modern.css">

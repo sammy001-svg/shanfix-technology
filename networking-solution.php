@@ -4,6 +4,7 @@ $pageSEO = [
     'description' => 'Professional networking and IT infrastructure solutions in Nairobi. LAN, WAN, Wi-Fi setup, network security, and structured cabling by Shanfix Technology.',
     'keywords'    => 'networking solutions Nairobi, IT infrastructure Kenya, LAN setup, network security',
     'canonical'   => 'https://shanfixtechnology.com/networking-solution.php',
+    'json_ld'     => '{"@context":"https://schema.org","@type":"Service","name":"Networking Solutions","description":"Professional networking and IT infrastructure — LAN, WAN, Wi-Fi, security, and structured cabling in Nairobi.","provider":{"@type":"LocalBusiness","name":"Shanfix Technology","url":"https://shanfixtechnology.com/"},"areaServed":{"@type":"City","name":"Nairobi"},"url":"https://shanfixtechnology.com/networking-solution.php"}',
 ];
 include 'includes/header.php'; ?>
 <link rel="stylesheet" href="networking-modern.css">

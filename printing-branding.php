@@ -4,6 +4,7 @@ $pageSEO = [
     'description' => 'High-quality printing and branding services in Nairobi — business cards, flyers, banners, branded merchandise, and corporate stationery.',
     'keywords'    => 'printing services Nairobi, branding Kenya, business cards, flyers, banners printing',
     'canonical'   => 'https://shanfixtechnology.com/printing-branding.php',
+    'json_ld'     => '{"@context":"https://schema.org","@type":"Service","name":"Printing & Branding","description":"High-quality printing and branding — business cards, flyers, banners, and corporate stationery in Nairobi.","provider":{"@type":"LocalBusiness","name":"Shanfix Technology","url":"https://shanfixtechnology.com/"},"areaServed":{"@type":"City","name":"Nairobi"},"url":"https://shanfixtechnology.com/printing-branding.php"}',
 ];
 include 'includes/header.php'; ?>
     <!-- Hero Section with Carousel -->

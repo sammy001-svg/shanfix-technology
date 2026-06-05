@@ -4,6 +4,7 @@ $pageSEO = [
     'description' => 'Complete school management system for Kenyan schools — student records, fees collection, timetables, exams, and parent portals by Shanfix Technology.',
     'keywords'    => 'school management system Kenya, academic ERP, student management, school software',
     'canonical'   => 'https://shanfixtechnology.com/school-management.php',
+    'json_ld'     => '{"@context":"https://schema.org","@type":"Service","name":"School Management System","description":"End-to-end school management for Kenyan schools — student records, fees, timetables, exams, and parent portals.","provider":{"@type":"LocalBusiness","name":"Shanfix Technology","url":"https://shanfixtechnology.com/"},"areaServed":{"@type":"Country","name":"Kenya"},"url":"https://shanfixtechnology.com/school-management.php"}',
 ];
 include 'includes/header.php'; ?>
 <link rel="stylesheet" href="school-modern.css">

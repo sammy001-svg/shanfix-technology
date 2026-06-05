@@ -4,6 +4,7 @@ $pageSEO = [
     'description' => 'Custom software development in Kenya — ERP, POS, accounting, CRM, school management, HRM, and more tailored business systems from Shanfix Technology.',
     'keywords'    => 'software solutions Kenya, custom software Nairobi, ERP system Kenya, business software',
     'canonical'   => 'https://shanfixtechnology.com/software-solution.php',
+    'json_ld'     => '{"@context":"https://schema.org","@type":"Service","name":"Custom Software Solutions","description":"Custom software development in Kenya — ERP, POS, CRM, accounting, and more tailored business systems.","provider":{"@type":"LocalBusiness","name":"Shanfix Technology","url":"https://shanfixtechnology.com/"},"areaServed":{"@type":"Country","name":"Kenya"},"url":"https://shanfixtechnology.com/software-solution.php"}',
 ];
 include 'includes/header.php'; ?>
 <link rel="stylesheet" href="software-modern.css">

@@ -4,6 +4,7 @@ $pageSEO = [
     'description' => 'Creative graphics design services in Nairobi — logos, brand identity, social media graphics, and print design to make your business stand out.',
     'keywords'    => 'graphics design Nairobi, logo design Kenya, brand identity, creative design',
     'canonical'   => 'https://shanfixtechnology.com/graphics-design.php',
+    'json_ld'     => '{"@context":"https://schema.org","@type":"Service","name":"Graphics Design","description":"Creative logos, brand identity, social media graphics, and print design services in Nairobi.","provider":{"@type":"LocalBusiness","name":"Shanfix Technology","url":"https://shanfixtechnology.com/"},"areaServed":{"@type":"City","name":"Nairobi"},"url":"https://shanfixtechnology.com/graphics-design.php"}',
 ];
 include 'includes/header.php'; ?>
 <link rel="stylesheet" href="graphics-modern.css">

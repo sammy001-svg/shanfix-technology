@@ -4,6 +4,7 @@ $pageSEO = [
     'description' => 'Eye-catching 3D and 2D signage solutions in Nairobi. Shop signs, billboards, illuminated signs, and vehicle branding by Shanfix Technology Kenya.',
     'keywords'    => 'signage Nairobi, 3D signs Kenya, billboard design, shop signage, vehicle branding',
     'canonical'   => 'https://shanfixtechnology.com/signage-solution.php',
+    'json_ld'     => '{"@context":"https://schema.org","@type":"Service","name":"Signage Solutions","description":"3D and 2D signage — shop signs, billboards, illuminated signs, and vehicle branding in Nairobi.","provider":{"@type":"LocalBusiness","name":"Shanfix Technology","url":"https://shanfixtechnology.com/"},"areaServed":{"@type":"City","name":"Nairobi"},"url":"https://shanfixtechnology.com/signage-solution.php"}',
 ];
 include 'includes/header.php'; ?>
 <link rel="stylesheet" href="signage-modern.css">
