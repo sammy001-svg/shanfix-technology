@@ -13,8 +13,30 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
-    $rows = $pdo->query("SELECT * FROM portfolio_projects ORDER BY sort_order ASC, id DESC")->fetchAll(PDO::FETCH_ASSOC);
-    echo json_encode(['success' => true, 'projects' => $rows]);
+    try {
+        $rows = $pdo->query("SELECT * FROM portfolio_projects ORDER BY sort_order ASC, id DESC")->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode(['success' => true, 'projects' => $rows]);
+    } catch (PDOException $e) {
+        // Auto-create table if missing, then return empty list
+        $pdo->exec("CREATE TABLE IF NOT EXISTS `portfolio_projects` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `title` varchar(200) NOT NULL,
+            `badge` varchar(100) DEFAULT NULL,
+            `description` text DEFAULT NULL,
+            `image_url` varchar(255) DEFAULT NULL,
+            `live_url` varchar(255) DEFAULT NULL,
+            `stat1_val` varchar(50) DEFAULT NULL,
+            `stat1_label` varchar(100) DEFAULT NULL,
+            `stat2_val` varchar(50) DEFAULT NULL,
+            `stat2_label` varchar(100) DEFAULT NULL,
+            `sort_order` int(11) DEFAULT 0,
+            `is_active` tinyint(1) DEFAULT 1,
+            `is_featured` tinyint(1) DEFAULT 0,
+            `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        echo json_encode(['success' => true, 'projects' => []]);
+    }
     exit;
 }
 
